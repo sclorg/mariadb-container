@@ -160,14 +160,12 @@ function run_replication_test() {
   done
 
   # do some real work to test replication in practice
-  CONTAINER_IP=${master_ip} USER=root PASS=root \
-    mysql_cmd -e "CREATE TABLE t1 (a INT); INSERT INTO t1 VALUES (24);"
+  mysql_cmd "$master_ip" root root -e "CREATE TABLE t1 (a INT); INSERT INTO t1 VALUES (24);"
 
   # read value from slave and check whether it is expectd
   for i in $(seq $max_attempts); do
     set +e
-    result=$(CONTAINER_IP=${slave_ip} USER=root PASS=root \
-      mysql_cmd -e "select * from t1 \G" | grep -e ^a | grep 24)
+    result="$(mysql_cmd "${slave_ip}" root root -e "select * from t1 \G" | grep -e ^a | grep 24)"
     set -e
     if [[ ! -z "${result}" ]]; then
       echo "${slave_ip} successfully got value from MASTER ${master_ip}"

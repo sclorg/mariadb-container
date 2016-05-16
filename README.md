@@ -1,7 +1,7 @@
 MariaDB Docker images
 =====================
 
-This repository contains Dockerfiles for MariaDB images for OpenShift..........
+This repository contains Dockerfiles for MariaDB images for OpenShift...........
 Users can choose between RHEL and CentOS based images.
 
 MariaDB container is very similar to the MySQL container available at

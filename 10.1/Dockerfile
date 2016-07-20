@@ -25,7 +25,6 @@ EXPOSE 3306
 # safe in the future. This should *never* change, the last test is there
 # to make sure of that.
 RUN yum install -y centos-release-scl-rh && \
-    yum-config-manager --enable centos-sclo-rh-testing && \
     INSTALL_PKGS="rsync tar gettext hostname bind-utils rh-mariadb101" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \

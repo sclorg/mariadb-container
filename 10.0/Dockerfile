@@ -24,7 +24,7 @@ EXPOSE 3306
 # This image must forever use UID 27 for mysql user so our volumes are
 # safe in the future. This should *never* change, the last test is there
 # to make sure of that.
-RUN yum install -y centos-release-scl && \
+RUN yum install -y centos-release-scl-rh && \
     INSTALL_PKGS="rsync tar gettext hostname bind-utils rh-mariadb100" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \

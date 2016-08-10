@@ -10,7 +10,7 @@ endif
 
 script_env = \
 	SKIP_SQUASH=$(SKIP_SQUASH)                      \
-        UPDATE_BASE=$(UPDATE_BASE)                      \
+	UPDATE_BASE=$(UPDATE_BASE)                      \
 	VERSIONS="$(VERSIONS)"                          \
 	OS=$(OS)                                        \
 	VERSION=$(VERSION)                              \

@@ -20,11 +20,11 @@ LABEL summary="MariaDB is a multi-user, multi-threaded SQL database server" \
       io.openshift.tags="database,mysql,mariadb,mariadb100,rh-mariadb100"
 
 # Labels consumed by Red Hat build service
-LABEL BZComponent="rh-mariadb100-docker" \
-      Name="rhscl/mariadb-100-rhel7" \
-      Version="10.0" \
-      Release="13.3" \
-      Architecture="x86_64"
+LABEL com.redhat.component="rh-mariadb100-docker" \
+      name="rhscl/mariadb-100-rhel7" \
+      version="10.0" \
+      release="13.3" \
+      architecture="x86_64"
 
 EXPOSE 3306
 

@@ -13,9 +13,6 @@
 # OPENSHIFT_NAMESPACES - Which of available versions (subdirectories) should be
 #       put into openshift/ namespace.
 
-set -o errexit
-set -o pipefail
-
 OS=${1-$OS}
 VERSION=${2-$VERSION}
 
@@ -40,10 +37,7 @@ function docker_build_with_version {
   if [[ "${UPDATE_BASE}" == "1" ]]; then
     BUILD_OPTIONS+=" --pull=true"
   fi
-  local build_output=$(mktemp)
-  docker build ${BUILD_OPTIONS} -t ${IMAGE_NAME} -f "${dockerfile}.version" . | tee $build_output
-  IMAGE_ID="$(awk 'END {print $NF}' $build_output)"
-  rm $build_output
+  docker build ${BUILD_OPTIONS} -t ${IMAGE_NAME} -f "${dockerfile}.version" .
   if [[ "${SKIP_SQUASH}" != "1" ]]; then
     squash "${dockerfile}.version"
   fi
@@ -78,7 +72,6 @@ for dir in ${dirs}; do
   esac
 
   IMAGE_NAME="${NAMESPACE}${BASE_IMAGE_NAME}-${dir//./}-${OS}"
-  IMAGE_ID=
 
   if [[ -v TEST_MODE ]]; then
     IMAGE_NAME+="-candidate"
@@ -94,11 +87,11 @@ for dir in ${dirs}; do
   fi
 
   if [[ -v TEST_MODE ]]; then
-    IMAGE_NAME=${IMAGE_ID} test/run
+    IMAGE_NAME=${IMAGE_NAME} test/run
 
     if [[ $? -eq 0 ]] && [[ "${TAG_ON_SUCCESS}" == "true" ]]; then
       echo "-> Re-tagging ${IMAGE_NAME} image to ${IMAGE_NAME%"-candidate"}"
-      docker tag $IMAGE_ID ${IMAGE_NAME%"-candidate"}
+      docker tag $IMAGE_NAME ${IMAGE_NAME%"-candidate"}
     fi
   fi
 

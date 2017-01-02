@@ -89,7 +89,8 @@ function initialize_database() {
   log_info 'Initializing database ...'
   log_info 'Running mysql_install_db ...'
   # Using --rpm since we need mysql_install_db behaves as in RPM
-  mysql_install_db --rpm --datadir=$MYSQL_DATADIR
+  # Using empty --basedir to work-around https://bugzilla.redhat.com/show_bug.cgi?id=1406391
+  mysql_install_db --rpm --datadir=$MYSQL_DATADIR --basedir=''
   start_local_mysql "$@"
 
   if [ -v MYSQL_RUNNING_AS_SLAVE ]; then

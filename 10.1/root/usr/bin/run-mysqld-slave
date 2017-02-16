@@ -19,12 +19,21 @@ export MYSQL_RUNNING_AS_SLAVE=1
 export MYSQL_SERVER_ID=$(server_id)
 log_info "The 'slave' server-id is ${MYSQL_SERVER_ID}"
 
+for i in ${CONTAINER_SCRIPTS_PATH}/pre-init.d/*sh
+do
+	if [ -e "${i}" ]; then
+		echo "[i] processing pre-init script $i"
+		. "${i}"
+	fi
+done
+
 # Process the MySQL configuration files
 envsubst < ${CONTAINER_SCRIPTS_PATH}/my-base.cnf.template > /etc/my.cnf.d/base.cnf
 envsubst < ${CONTAINER_SCRIPTS_PATH}/my-paas.cnf.template > /etc/my.cnf.d/paas.cnf
 envsubst < ${CONTAINER_SCRIPTS_PATH}/my-slave.cnf.template > /etc/my.cnf.d/slave.cnf
 envsubst < ${CONTAINER_SCRIPTS_PATH}/my-repl-gtid.cnf.template > /etc/my.cnf.d/repl-gtid.cnf
 envsubst < ${CONTAINER_SCRIPTS_PATH}/my-tuning.cnf.template > /etc/my.cnf.d/tuning.cnf
+
 
 # Initialize MySQL database and wait for the MySQL master to accept
 # connections.

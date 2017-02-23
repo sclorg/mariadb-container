@@ -13,8 +13,15 @@ FROM centos:centos7
 ENV MYSQL_VERSION=10.0 \
     HOME=/var/lib/mysql
 
-LABEL summary="MariaDB is a multi-user, multi-threaded SQL database server" \
-      io.k8s.description="MariaDB is a multi-user, multi-threaded SQL database server" \
+ENV SUMMARY="MariaDB 10.0 SQL database server" \
+    DESCRIPTION="MariaDB is a multi-user, multi-threaded SQL database server. The container \
+image provides a containerized packaging of the MariaDB mysqld daemon and client application. \
+The mysqld server daemon accepts connections from clients and provides access to content from \
+MariaDB databases on behalf of the clients."
+
+LABEL summary="$SUMMARY" \
+      description="$DESCRIPTION" \
+      io.k8s.description="$SUMMARY" \
       io.k8s.display-name="MariaDB 10.0" \
       io.openshift.expose-services="3306:mysql" \
       io.openshift.tags="database,mysql,mariadb,mariadb100,rh-mariadb100"

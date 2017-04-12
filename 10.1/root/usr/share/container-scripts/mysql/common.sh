@@ -93,12 +93,12 @@ function initialize_database() {
   mysql_install_db --rpm --datadir=$MYSQL_DATADIR --basedir=''
   start_local_mysql "$@"
 
-  if [ -v MYSQL_RUNNING_AS_SLAVE ]; then
+  if [ ! -z ${MYSQL_RUNNING_AS_SLAVE+x} ]; then
     log_info 'Initialization finished'
     return 0
   fi
 
-  if [ -v MYSQL_RUNNING_AS_MASTER ]; then
+  if [ ! -z ${MYSQL_RUNNING_AS_MASTER+x} ]; then
     # Save master status into a separate database.
     STATUS_INFO=$(mysql $admin_flags -e 'SHOW MASTER STATUS\G')
     BINLOG_POSITION=$(echo "$STATUS_INFO" | grep 'Position:' | head -n 1 | sed -e 's/^\s*Position: //')
@@ -115,17 +115,17 @@ EOSQL
   fi
 
   # Do not care what option is compulsory here, just create what is specified
-  if [ -v MYSQL_USER ]; then
+  if [ ! -z ${MYSQL_USER+x} ]; then
     log_info "Creating user specified by MYSQL_USER (${MYSQL_USER}) ..."
 mysql $mysql_flags <<EOSQL
     CREATE USER '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
 EOSQL
   fi
 
-  if [ -v MYSQL_DATABASE ]; then
+  if [ ! -z ${MYSQL_DATABASE+x} ]; then
     log_info "Creating database ${MYSQL_DATABASE} ..."
     mysqladmin $admin_flags create "${MYSQL_DATABASE}"
-    if [ -v MYSQL_USER ]; then
+    if [ ! -z ${MYSQL_USER+x} ]; then
       log_info "Granting privileges to user ${MYSQL_USER} for ${MYSQL_DATABASE} ..."
 mysql $mysql_flags <<EOSQL
       GRANT ALL ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%' ;
@@ -134,7 +134,7 @@ EOSQL
     fi
   fi
 
-  if [ -v MYSQL_ROOT_PASSWORD ]; then
+  if [ ! -z ${MYSQL_ROOT_PASSWORD+x} ]; then
     log_info "Setting password for MySQL root user ..."
 mysql $mysql_flags <<EOSQL
     CREATE USER IF NOT EXISTS 'root'@'%';

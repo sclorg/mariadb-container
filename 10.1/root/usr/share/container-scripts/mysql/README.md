@@ -4,8 +4,8 @@ MariaDB Docker image
 This container image includes MariaDB server 10.1 for OpenShift and general usage.
 Users can choose between RHEL and CentOS based images.
 
-Dockerfile for CentOS is called Dockerfile, Dockerfile for RHEL is called
-Dockerfile.rhel7.
+Dockerfile for CentOS is called Dockerfile, Dockerfiles for RHEL are called
+Dockerfile.rhel6 & Dockerfile.rhel7.
 
 Environment variables and volumes
 ----------------------------------

@@ -19,6 +19,7 @@ MariaDB versions currently provided are:
 
 RHEL versions currently supported are:
 * RHEL7
+* RHEL6 (mariadb-10.1 only)
 
 CentOS versions currently supported are:
 * CentOS7
@@ -26,7 +27,7 @@ CentOS versions currently supported are:
 
 Installation
 ----------------------
-Choose either the CentOS7 or RHEL7 based image:
+Choose either the CentOS7, RHEL6, or RHEL7 based image:
 
 *  **RHEL7 based image**
 
@@ -43,6 +44,17 @@ Choose either the CentOS7 or RHEL7 based image:
     $ git clone https://github.com/sclorg/mariadb-container.git
     $ cd mariadb-container
     $ make build TARGET=rhel7 VERSION=10.1
+    ```
+
+*  **RHEL6 based image**
+
+    To build a RHEL6 based MariaDB image, you need to run Docker build on a properly
+    subscribed RHEL machine.
+
+    ```
+    $ git clone https://github.com/sclorg/mariadb-container.git
+    $ cd mariadb-container
+    $ make build TARGET=rhel6 VERSION=10.1
     ```
 
 *  **CentOS7 based image**
@@ -87,7 +99,7 @@ of the MariaDB image.
 
 Users can choose between testing MariaDB based on a RHEL or CentOS image.
 
-*  **RHEL based image**
+*  **RHEL7 based image**
 
     To test a RHEL7 based MariaDB image, you need to run the test on a properly
     subscribed RHEL machine.
@@ -95,6 +107,16 @@ Users can choose between testing MariaDB based on a RHEL or CentOS image.
     ```
     $ cd mariadb-container
     $ make test TARGET=rhel7 VERSION=10.1
+    ```
+
+*  **RHEL6 based image**
+
+    To test a RHEL6 based MariaDB image, you need to run the test on a properly
+    subscribed RHEL machine.
+
+    ```
+    $ cd mariadb-container
+    $ make test TARGET=rhel6 VERSION=10.1
     ```
 
 *  **CentOS based image**

@@ -50,6 +50,11 @@ mkdir -p /var/lib/mysql/data
 chown -R mysql:0 /var/lib/mysql
 restorecon -R /var/lib/mysql
 
+# setup directory for s2i app
+chown -R mysql:0 ${APP_DATA}/..
+restorecon -R ${APP_DATA}/..
+chmod g+w -R ${APP_DATA}/..
+
 # Loosen permission bits for group to avoid problems running container with
 # arbitrary UID
 # When only specifying user, group is 0, that's why /var/lib/mysql must have

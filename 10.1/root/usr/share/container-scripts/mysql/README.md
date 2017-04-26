@@ -159,6 +159,21 @@ During `s2i build` all provided files are copied into `/opt/app-root/src` direct
 
 Same configuration directory structure can be used to customize the image every time the image is started using `docker run`. The directory has to be mounted into `/opt/app-root/src/` in the image (`-v ./image-configuration/:/opt/app-root/src/`). This overwrites customization built into the image.
 
+It is also possible to use a `Dockerfile` to add the additional files into the new image. This is in particular helpful when we need to change the user for some commands (like installing additional RPMs). A `Dockerfile` that installs an additional RPM and adds a directory `./image-configuration` as s2i source, may look like this:
+
+```
+FROM rhscl/mariadb-101-rhel7
+USER 0
+RUN INSTALL_PKGS="openssh-server" && \
+    yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
+    rpm -V $INSTALL_PKGS && \
+    yum clean all
+USER 27
+COPY image-configuration /opt/app-root/src
+```
+
+To build such a Dockerfile, use either appropriate strategy in OpenShift or `docker build` command directly.
+
 
 Changing the replication binlog_format
 --------------------------------------

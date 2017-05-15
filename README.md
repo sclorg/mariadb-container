@@ -40,7 +40,7 @@ Choose either the CentOS7 or RHEL7 based image:
     subscribed RHEL machine.
 
     ```
-    $ git clone https://github.com/sclorg/mariadb-container.git
+    $ git clone --recursive https://github.com/sclorg/mariadb-container.git
     $ cd mariadb-container
     $ make build TARGET=rhel7 VERSION=10.1
     ```
@@ -56,7 +56,7 @@ Choose either the CentOS7 or RHEL7 based image:
     To build a CentOS based MariaDB image from scratch, run:
 
     ```
-    $ git clone https://github.com/sclorg/mariadb-container.git
+    $ git clone --recursive https://github.com/sclorg/mariadb-container.git
     $ cd mariadb-container
     $ make build TARGET=centos7 VERSION=10.1
     ```

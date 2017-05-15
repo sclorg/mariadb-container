@@ -10,9 +10,23 @@ set -o errexit
 set -o nounset
 shopt -s nullglob
 
+TEST_LIST="\
+run_container_creation_tests
+run_configuration_tests
+run_general_tests
+run_change_password_test
+run_replication_test
+run_doc_test
+run_s2i_test
+run_dockerfile_build_test
+"
+
 IMAGE_NAME=${IMAGE_NAME-centos/mariadb-101-centos7-candidate}
 
 CIDFILE_DIR=$(mktemp --suffix=mysql_test_cidfiles -d)
+test_dir="$(readlink -zf $(dirname "${BASH_SOURCE[0]}"))"
+
+s2i_args="--force-pull=false "
 
 function cleanup() {
   local cidfile
@@ -337,7 +351,7 @@ function run_configuration_tests() {
   echo "  Success!"
 }
 
-test_scl_usage() {
+function test_scl_usage() {
   local name="$1"
   local run_cmd="$2"
   local expected="$3"
@@ -388,7 +402,7 @@ function run_tests() {
   test_mysql "$container_ip" "$USER" "$PASS"
 }
 
-run_doc_test() {
+function run_doc_test() {
   local tmpdir=$(mktemp -d)
   local f
   echo "  Testing documentation in the container image"
@@ -410,26 +424,91 @@ run_doc_test() {
   echo
 }
 
-# Tests.
+function _s2i_test_image() {
+  local container_name="$1"
+  local mount_opts="$2"
+  echo "    Testing s2i app image with invalid configuration"
+  assert_container_creation_fails -e MYSQL_USER=root -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -e MYSQL_ROOT_PASSWORD=pass
 
-run_container_creation_tests
+  echo "    Testing s2i app image with correct configuration"
 
-run_configuration_tests
+  create_container \
+    "$container_name" \
+    --env MYSQL_USER=config_test_user \
+    --env MYSQL_PASSWORD=config_test \
+    --env MYSQL_DATABASE=db \
+    --env MYSQL_OPERATIONS_USER=operations_user \
+    --env MYSQL_OPERATIONS_PASSWORD=operations_pass \
+    ${mount_opts}
 
-# Set lower buffer pool size to avoid running out of memory.
-export CONTAINER_ARGS="run-mysqld --innodb_buffer_pool_size=5242880"
+  test_connection "$container_name" operations_user operations_pass
 
-# Normal tests
-USER=user PASS=pass run_tests no_root
-USER=user1 PASS=pass1 ROOT_PASS=r00t run_tests root
-# Test with arbitrary uid for the container
-DOCKER_ARGS="-u 12345" USER=user PASS=pass run_tests no_root_altuid
-DOCKER_ARGS="-u 12345" USER=user1 PASS=pass1 ROOT_PASS=r00t run_tests root_altuid
+  configuration="$(docker exec -t "$(get_cid $container_name)" bash -c 'set +f; shopt -s nullglob; egrep -hv "^(#|\!|\[|$)" /etc/my.cnf /etc/my.cnf.d/* /opt/rh/mysql*/root/etc/my.cnf /opt/rh/mysql*/root/etc/my.cnf.d/*' | sed 's,\(^[[:space:]]\+\|[[:space:]]\+$\),,' | sort -u)"
 
-# Test the password change
-run_change_password_test
+  echo "    Testing s2i config change"
+  test_config_option "$container_name" "$configuration" query-cache-limit 262144
 
-# Replication tests
-run_replication_test
+  docker stop "$(get_cid $container_name)" >/dev/null
+}
 
-run_doc_test
+function run_s2i_test() {
+  echo "  Testing s2i usage"
+  s2i usage ${s2i_args} ${IMAGE_NAME} &>/dev/null
+
+  echo "  Testing s2i build"
+  s2i build file://${test_dir}/test-app ${IMAGE_NAME} ${IMAGE_NAME}-testapp
+  local image_name_backup=${IMAGE_NAME}
+  export IMAGE_NAME=${IMAGE_NAME}-testapp
+
+  _s2i_test_image "s2i_config_build" ""
+
+  # return back original value for IMAGE_NAME
+  export IMAGE_NAME=${image_name_backup}
+
+  echo "  Testing s2i mount"
+  test_app_dir=$(mktemp -d)
+  cp -r ${test_dir}/test-app ${test_app_dir}/
+  chown -R 27:27 ${test_app_dir}
+  _s2i_test_image "_s2i_test_mount" "-v ${test_app_dir}/test-app:/opt/app-root/src/:z"
+  rm -rf ${test_app_dir}
+  echo "  Success!"
+}
+
+function run_dockerfile_build_test() {
+  sed -e "s|__IMAGE_NAME__|${IMAGE_NAME}|g" ${test_dir}/Dockerfile > ${test_dir}/Dockerfile.expanded
+  docker build -t ${IMAGE_NAME}-dockerfile-build -f ${test_dir}/Dockerfile.expanded ${test_dir}
+  docker run --rm ${IMAGE_NAME}-dockerfile-build bash -c 'rpm -qa' | grep openssh-server
+
+  local image_name_backup=${IMAGE_NAME}
+  export IMAGE_NAME=${IMAGE_NAME}-dockerfile-build
+
+  _s2i_test_image "s2i_config_dockerfile" ""
+
+  # return back original value for IMAGE_NAME
+  export IMAGE_NAME=${image_name_backup}
+
+  rm -f ${test_dir}/Dockerfile.expanded
+}
+
+function run_general_tests() {
+  # Set lower buffer pool size to avoid running out of memory.
+  export CONTAINER_ARGS="run-mysqld --innodb_buffer_pool_size=5242880"
+
+  # Normal tests
+  USER=user PASS=pass run_tests no_root
+  USER=user1 PASS=pass1 ROOT_PASS=r00t run_tests root
+  # Test with arbitrary uid for the container
+  DOCKER_ARGS="-u 12345" USER=user PASS=pass run_tests no_root_altuid
+  DOCKER_ARGS="-u 12345" USER=user1 PASS=pass1 ROOT_PASS=r00t run_tests root_altuid
+}
+
+function run_all_tests() {
+  for test_case in $TEST_LIST; do
+    : "Running test $test_case"
+    $test_case
+  done;
+}
+
+# Run the chosen tests
+TEST_LIST=${@:-$TEST_LIST} run_all_tests
+

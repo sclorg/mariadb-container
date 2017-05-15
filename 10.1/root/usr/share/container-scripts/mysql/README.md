@@ -115,6 +115,7 @@ values stored in the variables and the actual passwords. Whenever a database
 container starts it will reset the passwords to the values stored in the
 environment variables.
 
+
 Default my.cnf file
 -------------------
 With environment variables we are able to customize a lot of different parameters
@@ -123,6 +124,56 @@ your own configuration file, you can override the `MYSQL_DEFAULTS_FILE` env
 variable with the full path of the file you wish to use. For example, the default
 location is `/etc/my.cnf` but you can change it to `/etc/mysql/my.cnf` by setting
  `MYSQL_DEFAULTS_FILE=/etc/mysql/my.cnf`
+
+
+Extending image
+---------------------------------
+This image can be extended using [source-to-image](https://github.com/openshift/source-to-image).
+
+For example to build customized MariaDB database image `my-mariadb-centos7` with configuration in `~/image-configuration/` run:
+
+```
+$ s2i build ~/image-configuration/ centos/mariadb-100-centos7 my-mariadb-centos7
+```
+
+The directory passed to `s2i build` can contain these directories:
+- `mysql-cfg/`
+  - when starting the container, files from this directory will be used as a configuration for the `mysqld` daemon
+    - `envsubst` command is run on this file to still allow customization of the image using environmental variables
+
+- `mysql-pre-init/`
+  - shell scripts (`*.sh`) available in this directory are sourced before `mysqld` daemon is started
+
+- `mysql-init/`
+  - shell scripts (`*.sh`) available in this directory are sourced when `mysqld` daemon is started locally
+    - in this phase, use `${mysql_flags}` to connect to the locally running daemon, for example `mysql $mysql_flags < dump.sql`
+
+Variables that can be used in the scripts provided to s2i:
+
+- `$mysql_flags` -- arguments for the `mysql` tool that will connect to the locally running `mysqld` during initialization
+- `$MYSQL_RUNNING_AS_MASTER` -- variable defined when the container is run with `run-mysqld-master` command
+- `$MYSQL_RUNNING_AS_SLAVE` -- variable defined when the container is run with `run-mysqld-slave` command
+- `$MYSQL_DATADIR_FIRST_INIT` -- variable defined when the container was initialized from the empty data dir
+
+During `s2i build` all provided files are copied into `/opt/app-root/src` directory into the resulting image. If some configuration files are present in the destination directory, files with the same name are overwritten. Also only one file with the same name can be used for customization and user provided files are preferred over default files in `/usr/share/container-scripts/mysql/`- so it is possible to overwrite them.
+
+Same configuration directory structure can be used to customize the image every time the image is started using `docker run`. The directory has to be mounted into `/opt/app-root/src/` in the image (`-v ./image-configuration/:/opt/app-root/src/`). This overwrites customization built into the image.
+
+It is also possible to use a `Dockerfile` to add the additional files into the new image. This is in particular helpful when we need to change the user for some commands (like installing additional RPMs). A `Dockerfile` that installs an additional RPM and adds a directory `./image-configuration` as s2i source, may look like this:
+
+```
+FROM rhscl/mariadb-101-rhel7
+USER 0
+RUN INSTALL_PKGS="openssh-server" && \
+    yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
+    rpm -V $INSTALL_PKGS && \
+    yum clean all
+USER 27
+COPY image-configuration /opt/app-root/src
+```
+
+To build such a Dockerfile, use either appropriate strategy in OpenShift or `docker build` command directly.
+
 
 Changing the replication binlog_format
 --------------------------------------

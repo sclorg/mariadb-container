@@ -1,4 +1,4 @@
-FROM centos:centos7
+FROM centos/s2i-base-centos7
 
 # MariaDB image for OpenShift.
 #
@@ -11,6 +11,7 @@ FROM centos:centos7
 #  * $MYSQL_ROOT_PASSWORD (Optional) - Password for the 'root' MySQL account
 
 ENV MYSQL_VERSION=10.1 \
+    APP_DATA=/opt/app-root/src \
     HOME=/var/lib/mysql
 
 ENV SUMMARY="MariaDB 10.1 SQL database server" \
@@ -32,7 +33,7 @@ EXPOSE 3306
 # safe in the future. This should *never* change, the last test is there
 # to make sure of that.
 RUN yum install -y centos-release-scl-rh && \
-    INSTALL_PKGS="rsync tar gettext hostname bind-utils rh-mariadb101" && \
+    INSTALL_PKGS="rsync tar gettext hostname bind-utils groff-base rh-mariadb101" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     yum clean all && \
@@ -50,6 +51,8 @@ ENV CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/mysql \
 ENV BASH_ENV=${CONTAINER_SCRIPTS_PATH}/scl_enable \
     ENV=${CONTAINER_SCRIPTS_PATH}/scl_enable \
     PROMPT_COMMAND=". ${CONTAINER_SCRIPTS_PATH}/scl_enable"
+
+ADD s2i/bin/ $STI_SCRIPTS_PATH
 
 ADD root /
 

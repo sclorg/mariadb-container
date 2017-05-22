@@ -48,7 +48,7 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 ENV CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/mysql \
     MYSQL_PREFIX=/usr
 
-ADD root /
+COPY root /
 
 # this is needed due to issues with squash
 # when this directory gets rm'd by the container-setup

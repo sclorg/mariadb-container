@@ -13,20 +13,22 @@ MAINTAINER "Honza Horak" <hhorak@redhat.com>
 #  * $MYSQL_ROOT_PASSWORD (Optional) - Password for the 'root' MySQL account
 
 ENV MYSQL_VERSION=10.1 \
-    HOME=/var/lib/mysql
+    HOME=/var/lib/mysql \
+    NAME=mariadb \
+    VERSION=10.1 \
+    RELEASE=1 \
+    ARCH=x86_64
 
 LABEL summary="MariaDB is a multi-user, multi-threaded SQL database server" \
       io.k8s.description="MariaDB is a multi-user, multi-threaded SQL database server" \
       io.k8s.display-name="MariaDB 10.1" \
       io.openshift.expose-services="3306:mysql" \
-      io.openshift.tags="database,mysql,mariadb,mariadb101,galera"
-
-ENV NAME=mariadb VERSION=10.1 RELEASE=1 ARCH=x86_64
-LABEL BZComponent="$NAME" \
-        Name="$FGC/$NAME" \
-        Version="$VERSION" \
-        Release="$RELEASE.$DISTTAG" \
-        Architecture="$ARCH"
+      io.openshift.tags="database,mysql,mariadb,mariadb101,galera" \
+      com.redhat.component="$NAME" \
+      name="$FGC/$NAME" \
+      version="$VERSION" \
+      release="$RELEASE.$DISTTAG" \
+      architecture="$ARCH"
 
 EXPOSE 3306
 
@@ -48,7 +50,7 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 ENV CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/mysql \
     MYSQL_PREFIX=/usr
 
-ADD root /
+COPY root /
 
 # this is needed due to issues with squash
 # when this directory gets rm'd by the container-setup

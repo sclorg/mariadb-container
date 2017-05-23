@@ -24,7 +24,11 @@ LABEL summary="$SUMMARY" \
       io.k8s.description="$SUMMARY" \
       io.k8s.display-name="MariaDB 10.0" \
       io.openshift.expose-services="3306:mysql" \
-      io.openshift.tags="database,mysql,mariadb,mariadb100,rh-mariadb100"
+      io.openshift.tags="database,mysql,mariadb,mariadb100,rh-mariadb100" \
+      com.redhat.component="rh-mariadb100-docker" \
+      name="centos/mariadb-100-centos7" \
+      version="10.0" \
+      release="1"
 
 EXPOSE 3306
 
@@ -51,7 +55,7 @@ ENV BASH_ENV=${CONTAINER_SCRIPTS_PATH}/scl_enable \
     ENV=${CONTAINER_SCRIPTS_PATH}/scl_enable \
     PROMPT_COMMAND=". ${CONTAINER_SCRIPTS_PATH}/scl_enable"
 
-ADD root /
+COPY root /
 
 # this is needed due to issues with squash
 # when this directory gets rm'd by the container-setup

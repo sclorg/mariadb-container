@@ -24,7 +24,11 @@ LABEL summary="$SUMMARY" \
       io.k8s.description="$SUMMARY" \
       io.k8s.display-name="MariaDB 10.0" \
       io.openshift.expose-services="3306:mysql" \
-      io.openshift.tags="database,mysql,mariadb,mariadb100,rh-mariadb100"
+      io.openshift.tags="database,mysql,mariadb,mariadb100,rh-mariadb100" \
+      com.redhat.component="rh-mariadb100-docker" \
+      name="centos/mariadb-100-centos7" \
+      version="10.0" \
+      release="1"
 
 EXPOSE 3306
 

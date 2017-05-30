@@ -6,6 +6,14 @@ set -eu
 
 [ -f ${CONTAINER_SCRIPTS_PATH}/validate-variables.sh ] && source ${CONTAINER_SCRIPTS_PATH}/validate-variables.sh
 
+for i in ${CONTAINER_SCRIPTS_PATH}/pre-init.d/*sh
+do
+	if [ -e "${i}" ]; then
+		echo "[i] processing pre-init script $i"
+		. "${i}"
+	fi
+done
+
 # Process the MySQL configuration files
 log_info 'Processing MySQL configuration files ...'
 envsubst < ${CONTAINER_SCRIPTS_PATH}/my-base.cnf.template > /etc/my.cnf.d/base.cnf

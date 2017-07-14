@@ -1,14 +1,51 @@
-MariaDB Docker image
-====================
+MariaDB 10.1 SQL Database Server Docker image
+=============================================
 
-This container image includes MariaDB server 10.1 for OpenShift and general usage.
+This container image includes MariaDB 10.1 SQL database server for OpenShift and general usage.
 Users can choose between RHEL and CentOS based images.
+The RHEL image is available in the [Red Hat Container Catalog](https://access.redhat.com/containers/#/registry.access.redhat.com/rhscl/mariadb-101-rhel7)
+as registry.access.redhat.com/rhscl/mariadb-101-rhel7.
+The CentOS image is then available on [Docker Hub](https://hub.docker.com/r/centos/mariadb-101-centos7/)
+as centos/mariadb-101-centos7.
 
-Dockerfile for CentOS is called Dockerfile, Dockerfile for RHEL is called
-Dockerfile.rhel7.
+
+Description
+-----------
+
+This container image provides a containerized packaging of the MariaDB mysqld daemon
+and client application. The mysqld server daemon accepts connections from clients
+and provides access to content from MySQL databases on behalf of the clients.
+You can find more information on the MariaDB project from the project Web site
+(https://mariadb.org/).
+
+
+Usage
+-----
+
+For this, we will assume that you are using the MariaDB 10.1 container image from the
+Red Hat Container Catalog called `rhscl/mariadb-101-rhel7`.
+If you want to set only the mandatory environment variables and not store
+the database in a host directory, execute the following command:
+
+```
+$ docker run -d --name mariadb_database -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 rhscl/mariadb-101-rhel7
+```
+
+This will create a container named `mariadb_database` running MySQL with database
+`db` and user with credentials `user:pass`. Port 3306 will be exposed and mapped
+to the host. If you want your database to be persistent across container executions,
+also add a `-v /host/db/path:/var/lib/mysql/data` argument. This will be the MySQL
+data directory.
+
+If the database directory is not initialized, the entrypoint script will first
+run [`mysql_install_db`](https://dev.mysql.com/doc/refman/5.6/en/mysql-install-db.html)
+and setup necessary database users and passwords. After the database is initialized,
+or if it was already present, `mysqld` is executed and will run as PID 1. You can
+ stop the detached container by running `docker stop mariadb_database`.
+
 
 Environment variables and volumes
-----------------------------------
+---------------------------------
 
 The image recognizes the following environment variables that you can set during
 initialization by passing `-e VAR=VALUE` to the Docker run command.
@@ -49,29 +86,6 @@ You can also set the following mount points by passing the `-v /host:/container`
 **Notice: When mouting a directory from the host into the container, ensure that the mounted
 directory has the appropriate permissions and that the owner and group of the directory
 matches the user UID or name which is running inside the container.**
-
-Usage
----------------------------------
-
-For this, we will assume that you are using the `rhscl/mariadb-100-rhel7` image.
-If you want to set only the mandatory environment variables and not store
-the database in a host directory, execute the following command:
-
-```
-$ docker run -d --name mariadb_database -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 rhscl/mariadb-100-rhel7
-```
-
-This will create a container named `mariadb_database` running MySQL with database
-`db` and user with credentials `user:pass`. Port 3306 will be exposed and mapped
-to the host. If you want your database to be persistent across container executions,
-also add a `-v /host/db/path:/var/lib/mysql/data` argument. This will be the MySQL
-data directory.
-
-If the database directory is not initialized, the entrypoint script will first
-run [`mysql_install_db`](https://dev.mysql.com/doc/refman/5.6/en/mysql-install-db.html)
-and setup necessary database users and passwords. After the database is initialized,
-or if it was already present, `mysqld` is executed and will run as PID 1. You can
- stop the detached container by running `docker stop mariadb_database`.
 
 
 MariaDB auto-tuning
@@ -115,6 +129,7 @@ values stored in the variables and the actual passwords. Whenever a database
 container starts it will reset the passwords to the values stored in the
 environment variables.
 
+
 Default my.cnf file
 -------------------
 With environment variables we are able to customize a lot of different parameters
@@ -123,6 +138,7 @@ your own configuration file, you can override the `MYSQL_DEFAULTS_FILE` env
 variable with the full path of the file you wish to use. For example, the default
 location is `/etc/my.cnf` but you can change it to `/etc/mysql/my.cnf` by setting
  `MYSQL_DEFAULTS_FILE=/etc/mysql/my.cnf`
+
 
 Changing the replication binlog_format
 --------------------------------------
@@ -133,3 +149,18 @@ Some applications may wish to use `row` binlog_formats (for example, those built
   with `master` replication turned on (ie, set the Docker/container `cmd` to be
 `run-mysqld-master`) the binlog will emit the actual data for the rows that change
 as opposed to the statements (ie, DML like insert...) that caused the change.
+
+
+Troubleshooting
+---------------
+The mysqld deamon in the container logs to the standard output, so the log is available in the container log. The log can be examined by running:
+
+    docker logs <container>
+
+
+See also
+--------
+Dockerfile and other sources for this container image are available on
+https://github.com/sclorg/mariadb-container.
+In that repository, Dockerfile for CentOS is called Dockerfile, Dockerfile
+for RHEL is called Dockerfile.rhel7.

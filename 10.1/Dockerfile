@@ -21,7 +21,7 @@ MariaDB databases on behalf of the clients."
 
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
-      io.k8s.description="$SUMMARY" \
+      io.k8s.description="$DESCRIPTION" \
       io.k8s.display-name="MariaDB 10.1" \
       io.openshift.expose-services="3306:mysql" \
       io.openshift.tags="database,mysql,mariadb,mariadb101,rh-mariadb101,galera" \

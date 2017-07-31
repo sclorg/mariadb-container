@@ -42,7 +42,7 @@ Choose either the CentOS7 or RHEL7 based image:
     ```
     $ git clone --recursive https://github.com/sclorg/mariadb-container.git
     $ cd mariadb-container
-    $ make build TARGET=rhel7 VERSION=10.1
+    $ make build TARGET=rhel7 VERSIONS=10.1
     ```
 
 *  **CentOS7 based image**
@@ -58,13 +58,13 @@ Choose either the CentOS7 or RHEL7 based image:
     ```
     $ git clone --recursive https://github.com/sclorg/mariadb-container.git
     $ cd mariadb-container
-    $ make build TARGET=centos7 VERSION=10.1
+    $ make build TARGET=centos7 VERSIONS=10.1
     ```
 
 For using other versions of MariaDB, just replace the `10.1` value by particular version
 in the commands above.
 
-**Notice: By omitting the `VERSION` parameter, the build/test action will be performed
+**Notice: By omitting the `VERSIONS` parameter, the build/test action will be performed
 on all provided versions of MariaDB, which must be specified in  `VERSIONS` variable.
 This variable must be set to a list with possible versions (subdirectories).**
 
@@ -94,19 +94,19 @@ Users can choose between testing MariaDB based on a RHEL or CentOS image.
 
     ```
     $ cd mariadb-container
-    $ make test TARGET=rhel7 VERSION=10.1
+    $ make test TARGET=rhel7 VERSIONS=10.1
     ```
 
 *  **CentOS based image**
 
     ```
     $ cd mariadb-container
-    $ make test TARGET=centos7 VERSION=10.1
+    $ make test TARGET=centos7 VERSIONS=10.1
     ```
 
 For using other versions of MariaDB, just replace the `10.1` value by particular version
 in the commands above.
 
-**Notice: By omitting the `VERSION` parameter, the build/test action will be performed
+**Notice: By omitting the `VERSIONS` parameter, the build/test action will be performed
 on all provided versions of MariaDB, which must be specified in  `VERSIONS` variable.
 This variable must be set to a list with possible versions (subdirectories).**

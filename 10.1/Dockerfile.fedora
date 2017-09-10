@@ -1,4 +1,4 @@
-FROM fedora:25
+FROM registry.fedoraproject.org/f26/s2i-core:latest
 
 # MariaDB image for OpenShift.
 #
@@ -11,6 +11,7 @@ FROM fedora:25
 #  * $MYSQL_ROOT_PASSWORD (Optional) - Password for the 'root' MySQL account
 
 ENV MYSQL_VERSION=10.1 \
+    APP_DATA=/opt/app-root/src \
     HOME=/var/lib/mysql \
     NAME=mariadb \
     VERSION=10.1 \
@@ -34,7 +35,7 @@ EXPOSE 3306
 # This image must forever use UID 27 for mysql user so our volumes are
 # safe in the future. This should *never* change, the last test is there
 # to make sure of that.
-RUN INSTALL_PKGS="rsync tar gettext hostname bind-utils mariadb-server policycoreutils" && \
+RUN INSTALL_PKGS="rsync tar gettext hostname bind-utils groff-base shadow-utils mariadb-server policycoreutils" && \
     dnf install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     dnf clean all && \
@@ -50,6 +51,7 @@ ENV CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/mysql \
     MYSQL_PREFIX=/usr
 
 COPY 10.1/root-common /
+COPY 10.1/s2i-common/bin/ $STI_SCRIPTS_PATH
 COPY 10.1/root /
 
 # this is needed due to issues with squash

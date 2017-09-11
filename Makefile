@@ -2,6 +2,7 @@
 BASE_IMAGE_NAME = mariadb
 VERSIONS = 10.0 10.1
 OPENSHIFT_NAMESPACES = 
+DOCKER_BUILD_CONTEXT = ..
 
 # HACK:  Ensure that 'git pull' for old clones doesn't cause confusion.
 # New clones should use '--recursive'.

@@ -136,8 +136,12 @@ EOSQL
 
   if [ -v MYSQL_ROOT_PASSWORD ]; then
     log_info "Setting password for MySQL root user ..."
+    if [ "$MYSQL_VERSION" \> "10.0" ] ; then
 mysql $mysql_flags <<EOSQL
-    CREATE USER IF NOT EXISTS 'root'@'%';
+      CREATE USER IF NOT EXISTS 'root'@'%';
+EOSQL
+    fi
+mysql $mysql_flags <<EOSQL
     GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}' WITH GRANT OPTION;
 EOSQL
   fi

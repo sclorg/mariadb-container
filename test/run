@@ -26,6 +26,7 @@ if [ -e "${IMAGE_NAME:-}" ] ; then
 fi
 
 CIDFILE_DIR=$(mktemp --suffix=mysql_test_cidfiles -d)
+TESTSUITE_RESULT=1
 test_dir="$(readlink -zf $(dirname "${BASH_SOURCE[0]}"))"
 
 s2i_args="--force-pull=false "
@@ -50,6 +51,11 @@ function cleanup() {
     rm $cidfile
     echo "Done."
   done
+  if [ $TESTSUITE_RESULT -eq 0 ] ; then
+    echo "Tests succeeded."
+  else
+    echo "Tests failed."
+  fi
   rmdir $CIDFILE_DIR
 }
 trap cleanup EXIT SIGINT
@@ -494,3 +500,4 @@ function run_all_tests() {
 # Run the chosen tests
 TEST_LIST=${@:-$TEST_LIST} run_all_tests
 
+TESTSUITE_RESULT=0

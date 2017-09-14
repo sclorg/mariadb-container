@@ -10,12 +10,17 @@ MariaDB container is very similar to the MySQL container available at
 For more information about using these images with OpenShift, please see the
 official [OpenShift Documentation](https://docs.openshift.org/latest/using_images/db_images/mysql.html).
 
+For more information about contributing, see
+[the Contribution Guidelines](https://github.com/sclorg/welcome/blob/master/contribution.md).
+For more information about concepts used in these docker images, see the
+[Landing page](https://github.com/sclorg/welcome).
+
 
 Versions
 ---------------
 MariaDB versions currently provided are:
-* [mariadb-10.0](10.0)
-* [mariadb-10.1](10.1)
+* [MariaDB 10.0](10.0)
+* [MariaDB 10.1](10.1)
 
 RHEL versions currently supported are:
 * RHEL7
@@ -42,6 +47,7 @@ Choose either the CentOS7 or RHEL7 based image:
     ```
     $ git clone --recursive https://github.com/sclorg/mariadb-container.git
     $ cd mariadb-container
+    $ git submodule update --init
     $ make build TARGET=rhel7 VERSIONS=10.1
     ```
 
@@ -58,6 +64,7 @@ Choose either the CentOS7 or RHEL7 based image:
     ```
     $ git clone --recursive https://github.com/sclorg/mariadb-container.git
     $ cd mariadb-container
+    $ git submodule update --init
     $ make build TARGET=centos7 VERSIONS=10.1
     ```
 
@@ -94,6 +101,7 @@ Users can choose between testing MariaDB based on a RHEL or CentOS image.
 
     ```
     $ cd mariadb-container
+    $ git submodule update --init
     $ make test TARGET=rhel7 VERSIONS=10.1
     ```
 
@@ -101,6 +109,7 @@ Users can choose between testing MariaDB based on a RHEL or CentOS image.
 
     ```
     $ cd mariadb-container
+    $ git submodule update --init
     $ make test TARGET=centos7 VERSIONS=10.1
     ```
 

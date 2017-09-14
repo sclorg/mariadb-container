@@ -1,7 +1,5 @@
 FROM fedora:25
 
-MAINTAINER "Honza Horak" <hhorak@redhat.com>
-
 # MariaDB image for OpenShift.
 #
 # Volumes:
@@ -28,7 +26,8 @@ LABEL summary="MariaDB is a multi-user, multi-threaded SQL database server" \
       name="$FGC/$NAME" \
       version="$VERSION" \
       release="$RELEASE.$DISTTAG" \
-      architecture="$ARCH"
+      architecture="$ARCH" \
+      maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 3306
 

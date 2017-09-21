@@ -471,7 +471,7 @@ run_s2i_test() {
 
   echo "  Testing s2i mount"
   test_app_dir=$(mktemp -d)
-  cp -r ${test_dir}/test-app ${test_app_dir}/
+  cp -Lr ${test_dir}/test-app ${test_app_dir}/
   chown -R 27:27 ${test_app_dir}
   _s2i_test_image "_s2i_test_mount" "-v ${test_app_dir}/test-app:/opt/app-root/src/:z"
   rm -rf ${test_app_dir}

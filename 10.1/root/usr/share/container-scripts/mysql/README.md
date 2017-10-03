@@ -196,6 +196,25 @@ mounted into `/opt/app-root/src/` in the image
 This overwrites customization built into the image.
 
 
+Securing the connection with SSL
+--------------------------------
+In order to secure the connection with SSL, use the extending feature described
+above. In particular, put the SSL certificates into a separate directory:
+
+    sslapp/mysql-certs/server-cert-selfsigned.pem
+    sslapp/mysql-certs/server-key.pem
+
+And then put a separate configuration file into mysql-cfg:
+
+    $> cat sslapp/mysql-cfg/ssl.cnf
+    [mysqld]
+    ssl-key=${APP_DATA}/mysql-certs/server-key.pem
+    ssl-cert=${APP_DATA}/mysql-certs/server-cert-selfsigned.pem
+
+Such a directory `sslapp` can then be mounted into the container with -v,
+or a new container image can be built using s2i.
+
+
 Changing the replication binlog_format
 --------------------------------------
 Some applications may wish to use `row` binlog_formats (for example, those built

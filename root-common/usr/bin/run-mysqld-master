@@ -8,20 +8,12 @@ set -eu
 
 export MYSQL_RUNNING_AS_MASTER=1
 
-[ -f ${CONTAINER_SCRIPTS_PATH}/validate-replication-variables.sh ] && source ${CONTAINER_SCRIPTS_PATH}/validate-replication-variables.sh
-[ -f ${CONTAINER_SCRIPTS_PATH}/validate-variables.sh ] && source ${CONTAINER_SCRIPTS_PATH}/validate-variables.sh
-
 # The 'server-id' for master needs to be constant
 export MYSQL_SERVER_ID=1
 log_info "The 'master' server-id is ${MYSQL_SERVER_ID}"
 
-# Process the MySQL configuration files
-log_info 'Processing MySQL configuration files ...'
-envsubst < ${CONTAINER_SCRIPTS_PATH}/my-base.cnf.template > /etc/my.cnf.d/base.cnf
-envsubst < ${CONTAINER_SCRIPTS_PATH}/my-paas.cnf.template > /etc/my.cnf.d/paas.cnf
-envsubst < ${CONTAINER_SCRIPTS_PATH}/my-master.cnf.template > /etc/my.cnf.d/master.cnf
-envsubst < ${CONTAINER_SCRIPTS_PATH}/my-repl-gtid.cnf.template > /etc/my.cnf.d/repl-gtid.cnf
-envsubst < ${CONTAINER_SCRIPTS_PATH}/my-tuning.cnf.template > /etc/my.cnf.d/tuning.cnf
+# pre-init files
+process_extending_files ${APP_DATA}/mysql-pre-init/ ${CONTAINER_SCRIPTS_PATH}/pre-init/
 
 if [ ! -d "$MYSQL_DATADIR/mysql" ]; then
   initialize_database "$@"
@@ -39,8 +31,8 @@ mysql $mysql_flags <<EOSQL
   FLUSH PRIVILEGES;
 EOSQL
 
-log_info 'Sourcing post-init.sh ...'
-[ -f ${CONTAINER_SCRIPTS_PATH}/post-init.sh ] && source ${CONTAINER_SCRIPTS_PATH}/post-init.sh
+# init files
+process_extending_files ${APP_DATA}/mysql-init/ ${CONTAINER_SCRIPTS_PATH}/init/
 
 # Restart the MySQL server with public IP bindings
 shutdown_local_mysql

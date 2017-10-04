@@ -13,18 +13,12 @@ fi
 
 export MYSQL_RUNNING_AS_SLAVE=1
 
-[ -f ${CONTAINER_SCRIPTS_PATH}/validate-replication-variables.sh ] && source ${CONTAINER_SCRIPTS_PATH}/validate-replication-variables.sh
-
 # Generate the unique 'server-id' for this master
 export MYSQL_SERVER_ID=$(server_id)
 log_info "The 'slave' server-id is ${MYSQL_SERVER_ID}"
 
-# Process the MySQL configuration files
-envsubst < ${CONTAINER_SCRIPTS_PATH}/my-base.cnf.template > /etc/my.cnf.d/base.cnf
-envsubst < ${CONTAINER_SCRIPTS_PATH}/my-paas.cnf.template > /etc/my.cnf.d/paas.cnf
-envsubst < ${CONTAINER_SCRIPTS_PATH}/my-slave.cnf.template > /etc/my.cnf.d/slave.cnf
-envsubst < ${CONTAINER_SCRIPTS_PATH}/my-repl-gtid.cnf.template > /etc/my.cnf.d/repl-gtid.cnf
-envsubst < ${CONTAINER_SCRIPTS_PATH}/my-tuning.cnf.template > /etc/my.cnf.d/tuning.cnf
+# pre-init files
+process_extending_files ${APP_DATA}/mysql-pre-init/ ${CONTAINER_SCRIPTS_PATH}/pre-init/
 
 # Initialize MySQL database and wait for the MySQL master to accept
 # connections.
@@ -48,8 +42,8 @@ mysql $mysql_flags <<EOSQL
   START SLAVE;
 EOSQL
 
-log_info 'Sourcing post-init.sh ...'
-[ -f ${CONTAINER_SCRIPTS_PATH}/post-init.sh ] && source ${CONTAINER_SCRIPTS_PATH}/post-init.sh
+# init files
+process_extending_files ${APP_DATA}/mysql-init/ ${CONTAINER_SCRIPTS_PATH}/init/
 
 # Restart the MySQL server with public IP bindings
 shutdown_local_mysql

@@ -1,12 +1,12 @@
-MariaDB 10.1 SQL Database Server Docker image
+MariaDB 10.2 SQL Database Server Docker image
 =============================================
 
-This container image includes MariaDB 10.1 SQL database server for OpenShift and general usage.
+This container image includes MariaDB 10.2 SQL database server for OpenShift and general usage.
 Users can choose between RHEL and CentOS based images.
-The RHEL image is available in the [Red Hat Container Catalog](https://access.redhat.com/containers/#/registry.access.redhat.com/rhscl/mariadb-101-rhel7)
-as registry.access.redhat.com/rhscl/mariadb-101-rhel7.
-The CentOS image is then available on [Docker Hub](https://hub.docker.com/r/centos/mariadb-101-centos7/)
-as centos/mariadb-101-centos7.
+The RHEL image is available in the [Red Hat Container Catalog](https://access.redhat.com/containers/#/registry.access.redhat.com/rhscl/mariadb-102-rhel7)
+as registry.access.redhat.com/rhscl/mariadb-102-rhel7.
+The CentOS image is then available on [Docker Hub](https://hub.docker.com/r/centos/mariadb-102-centos7/)
+as centos/mariadb-102-centos7.
 
 
 Description
@@ -22,13 +22,13 @@ You can find more information on the MariaDB project from the project Web site
 Usage
 -----
 
-For this, we will assume that you are using the MariaDB 10.1 container image from the
-Red Hat Container Catalog called `rhscl/mariadb-101-rhel7`.
+For this, we will assume that you are using the MariaDB 10.2 container image from the
+Red Hat Container Catalog called `rhscl/mariadb-102-rhel7`.
 If you want to set only the mandatory environment variables and not store
 the database in a host directory, execute the following command:
 
 ```
-$ docker run -d --name mariadb_database -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 rhscl/mariadb-101-rhel7
+$ docker run -d --name mariadb_database -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 rhscl/mariadb-102-rhel7
 ```
 
 This will create a container named `mariadb_database` running MySQL with database
@@ -148,7 +148,7 @@ For example, to build a customized MariaDB database image `my-mariadb-rhel7`
 with a configuration in `~/image-configuration/` run:
 
 ```
-$ s2i build ~/image-configuration/ rhscl/mariadb-101-rhel7 my-mariadb-rhel7
+$ s2i build ~/image-configuration/ rhscl/mariadb-102-rhel7 my-mariadb-rhel7
 ```
 
 The directory passed to `s2i build` can contain these directories:

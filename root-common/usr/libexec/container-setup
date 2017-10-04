@@ -58,6 +58,7 @@ restorecon -R /var/lib/mysql
 usermod -a -G root mysql
 
 # Some files should have non-default attributes, so let's make sure they have them
-chmod 0555 / /usr/bin /usr/lib /usr/lib64 /usr/share
+rpm --setperms filesystem 2>/dev/null
+rpm --setugids filesystem 2>/dev/null
 chmod 0755 /usr/bin/{cgroup-limits,container-entrypoint,run-mysqld,run-mysqld-master,run-mysqld-slave}
 

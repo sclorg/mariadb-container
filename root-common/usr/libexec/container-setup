@@ -57,3 +57,8 @@ restorecon -R /var/lib/mysql
 /usr/libexec/fix-permissions /var/lib/mysql ${MYSQL_CONFIG_FILE}.d ${APP_DATA}/..
 usermod -a -G root mysql
 
+# Some files should have non-default attributes, so let's make sure they have them
+rpm --setperms filesystem 2>/dev/null
+rpm --setugids filesystem 2>/dev/null
+chmod 0755 /usr/bin/{cgroup-limits,container-entrypoint,run-mysqld,run-mysqld-master,run-mysqld-slave}
+

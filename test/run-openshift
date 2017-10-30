@@ -70,7 +70,7 @@ function test_mysql_template() {
   ct_os_new_project
   ct_os_upload_image "${image_name}"
 
-  ct_os_deploy_template_image ${THISDIR}/mariadb-ephemeral-template.yaml \
+  ct_os_deploy_template_image ${THISDIR}/mariadb-ephemeral-template.json \
                               DATABASE_SERVICE_NAME="${service_name}" \
                               DATABASE_IMAGE="${image_name_no_namespace}" \
                               MYSQL_USER=testu \

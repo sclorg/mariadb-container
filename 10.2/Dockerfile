@@ -28,7 +28,8 @@ LABEL summary="$SUMMARY" \
       io.openshift.tags="database,mysql,mariadb,mariadb102,rh-mariadb102,galera" \
       com.redhat.component="rh-mariadb102-docker" \
       name="centos/mariadb-102-centos7" \
-      version="1"
+      version="1" \
+      maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 3306
 

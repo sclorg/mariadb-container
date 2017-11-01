@@ -29,7 +29,8 @@ LABEL summary="$SUMMARY" \
       com.redhat.component="rh-mariadb101-docker" \
       name="centos/mariadb-101-centos7" \
       version="10.1" \
-      release="1"
+      release="1" \
+      maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 3306
 

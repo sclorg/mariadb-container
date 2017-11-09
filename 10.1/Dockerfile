@@ -12,9 +12,8 @@ FROM centos/s2i-core-centos7
 
 ENV MYSQL_VERSION=10.1 \
     APP_DATA=/opt/app-root/src \
-    HOME=/var/lib/mysql
-
-ENV SUMMARY="MariaDB 10.1 SQL database server" \
+    HOME=/var/lib/mysql \
+    SUMMARY="MariaDB 10.1 SQL database server" \
     DESCRIPTION="MariaDB is a multi-user, multi-threaded SQL database server. The container \
 image provides a containerized packaging of the MariaDB mysqld daemon and client application. \
 The mysqld server daemon accepts connections from clients and provides access to content from \
@@ -29,7 +28,8 @@ LABEL summary="$SUMMARY" \
       com.redhat.component="rh-mariadb101-docker" \
       name="centos/mariadb-101-centos7" \
       version="10.1" \
-      release="1"
+      release="1" \
+      usage="docker run -e MYSQL_USER=<user_name> -e MYSQL_PASSWORD=<password> -e MYSQL_DATABASE=<db_name> -e MYSQL_ROOT_PASSWORD=<root_password> -p 3306:3306 centos/mariadb-101-centos7"
 
 EXPOSE 3306
 

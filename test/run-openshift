@@ -68,11 +68,12 @@ function test_mysql_template() {
   local service_name=${image_name_no_namespace}
 
   ct_os_new_project
-  ct_os_upload_image "${image_name}"
+  ct_os_upload_image "${image_name}" "mariadb:$VERSION"
 
   ct_os_deploy_template_image ${THISDIR}/mariadb-ephemeral-template.json \
+                              NAMESPACE="$(oc project -q)" \
+                              MARIADB_VERSION="$VERSION" \
                               DATABASE_SERVICE_NAME="${service_name}" \
-                              DATABASE_IMAGE="${image_name_no_namespace}" \
                               MYSQL_USER=testu \
                               MYSQL_PASSWORD=testp \
                               MYSQL_DATABASE=testdb
@@ -109,7 +110,6 @@ function test_mysql_s2i() {
   ct_os_delete_project
 }
 
-ct_os_install_in_centos
 ct_os_cluster_up
 test_mysql_pure_image ${IMAGE_NAME}
 test_mysql_template ${IMAGE_NAME}

@@ -28,7 +28,7 @@ fi
 
 CIDFILE_DIR=$(mktemp --suffix=mysql_test_cidfiles -d)
 TESTSUITE_RESULT=1
-test_dir="$(readlink -zf $(dirname "${BASH_SOURCE[0]}"))"
+test_dir="$(readlink -f $(dirname "${BASH_SOURCE[0]}"))"
 
 s2i_args="--pull-policy=never "
 

@@ -10,6 +10,9 @@ set -o errexit
 set -o nounset
 shopt -s nullglob
 
+THISDIR=$(dirname ${BASH_SOURCE[0]})
+source ${THISDIR}/test-lib.sh
+
 TEST_LIST="\
 run_container_creation_tests
 run_configuration_tests
@@ -26,50 +29,22 @@ if [ -e "${IMAGE_NAME:-}" ] ; then
   exit 1
 fi
 
-CIDFILE_DIR=$(mktemp --suffix=mysql_test_cidfiles -d)
+CID_FILE_DIR=$(mktemp --suffix=mysql_test_cidfiles -d)
 TESTSUITE_RESULT=1
 test_dir="$(readlink -f $(dirname "${BASH_SOURCE[0]}"))"
 
 s2i_args="--pull-policy=never "
 
 function cleanup() {
-  local cidfile
-  for cidfile in $CIDFILE_DIR/* ; do
-    local CONTAINER
-    CONTAINER=$(cat $cidfile)
+  ct_cleanup
 
-    echo "Stopping and removing container $CONTAINER..."
-    docker stop $CONTAINER >/dev/null
-    local exit_status
-    exit_status=$(docker inspect -f '{{.State.ExitCode}}' $CONTAINER)
-    if [ "$exit_status" != "0" ]; then
-      echo "Inspecting container $CONTAINER"
-      docker inspect $CONTAINER
-      echo "Dumping logs for $CONTAINER"
-      docker logs $CONTAINER
-    fi
-    docker rm -v $CONTAINER >/dev/null
-    rm $cidfile
-    echo "Done."
-  done
   if [ $TESTSUITE_RESULT -eq 0 ] ; then
     echo "Tests succeeded."
   else
     echo "Tests failed."
   fi
-  rmdir $CIDFILE_DIR
 }
 trap cleanup EXIT SIGINT
-
-function get_cid() {
-  local id="$1" ; shift || return 1
-  echo $(cat "$CIDFILE_DIR/$id")
-}
-
-function get_container_ip() {
-  local id="$1" ; shift
-  docker inspect --format='{{.NetworkSettings.IPAddress}}' $(get_cid "$id")
-}
 
 function mysql_cmd() {
   local container_ip="$1"; shift
@@ -83,7 +58,7 @@ function test_connection() {
   local login=$1 ; shift
   local password=$1 ; shift
   local ip
-  ip=$(get_container_ip $name)
+  ip=$(ct_get_cip $name)
   echo "  Testing MySQL connection to $ip..."
   local max_attempts=20
   local sleep_time=2
@@ -97,7 +72,7 @@ function test_connection() {
     sleep $sleep_time
   done
   echo "  Giving up: Failed to connect. Logs:"
-  docker logs $(get_cid $name)
+  docker logs $(ct_get_cid $name)
   return 1
 }
 
@@ -118,7 +93,7 @@ function test_mysql() {
 
 function create_container() {
   local name=$1 ; shift
-  cidfile="$CIDFILE_DIR/$name"
+  cidfile="$CID_FILE_DIR/$name"
   # create container with a cidfile in a directory for cleanup
   local container_id
   container_id="$(docker run ${DOCKER_ARGS:-} --cidfile $cidfile -d "$@" $IMAGE_NAME ${CONTAINER_ARGS:-})"
@@ -133,7 +108,7 @@ function run_change_password_test() {
   create_container "testpass1" -e MYSQL_USER=user -e MYSQL_PASSWORD=foo \
     -e MYSQL_DATABASE=db -v ${tmpdir}:/var/lib/mysql/data:Z
   test_connection testpass1 user foo
-  docker stop $(get_cid testpass1) >/dev/null
+  docker stop $(ct_get_cid testpass1) >/dev/null
 
   # Create second container with changed password
   create_container "testpass2" -e MYSQL_USER=user -e MYSQL_PASSWORD=bar \
@@ -141,7 +116,7 @@ function run_change_password_test() {
   test_connection testpass2 user bar
 
   # The old password should not work anymore
-  if mysql_cmd "$(get_container_ip testpass2)" user foo -e 'SELECT 1;'; then
+  if mysql_cmd "$(ct_get_cip testpass2)" user foo -e 'SELECT 1;'; then
     return 1
   fi
 }
@@ -154,16 +129,16 @@ function run_replication_test() {
   docker run $cluster_args -e MYSQL_USER=user -e MYSQL_PASSWORD=foo \
     -e MYSQL_ROOT_PASSWORD=root \
     -e MYSQL_INNODB_BUFFER_POOL_SIZE=5M \
-    -d --cidfile ${CIDFILE_DIR}/master.cid $IMAGE_NAME mysqld-master >/dev/null
+    -d --cidfile ${CID_FILE_DIR}/master.cid $IMAGE_NAME mysqld-master >/dev/null
   local master_ip
-  master_ip=$(get_container_ip master.cid)
+  master_ip=$(ct_get_cip master.cid)
 
   # Run the MySQL slave
   docker run $cluster_args -e MYSQL_MASTER_SERVICE_NAME=${master_ip} \
     -e MYSQL_INNODB_BUFFER_POOL_SIZE=5M \
-    -d --cidfile ${CIDFILE_DIR}/slave.cid $IMAGE_NAME mysqld-slave >/dev/null
+    -d --cidfile ${CID_FILE_DIR}/slave.cid $IMAGE_NAME mysqld-slave >/dev/null
   local slave_ip
-  slave_ip=$(get_container_ip slave.cid)
+  slave_ip=$(ct_get_cip slave.cid)
 
   # Now wait till the MASTER will see the SLAVE
   local i
@@ -175,8 +150,8 @@ function run_replication_test() {
     fi
     if [[ "${i}" == "${max_attempts}" ]]; then
       echo "The ${slave_ip} failed to register in MASTER"
-      echo "Dumping logs for $(get_cid slave.cid)"
-      docker logs $(get_cid slave.cid)
+      echo "Dumping logs for $(ct_get_cid slave.cid)"
+      docker logs $(ct_get_cid slave.cid)
       return 1
     fi
     sleep 1
@@ -196,8 +171,8 @@ function run_replication_test() {
     fi
     if [[ "${i}" == "${max_attempts}" ]]; then
       echo "The ${slave_ip} failed to see value added on MASTER"
-      echo "Dumping logs for $(get_cid slave.cid)"
-      docker logs $(get_cid slave.cid)
+      echo "Dumping logs for $(ct_get_cid slave.cid)"
+      docker logs $(ct_get_cid slave.cid)
       return 1
     fi
     sleep 1
@@ -227,7 +202,7 @@ function assert_login_access() {
 
 function assert_local_access() {
   local id="$1" ; shift
-  docker exec $(get_cid "$id") bash -c 'mysql <<< "SELECT 1;"'
+  docker exec $(ct_get_cid "$id") bash -c 'mysql <<< "SELECT 1;"'
 }
 
 # Make sure the invocation of docker run fails.
@@ -275,7 +250,7 @@ function test_config_option() {
   local option_value="$4"
 
   if ! echo "$configuration" | grep -qx "$option_name[[:space:]]*=[[:space:]]*$option_value"; then
-    local configs="$(docker exec -t "$(get_cid $container_name)" bash -c 'set +f; shopt -s nullglob; echo /etc/my.cnf /etc/my.cnf.d/* /opt/rh/mysql*/root/etc/my.cnf /opt/rh/mysql*/root/etc/my.cnf.d/* | paste -s')"
+    local configs="$(docker exec -t "$(ct_get_cid $container_name)" bash -c 'set +f; shopt -s nullglob; echo /etc/my.cnf /etc/my.cnf.d/* /opt/rh/mysql*/root/etc/my.cnf /opt/rh/mysql*/root/etc/my.cnf.d/* | paste -s')"
     echo >&2 "FAIL: option '$option_name' should have value '$option_value', but it wasn't found in any of the configuration files ($configs):"
     echo >&2
     echo >&2 "$configuration"
@@ -317,7 +292,7 @@ function run_configuration_tests() {
   # - we should look for an option in the desired config, not in all of them
   # - we should respect section of the config (now we have duplicated options from a different sections)
   local configuration
-  configuration="$(docker exec -t "$(get_cid $container_name)" bash -c 'set +f; shopt -s nullglob; egrep -hv "^(#|\!|\[|$)" /etc/my.cnf /etc/my.cnf.d/* /opt/rh/mysql*/root/etc/my.cnf /opt/rh/mysql*/root/etc/my.cnf.d/*' | sed 's,\(^[[:space:]]\+\|[[:space:]]\+$\),,' | sort -u)"
+  configuration="$(docker exec -t "$(ct_get_cid $container_name)" bash -c 'set +f; shopt -s nullglob; egrep -hv "^(#|\!|\[|$)" /etc/my.cnf /etc/my.cnf.d/* /opt/rh/mysql*/root/etc/my.cnf /opt/rh/mysql*/root/etc/my.cnf.d/*' | sed 's,\(^[[:space:]]\+\|[[:space:]]\+$\),,' | sort -u)"
 
   test_config_option "$container_name" "$configuration" lower_case_table_names 1
   test_config_option "$container_name" "$configuration" max_connections 1337
@@ -332,7 +307,7 @@ function run_configuration_tests() {
   test_config_option "$container_name" "$configuration" innodb_log_file_size 4M
   test_config_option "$container_name" "$configuration" innodb_log_buffer_size 4M
 
-  docker stop "$(get_cid $container_name)" >/dev/null
+  docker stop "$(ct_get_cid $container_name)" >/dev/null
 
   echo "  Success!"
   echo "  Testing image auto-calculated configuration settings"
@@ -347,7 +322,7 @@ function run_configuration_tests() {
 
   test_connection "$container_name" config_test_user config_test
 
-  configuration="$(docker exec -t "$(get_cid $container_name)" bash -c 'set +f; shopt -s nullglob; egrep -hv "^(#|\!|\[|$)" /etc/my.cnf /etc/my.cnf.d/* /opt/rh/mysql*/root/etc/my.cnf /opt/rh/mysql*/root/etc/my.cnf.d/*' | sed 's,\(^[[:space:]]\+\|[[:space:]]\+$\),,' | sort -u)"
+  configuration="$(docker exec -t "$(ct_get_cid $container_name)" bash -c 'set +f; shopt -s nullglob; egrep -hv "^(#|\!|\[|$)" /etc/my.cnf /etc/my.cnf.d/* /opt/rh/mysql*/root/etc/my.cnf /opt/rh/mysql*/root/etc/my.cnf.d/*' | sed 's,\(^[[:space:]]\+\|[[:space:]]\+$\),,' | sort -u)"
 
   test_config_option "$container_name" "$configuration" key_buffer_size 25M
   test_config_option "$container_name" "$configuration" read_buffer_size 12M
@@ -355,33 +330,9 @@ function run_configuration_tests() {
   test_config_option "$container_name" "$configuration" innodb_log_file_size 38M
   test_config_option "$container_name" "$configuration" innodb_log_buffer_size 38M
 
-  docker stop "$(get_cid $container_name)" >/dev/null
+  docker stop "$(ct_get_cid $container_name)" >/dev/null
 
   echo "  Success!"
-}
-
-test_scl_usage() {
-  local name="$1"
-  local run_cmd="$2"
-  local expected="$3"
-
-  echo "  Testing the image SCL enable"
-  local out
-  out=$(docker run --rm ${IMAGE_NAME} /bin/bash -c "${run_cmd}")
-  if ! echo "${out}" | grep -q "${expected}"; then
-    echo "ERROR[/bin/bash -c "${run_cmd}"] Expected '${expected}', got '${out}'"
-    return 1
-  fi
-  out=$(docker exec $(get_cid $name) /bin/bash -c "${run_cmd}" 2>&1)
-  if ! echo "${out}" | grep -q "${expected}"; then
-    echo "ERROR[exec /bin/bash -c "${run_cmd}"] Expected '${expected}', got '${out}'"
-    return 1
-  fi
-  out=$(docker exec $(get_cid $name) /bin/sh -ic "${run_cmd}" 2>&1)
-  if ! echo "${out}" | grep -q "${expected}"; then
-    echo "ERROR[exec /bin/sh -ic "${run_cmd}"] Expected '${expected}', got '${out}'"
-    return 1
-  fi
 }
 
 function run_tests() {
@@ -393,10 +344,10 @@ function run_tests() {
   create_container $name $envs
   test_connection "$name" "$USER" "$PASS"
   echo "  Testing scl usage"
-  test_scl_usage $name 'mysql --version' '10.'
+  ct_scl_usage_old $name 'mysql --version' '10.'
   echo "  Testing login accesses"
   local container_ip
-  container_ip=$(get_container_ip $name)
+  container_ip=$(ct_get_cip $name)
   assert_login_access "$container_ip" "$USER" "$PASS" true
   assert_login_access "$container_ip" "$USER" "${PASS}_foo" false
   if [ -v ROOT_PASS ]; then
@@ -450,9 +401,9 @@ _s2i_test_image() {
 
   test_connection "$container_name" operations_user operations_pass
 
-  configuration="$(docker exec -t "$(get_cid $container_name)" bash -c 'set +f; shopt -s nullglob; egrep -hv "^(#|\!|\[|$)" /etc/my.cnf /etc/my.cnf.d/* /opt/rh/mysql*/root/etc/my.cnf /opt/rh/mysql*/root/etc/my.cnf.d/*' | sed 's,\(^[[:space:]]\+\|[[:space:]]\+$\),,' | sort -u)"
+  configuration="$(docker exec -t "$(ct_get_cid $container_name)" bash -c 'set +f; shopt -s nullglob; egrep -hv "^(#|\!|\[|$)" /etc/my.cnf /etc/my.cnf.d/* /opt/rh/mysql*/root/etc/my.cnf /opt/rh/mysql*/root/etc/my.cnf.d/*' | sed 's,\(^[[:space:]]\+\|[[:space:]]\+$\),,' | sort -u)"
 
-  docker stop "$(get_cid $container_name)" >/dev/null
+  docker stop "$(ct_get_cid $container_name)" >/dev/null
 }
 
 run_s2i_test() {
@@ -506,7 +457,7 @@ ssl-cert=\${APP_DATA}/mysql-certs/server-cert-selfsigned.pem
     -v ${test_app_dir}:/opt/app-root/src/:z
 
   test_connection "_s2i_test_ssl" ssl_test_user ssl_test
-  ip=$(get_container_ip _s2i_test_ssl)
+  ip=$(ct_get_cip _s2i_test_ssl)
   if mysql_cmd "$ip" "ssl_test_user" "ssl_test" --ssl -e 'show status like "Ssl_cipher" \G' | grep 'Value: [A-Z][A-Z0-9-]*' ; then
     echo "  Success!"
     rm -rf ${test_app_dir}

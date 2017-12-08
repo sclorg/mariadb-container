@@ -12,6 +12,9 @@ source ${THISDIR}/test-lib-openshift.sh
 
 set -exo nounset
 
+test -n "${IMAGE_NAME-}" || false 'make sure $IMAGE_NAME is defined'
+test -n "${VERSION-}" || false 'make sure $VERSION is defined'
+
 function check_mysql_os_service_connection() {
   local util_image_name="${1}" ; shift
   local service_name="${1}" ; shift
@@ -30,7 +33,7 @@ function check_mysql_os_service_connection() {
 
   echo -n "Waiting for ${service_name} service becoming ready ..."
   while true ; do
-    output=$(docker run -ti --rm ${util_image_name} bash -c "${cmd}" || :)
+    output=$(docker run --rm ${util_image_name} bash -c "${cmd}" || :)
     echo "${output}" | grep -qe "${expected_value}" && ret=0 || ret=1
     if [ ${ret} -eq 0 ] ; then
       echo " PASS"
@@ -50,9 +53,10 @@ function test_mysql_pure_image() {
   local service_name=${image_name_no_namespace}
 
   ct_os_new_project
-  ct_os_upload_image "${image_name}"
+  # Create a specific imagestream tag for the image so that oc cannot use anything else
+  ct_os_upload_image "${image_name}" "$image_name_no_namespace:testing"
 
-  ct_os_deploy_pure_image "${image_name}" \
+  ct_os_deploy_pure_image "$image_name_no_namespace:testing" \
                           --name "${service_name}" \
                           --env MYSQL_ROOT_PASSWORD=test
 
@@ -68,11 +72,12 @@ function test_mysql_template() {
   local service_name=${image_name_no_namespace}
 
   ct_os_new_project
-  ct_os_upload_image "${image_name}"
+  ct_os_upload_image "${image_name}" "mariadb:$VERSION"
 
   ct_os_deploy_template_image ${THISDIR}/mariadb-ephemeral-template.json \
+                              NAMESPACE="$(oc project -q)" \
+                              MARIADB_VERSION="$VERSION" \
                               DATABASE_SERVICE_NAME="${service_name}" \
-                              DATABASE_IMAGE="${image_name_no_namespace}" \
                               MYSQL_USER=testu \
                               MYSQL_PASSWORD=testp \
                               MYSQL_DATABASE=testdb
@@ -88,12 +93,13 @@ function test_mysql_s2i() {
   local app=${2:-https://github.com/sclorg/mariadb-container.git}
   local context_dir=${3:-test/test-app}
   local image_name_no_namespace=${image_name##*/}
-  local service_name=${image_name_no_namespace}
+  local service_name="${image_name_no_namespace}-testing"
 
   ct_os_new_project
-  ct_os_upload_image "${image_name}"
+  # Create a specific imagestream tag for the image so that oc cannot use anything else
+  ct_os_upload_image "${image_name}" "$image_name_no_namespace:testing"
 
-  ct_os_deploy_s2i_image "${image_name_no_namespace}" "${app}" \
+  ct_os_deploy_s2i_image "$image_name_no_namespace:testing" "${app}" \
                           --context-dir="${context_dir}" \
                           --name "${service_name}" \
                           --env MYSQL_ROOT_PASSWORD=test \
@@ -104,15 +110,13 @@ function test_mysql_s2i() {
                           --env MYSQL_PASSWORD=testnormal
 
   ct_os_wait_pod_ready "${service_name}" 60
-  check_mysql_os_service_connection "${image_name}" "${service_name}" testo testo
+  check_mysql_os_service_connection "${image_name}" "${service_name}" testo testo 120
 
   ct_os_delete_project
 }
 
-ct_os_install_in_centos
 ct_os_cluster_up
 test_mysql_pure_image ${IMAGE_NAME}
 test_mysql_template ${IMAGE_NAME}
-test_mysql_s2i ${IMAGE_NAME} "https://github.com/hhorak/mariadb-container.git#s2i-support-3" test/test-app
-
-
+# TODO: Can we make the build against examples inside the same PR?
+test_mysql_s2i ${IMAGE_NAME} "https://github.com/sclorg/mariadb-container.git" test/test-app

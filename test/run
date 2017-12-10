@@ -102,7 +102,7 @@ function create_container() {
 
 function run_change_password_test() {
   local tmpdir=$(mktemp -d)
-  mkdir "${tmpdir}/data" && chmod -R a+rwx "${tmpdir}"
+  chmod -R a+rwx "${tmpdir}"
 
   # Create MySQL container with persistent volume and set the initial password
   create_container "testpass1" -e MYSQL_USER=user -e MYSQL_PASSWORD=foo \
@@ -202,7 +202,12 @@ function assert_login_access() {
 
 function assert_local_access() {
   local id="$1" ; shift
-  docker exec $(ct_get_cid "$id") bash -c 'mysql <<< "SELECT 1;"'
+  if docker exec $(ct_get_cid "$id") bash -c 'mysql -uroot <<< "SELECT 1;"' ; then
+    echo "    local access granted as expected"
+    return
+  fi
+  echo "    local access assertion failed"
+  return 1
 }
 
 # Make sure the invocation of docker run fails.
@@ -232,9 +237,10 @@ function run_container_creation_tests() {
   try_image_invalid_combinations  -e MYSQL_ROOT_PASSWORD=root_pass
 
   local VERY_LONG_DB_NAME="very_long_database_name_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  local VERY_LONG_USER_NAME="very_long_user_name_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   assert_container_creation_fails -e MYSQL_USER=user -e MYSQL_PASSWORD=pass
   assert_container_creation_fails -e MYSQL_USER=\$invalid -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -e MYSQL_ROOT_PASSWORD=root_pass
-  assert_container_creation_fails -e MYSQL_USER=very_long_username -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -e MYSQL_ROOT_PASSWORD=root_pass
+  assert_container_creation_fails -e MYSQL_USER=$VERY_LONG_USER_NAME -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -e MYSQL_ROOT_PASSWORD=root_pass
   assert_container_creation_fails -e MYSQL_USER=user -e MYSQL_PASSWORD="\"" -e MYSQL_DATABASE=db -e MYSQL_ROOT_PASSWORD=root_pass
   assert_container_creation_fails -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=\$invalid -e MYSQL_ROOT_PASSWORD=root_pass
   assert_container_creation_fails -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=$VERY_LONG_DB_NAME -e MYSQL_ROOT_PASSWORD=root_pass
@@ -272,6 +278,7 @@ function run_configuration_tests() {
     --env MYSQL_PASSWORD=config_test \
     --env MYSQL_DATABASE=db \
     --env MYSQL_LOWER_CASE_TABLE_NAMES=1 \
+    --env MYSQL_LOG_QUERIES_ENABLED=1 \
     --env MYSQL_MAX_CONNECTIONS=1337 \
     --env MYSQL_FT_MIN_WORD_LEN=8 \
     --env MYSQL_FT_MAX_WORD_LEN=15 \
@@ -295,6 +302,7 @@ function run_configuration_tests() {
   configuration="$(docker exec -t "$(ct_get_cid $container_name)" bash -c 'set +f; shopt -s nullglob; egrep -hv "^(#|\!|\[|$)" /etc/my.cnf /etc/my.cnf.d/* /opt/rh/mysql*/root/etc/my.cnf /opt/rh/mysql*/root/etc/my.cnf.d/*' | sed 's,\(^[[:space:]]\+\|[[:space:]]\+$\),,' | sort -u)"
 
   test_config_option "$container_name" "$configuration" lower_case_table_names 1
+  test_config_option "$container_name" "$configuration" general_log 1
   test_config_option "$container_name" "$configuration" max_connections 1337
   test_config_option "$container_name" "$configuration" ft_min_word_len 8
   test_config_option "$container_name" "$configuration" ft_max_word_len 15
@@ -344,7 +352,7 @@ function run_tests() {
   create_container $name $envs
   test_connection "$name" "$USER" "$PASS"
   echo "  Testing scl usage"
-  ct_scl_usage_old $name 'mysql --version' '10.'
+  ct_scl_usage_old $name 'mysql --version' "$VERSION"
   echo "  Testing login accesses"
   local container_ip
   container_ip=$(ct_get_cip $name)
@@ -491,3 +499,4 @@ function run_all_tests() {
 TEST_LIST=${@:-$TEST_LIST} run_all_tests
 
 TESTSUITE_RESULT=0
+

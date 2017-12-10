@@ -9,6 +9,7 @@ function usage() {
   echo "Or both."
   echo "Optional Settings:"
   echo "  MYSQL_LOWER_CASE_TABLE_NAMES (default: 0)"
+  echo "  MYSQL_LOG_QUERIES_ENABLED (default: 0)"
   echo "  MYSQL_MAX_CONNECTIONS (default: 151)"
   echo "  MYSQL_FT_MIN_WORD_LEN (default: 4)"
   echo "  MYSQL_FT_MAX_WORD_LEN (default: 20)"
@@ -30,7 +31,7 @@ function validate_variables() {
   # Check basic sanity of specified variables
   if [[ -v MYSQL_USER && -v MYSQL_PASSWORD ]]; then
     [[ "$MYSQL_USER"     =~ $mysql_identifier_regex ]] || usage "Invalid MySQL username"
-    [ ${#MYSQL_USER} -le 16 ] || usage "MySQL username too long (maximum 16 characters)"
+    [ ${#MYSQL_USER} -le 80 ] || usage "MySQL username too long (maximum 80 characters)"
     [[ "$MYSQL_PASSWORD" =~ $mysql_password_regex   ]] || usage "Invalid password"
     user_specified=1
   fi

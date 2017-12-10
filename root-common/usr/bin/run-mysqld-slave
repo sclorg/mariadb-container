@@ -6,6 +6,10 @@ export_vars=$(cgroup-limits); export $export_vars
 source ${CONTAINER_SCRIPTS_PATH}/common.sh
 set -eu
 
+export_setting_variables
+
+log_volume_info $MYSQL_DATADIR
+
 # Just run normal server if the data directory is already initialized
 if [ -d "${MYSQL_DATADIR}/mysql" ]; then
   exec /usr/bin/run-mysqld "$@"

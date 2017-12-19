@@ -28,8 +28,8 @@ LABEL summary="$SUMMARY" \
       com.redhat.component="rh-mariadb101-docker" \
       name="centos/mariadb-101-centos7" \
       version="10.1" \
-      release="1" \
-      usage="docker run -e MYSQL_USER=<user_name> -e MYSQL_PASSWORD=<password> -e MYSQL_DATABASE=<db_name> -e MYSQL_ROOT_PASSWORD=<root_password> -p 3306:3306 centos/mariadb-101-centos7"
+      usage="docker run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 centos/mariadb-101-centos7" \
+      maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 3306
 

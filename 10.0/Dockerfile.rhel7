@@ -28,8 +28,8 @@ LABEL summary="$SUMMARY" \
       com.redhat.component="rh-mariadb100-docker" \
       name="rhscl/mariadb-100-rhel7" \
       version="10.0" \
-      release="13.3" \
-      usage="docker run -e MYSQL_USER=<user_name> -e MYSQL_PASSWORD=<password> -e MYSQL_DATABASE=<db_name> -e MYSQL_ROOT_PASSWORD=<root_password> -p 3306:3306 registry.access.redhat.com/rhscl/mariadb-100-rhel7"
+      usage="docker run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 rhscl/mariadb-100-rhel7" \
+      maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 3306
 

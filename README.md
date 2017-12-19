@@ -2,7 +2,7 @@ MariaDB SQL Database Server Docker Image
 ========================================
 
 This repository contains Dockerfiles for MariaDB images for OpenShift and general usage.
-Users can choose between RHEL and CentOS based images.
+Users can choose between RHEL, Fedora and CentOS based images.
 
 MariaDB container is very similar to the MySQL container available at
 [https://github.com/sclorg/mysql-container](https://github.com/sclorg/mysql-container).
@@ -21,6 +21,7 @@ Versions
 MariaDB versions currently provided are:
 * [MariaDB 10.0](10.0)
 * [MariaDB 10.1](10.1)
+* [MariaDB 10.1](10.1)
 
 RHEL versions currently supported are:
 * RHEL7
@@ -35,10 +36,11 @@ Choose either the CentOS7 or RHEL7 based image:
 
 *  **RHEL7 based image**
 
-    This image is available in Red Hat Container Registry. To download it run:
+    These images are available in the [Red Hat Container Catalog](https://access.redhat.com/containers/#/registry.access.redhat.com/rhscl/mariadb-102-rhel7).
+    To download it run:
 
     ```
-    $ docker pull registry.access.redhat.com/rhscl/mariadb-101-rhel7
+    $ docker pull registry.access.redhat.com/rhscl/mariadb-102-rhel7
     ```
 
     To build a RHEL7 based MariaDB image, you need to run Docker build on a properly
@@ -48,7 +50,7 @@ Choose either the CentOS7 or RHEL7 based image:
     $ git clone --recursive https://github.com/sclorg/mariadb-container.git
     $ cd mariadb-container
     $ git submodule update --init
-    $ make build TARGET=rhel7 VERSIONS=10.1
+    $ make build TARGET=rhel7 VERSIONS=10.2
     ```
 
 *  **CentOS7 based image**
@@ -56,7 +58,7 @@ Choose either the CentOS7 or RHEL7 based image:
     This image is available on DockerHub. To download it run:
 
     ```
-    $ docker pull centos/mariadb-101-centos7
+    $ docker pull centos/mariadb-102-centos7
     ```
 
     To build a CentOS based MariaDB image from scratch, run:
@@ -65,10 +67,10 @@ Choose either the CentOS7 or RHEL7 based image:
     $ git clone --recursive https://github.com/sclorg/mariadb-container.git
     $ cd mariadb-container
     $ git submodule update --init
-    $ make build TARGET=centos7 VERSIONS=10.1
+    $ make build TARGET=centos7 VERSIONS=10.2
     ```
 
-For using other versions of MariaDB, just replace the `10.1` value by particular version
+For using other versions of MariaDB, just replace the `10.2` value by particular version
 in the commands above.
 
 **Notice: By omitting the `VERSIONS` parameter, the build/test action will be performed
@@ -84,6 +86,9 @@ see [usage documentation](10.0).
 
 For information about usage of Dockerfile for MariaDB 10.1,
 see [usage documentation](10.1).
+
+For information about usage of Dockerfile for MariaDB 10.2,
+see [usage documentation](10.2).
 
 
 Test
@@ -102,7 +107,7 @@ Users can choose between testing MariaDB based on a RHEL or CentOS image.
     ```
     $ cd mariadb-container
     $ git submodule update --init
-    $ make test TARGET=rhel7 VERSIONS=10.1
+    $ make test TARGET=rhel7 VERSIONS=10.2
     ```
 
 *  **CentOS based image**
@@ -110,10 +115,10 @@ Users can choose between testing MariaDB based on a RHEL or CentOS image.
     ```
     $ cd mariadb-container
     $ git submodule update --init
-    $ make test TARGET=centos7 VERSIONS=10.1
+    $ make test TARGET=centos7 VERSIONS=10.2
     ```
 
-For using other versions of MariaDB, just replace the `10.1` value by particular version
+For using other versions of MariaDB, just replace the `10.2` value by particular version
 in the commands above.
 
 **Notice: By omitting the `VERSIONS` parameter, the build/test action will be performed

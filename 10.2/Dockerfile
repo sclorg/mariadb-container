@@ -27,6 +27,7 @@ LABEL summary="$SUMMARY" \
       io.openshift.tags="database,mysql,mariadb,mariadb102,rh-mariadb102,galera" \
       com.redhat.component="rh-mariadb102-docker" \
       name="centos/mariadb-102-centos7" \
+      version="1" \
       usage="docker run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 centos/mariadb-102-centos7" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 

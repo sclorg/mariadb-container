@@ -30,14 +30,14 @@ LABEL summary="$SUMMARY" \
       usage="docker run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 centos/mariadb-102-centos7" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
-EXPOSE 3306
+EXPOSE 3306 4567 4568 4444
 
 # This image must forever use UID 27 for mysql user so our volumes are
 # safe in the future. This should *never* change, the last test is there
 # to make sure of that.
 RUN yum install -y centos-release-scl-rh && \
     yum-config-manager --enable centos-sclo-rh-testing && \
-    INSTALL_PKGS="rsync tar gettext hostname bind-utils groff-base shadow-utils rh-mariadb102" && \
+    INSTALL_PKGS="rsync tar gettext hostname bind-utils groff-base shadow-utils rh-mariadb102 rh-mariadb102-galera which" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     yum clean all && \

@@ -16,7 +16,7 @@
   },
   "message": "The following service(s) have been created in your project: ${DATABASE_SERVICE_NAME}.\n\n       Username: ${MYSQL_USER}\n       Password: ${MYSQL_PASSWORD}\n  Database Name: ${MYSQL_DATABASE}\n Connection URL: mysql://${DATABASE_SERVICE_NAME}:3306/\n\nFor more information about using this template, including OpenShift considerations, see https://github.com/sclorg/mariadb-container/blob/master/10.2/root/usr/share/container-scripts/mysql/README.md.",
   "labels": {
-    "template": "mariadb-persistent-template"
+    "template": "mariadb-ephemeral-template"
   },
   "objects": [
     {

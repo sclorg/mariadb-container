@@ -40,9 +40,9 @@ function cleanup() {
   ct_cleanup
 
   if [ $TESTSUITE_RESULT -eq 0 ] ; then
-    echo "Tests succeeded."
+    echo "Tests for ${IMAGE_NAME} succeeded."
   else
-    echo "Tests failed."
+    echo "Tests for ${IMAGE_NAME} failed."
   fi
 }
 trap cleanup EXIT SIGINT
@@ -388,23 +388,8 @@ function run_tests() {
 }
 
 run_doc_test() {
-  local tmpdir=$(mktemp -d)
-  local f
   echo "  Testing documentation in the container image"
-  # Extract the help.1 file from the container
-  docker run --rm ${IMAGE_NAME} /bin/bash -c "cat /help.1" >${tmpdir}/help.1
-  # Check whether the help.1 file includes some important information
-  for term in "MYSQL\_ROOT\_PASSWORD" volume 3306 ; do
-    if ! cat ${tmpdir}/help.1 | grep -F -q -e "${term}" ; then
-      echo "ERROR: File /help.1 does not include '${term}'."
-      return 1
-    fi
-  done
-  # Check whether the file uses the correct format
-  if ! file ${tmpdir}/help.1 | grep -q roff ; then
-    echo "ERROR: /help.1 is not in troff or groff format"
-    return 1
-  fi
+  ct_doc_content_old "MYSQL\_ROOT\_PASSWORD" volume 3306
   echo "  Success!"
   echo
 }
@@ -487,7 +472,13 @@ ssl-cert=\${APP_DATA}/mysql-certs/server-cert-selfsigned.pem
 
   # At least MySQL 5.6 requires ssl-ca option on client side, otherwise the ssl is not used
   CONTAINER_EXTRA_ARGS="-v ${test_app_dir}:/opt/app-root/src/:z"
-  if mysql_cmd "$ip" "ssl_test_user" "ssl_test" --ssl-mode=REQUIRED --ssl-ca=${ca_cert_path} -e 'show status like "Ssl_cipher" \G' | grep 'Value: [A-Z][A-Z0-9-]*' ; then
+
+  # MySQL requires --ssl-mode to be set in order to require SSL
+  case ${VERSION} in
+    5*) ssl_mode_opt='--ssl-mode=REQUIRED'
+  esac
+
+  if mysql_cmd "$ip" "ssl_test_user" "ssl_test" ${ssl_mode_opt:-} --ssl-ca=${ca_cert_path} -e 'show status like "Ssl_cipher" \G' | grep 'Value: [A-Z][A-Z0-9-]*' ; then
     echo "  Success!"
     rm -rf ${test_app_dir}
   else
@@ -529,7 +520,7 @@ function run_upgrade_test() {
   mkdir "${tmpdir}/data" && chmod -R a+rwx "${tmpdir}"
 
   # Create MySQL container with persistent volume and set the version from too old version
-  local datadir=${tmpdir}
+  local datadir=${tmpdir}/data
   create_container "testupg1" -e MYSQL_USER=user -e MYSQL_PASSWORD=foo \
     -e MYSQL_DATABASE=db -v ${datadir}:/var/lib/mysql/data:Z
   test_connection testupg1 user foo
@@ -549,7 +540,7 @@ function run_upgrade_test() {
     return 1
   fi
   # Check whether upgrade did not happen
-  if docker logs $(ct_get_cid testupg2) 2>&1 | grep -e 'Running mysql_upgrade --socket=/tmp/mysql.sock' &>/dev/null ; then
+  if docker logs $(ct_get_cid testupg2) 2>&1 | grep -e 'Running mysql_upgrade' &>/dev/null ; then
     echo "Upgrade should not be run when information about version is missing"
     return 1
   fi
@@ -570,7 +561,7 @@ function run_upgrade_test() {
   test_connection testupg3 user foo
   docker stop $(ct_get_cid testupg3) >/dev/null
   # Check whether some upgrade happened
-  if ! docker logs $(ct_get_cid testupg3) 2>&1 | grep -e 'Running mysql_upgrade --socket=/tmp/mysql.sock' &>/dev/null ; then
+  if ! docker logs $(ct_get_cid testupg3) 2>&1 | grep -qe 'Running mysql_upgrade' ; then
     echo "Upgrade did not happen but it should when upgrading from previous version"
     docker logs $(ct_get_cid testupg3)
     return 1
@@ -585,7 +576,7 @@ function run_upgrade_test() {
   test_connection testupg4 user foo
   docker stop $(ct_get_cid testupg4) >/dev/null
   # Check whether some upgrade happened
-  if docker logs $(ct_get_cid testupg4) 2>&1 | grep -e 'Running mysql_upgrade --socket=/tmp/mysql.sock' &>/dev/null ; then
+  if docker logs $(ct_get_cid testupg4) 2>&1 | grep -e 'Running mysql_upgrade' &>/dev/null ; then
     echo "Upgrade happened but it should not when upgrading from current version"
     return 1
   fi
@@ -627,7 +618,7 @@ function run_upgrade_test() {
 
 function run_all_tests() {
   for test_case in $TEST_LIST; do
-    : "Running test $test_case"
+    echo "Running test $test_case for ${IMAGE_NAME}"
     $test_case
   done;
 }

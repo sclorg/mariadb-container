@@ -1,4 +1,4 @@
-FROM registry.fedoraproject.org/f26/s2i-core:latest
+FROM registry.fedoraproject.org/f27/s2i-core:latest
 
 # MariaDB image for OpenShift.
 #

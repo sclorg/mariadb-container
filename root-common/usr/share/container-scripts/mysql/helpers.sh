@@ -2,6 +2,10 @@ function log_info {
   echo "---> `date +%T`     $@"
 }
 
+function log_warn {
+  echo "---> `date +%T`     Warning: $@"
+}
+
 function log_and_run {
   log_info "Running $@"
   "$@"
@@ -21,4 +25,7 @@ function log_volume_info {
     shift
   done
   set -e
+  if [[ -v DEBUG_IGNORE_SCRIPT_FAILURES ]]; then
+    set +e
+  fi
 }

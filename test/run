@@ -22,6 +22,7 @@ run_replication_test
 run_doc_test
 run_s2i_test
 run_ssl_test
+run_upgrade_test
 "
 
 if [ -e "${IMAGE_NAME:-}" ] ; then
@@ -39,9 +40,9 @@ function cleanup() {
   ct_cleanup
 
   if [ $TESTSUITE_RESULT -eq 0 ] ; then
-    echo "Tests succeeded."
+    echo "Tests for ${IMAGE_NAME} succeeded."
   else
-    echo "Tests failed."
+    echo "Tests for ${IMAGE_NAME} failed."
   fi
 }
 trap cleanup EXIT SIGINT
@@ -50,7 +51,7 @@ function mysql_cmd() {
   local container_ip="$1"; shift
   local login="$1"; shift
   local password="$1"; shift
-  docker run --rm "$IMAGE_NAME" mysql --host "$container_ip" -u"$login" -p"$password" "$@" db
+  docker run --rm ${CONTAINER_EXTRA_ARGS:-} "$IMAGE_NAME" mysql --host "$container_ip" -u"$login" -p"$password" "$@" db
 }
 
 function test_connection() {
@@ -63,15 +64,30 @@ function test_connection() {
   local max_attempts=20
   local sleep_time=2
   local i
+  local status=''
+  echo -n "    Trying to connect..."
   for i in $(seq $max_attempts); do
-    echo "    Trying to connect..."
-    if mysql_cmd "$ip" "$login" "$password" <<< 'SELECT 1;'; then
+    local status=$(docker inspect -f '{{.State.Status}}' $(ct_get_cid "${name}"))
+    if [ "${status}" != 'running' ] ; then
+      break;
+    fi
+    echo -n "."
+    if mysql_cmd "$ip" "$login" "$password" &>/dev/null <<< 'SELECT 1;'; then
+      echo " OK"
       echo "  Success!"
       return 0
     fi
     sleep $sleep_time
   done
-  echo "  Giving up: Failed to connect. Logs:"
+  echo " FAIL"
+  echo "  Giving up: Failed to connect."
+  if [ "${status}" == 'running' ] ; then
+    echo "  Container is still running."
+  else
+    local exit_status=$(docker inspect -f '{{.State.ExitCode}}' ${name})
+    echo "  Container finised with exit code ${exit_status}."
+  fi
+  echo "Logs:"
   docker logs $(ct_get_cid $name)
   return 1
 }
@@ -97,7 +113,7 @@ function create_container() {
   # create container with a cidfile in a directory for cleanup
   local container_id
   container_id="$(docker run ${DOCKER_ARGS:-} --cidfile $cidfile -d "$@" $IMAGE_NAME ${CONTAINER_ARGS:-})"
-  echo "Created container $container_id"
+  echo "    Created container $container_id"
 }
 
 function run_change_password_test() {
@@ -223,6 +239,7 @@ function assert_container_creation_fails() {
   if [ $ret -gt 30 ]; then
     return 1
   fi
+  echo "  Success!"
 }
 
 function try_image_invalid_combinations() {
@@ -371,23 +388,8 @@ function run_tests() {
 }
 
 run_doc_test() {
-  local tmpdir=$(mktemp -d)
-  local f
   echo "  Testing documentation in the container image"
-  # Extract the help.1 file from the container
-  docker run --rm ${IMAGE_NAME} /bin/bash -c "cat /help.1" >${tmpdir}/help.1
-  # Check whether the help.1 file includes some important information
-  for term in "MYSQL\_ROOT\_PASSWORD" volume 3306 ; do
-    if ! cat ${tmpdir}/help.1 | grep -F -q -e "${term}" ; then
-      echo "ERROR: File /help.1 does not include '${term}'."
-      return 1
-    fi
-  done
-  # Check whether the file uses the correct format
-  if ! file ${tmpdir}/help.1 | grep -q roff ; then
-    echo "ERROR: /help.1 is not in troff or groff format"
-    return 1
-  fi
+  ct_doc_content_old "MYSQL\_ROOT\_PASSWORD" volume 3306
   echo "  Success!"
   echo
 }
@@ -395,9 +397,9 @@ run_doc_test() {
 _s2i_test_image() {
   local container_name="$1"
   local mount_opts="$2"
-  echo "    Testing s2i app image with invalid configuration"
+  echo "  Testing s2i app image with invalid configuration"
   assert_container_creation_fails -e MYSQL_USER=root -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -e MYSQL_ROOT_PASSWORD=pass
-  echo "    Testing s2i app image with correct configuration"
+  echo "  Testing s2i app image with correct configuration"
   create_container \
     "$container_name" \
     --env MYSQL_USER=config_test_user \
@@ -456,6 +458,7 @@ ssl-key=\${APP_DATA}/mysql-certs/server-key.pem
 ssl-cert=\${APP_DATA}/mysql-certs/server-cert-selfsigned.pem
 " >${test_app_dir}/mysql-cfg/ssl.cnf
   chown -R 27:27 ${test_app_dir}
+  local ca_cert_path="/opt/app-root/src/mysql-certs/server-cert-selfsigned.pem"
 
   create_container \
     "_s2i_test_ssl" \
@@ -466,12 +469,21 @@ ssl-cert=\${APP_DATA}/mysql-certs/server-cert-selfsigned.pem
 
   test_connection "_s2i_test_ssl" ssl_test_user ssl_test
   ip=$(ct_get_cip _s2i_test_ssl)
-  if mysql_cmd "$ip" "ssl_test_user" "ssl_test" --ssl -e 'show status like "Ssl_cipher" \G' | grep 'Value: [A-Z][A-Z0-9-]*' ; then
+
+  # At least MySQL 5.6 requires ssl-ca option on client side, otherwise the ssl is not used
+  CONTAINER_EXTRA_ARGS="-v ${test_app_dir}:/opt/app-root/src/:z"
+
+  # MySQL requires --ssl-mode to be set in order to require SSL
+  case ${VERSION} in
+    5*) ssl_mode_opt='--ssl-mode=REQUIRED'
+  esac
+
+  if mysql_cmd "$ip" "ssl_test_user" "ssl_test" ${ssl_mode_opt:-} --ssl-ca=${ca_cert_path} -e 'show status like "Ssl_cipher" \G' | grep 'Value: [A-Z][A-Z0-9-]*' ; then
     echo "  Success!"
     rm -rf ${test_app_dir}
   else
     echo "  FAIL!"
-    mysql_cmd "$ip" "ssl_test_user" "ssl_test" --ssl -e 'status \G'
+    mysql_cmd "$ip" "ssl_test_user" "ssl_test" --ssl-ca=${ca_cert_path} -e 'show status like "%ssl%" \G'
     return 1
   fi
 }
@@ -488,9 +500,124 @@ function run_general_tests() {
   DOCKER_ARGS="-u 12345" USER=user1 PASS=pass1 ROOT_PASS=r00t run_tests root_altuid
 }
 
+function get_previous_major_version() {
+  case "${1}" in
+    5.5) echo "5.1" ;;
+    5.6) echo "5.5" ;;
+    5.7) echo "5.6" ;;
+    8.0) echo "5.7" ;;
+    10.0) echo "5.5" ;;
+    10.1) echo "10.0" ;;
+    10.2) echo "10.1" ;;
+    10.3) echo "10.2" ;;
+    *) echo "Non expected version '${1}'" ; return 1 ;;
+  esac
+}
+
+function run_upgrade_test() {
+  local tmpdir=$(mktemp -d)
+  echo "  Testing upgrade of the container image"
+  mkdir "${tmpdir}/data" && chmod -R a+rwx "${tmpdir}"
+
+  # Create MySQL container with persistent volume and set the version from too old version
+  local datadir=${tmpdir}/data
+  create_container "testupg1" -e MYSQL_USER=user -e MYSQL_PASSWORD=foo \
+    -e MYSQL_DATABASE=db -v ${datadir}:/var/lib/mysql/data:Z
+  test_connection testupg1 user foo
+  docker stop $(ct_get_cid testupg1) >/dev/null
+
+  # Simulate datadir without version information
+  rm -f ${datadir}/mysql_upgrade_info
+  echo "  Testing upgrade from data without version"
+  # This should work, but warning should be printed
+  create_container "testupg2" -e MYSQL_USER=user -e MYSQL_PASSWORD=foo \
+    -e MYSQL_DATABASE=db -v ${datadir}:/var/lib/mysql/data:Z
+  test_connection testupg2 user foo
+  docker stop $(ct_get_cid testupg2) >/dev/null
+  # Check whether some information is provided
+  if ! docker logs $(ct_get_cid testupg2) 2>&1 | grep -e 'Version of the data could not be determined' &>/dev/null ; then
+    echo "Information about missing version file is not available in the logs"
+    return 1
+  fi
+  # Check whether upgrade did not happen
+  if docker logs $(ct_get_cid testupg2) 2>&1 | grep -e 'Running mysql_upgrade' &>/dev/null ; then
+    echo "Upgrade should not be run when information about version is missing"
+    return 1
+  fi
+
+  # Create version file that is too old
+  echo "  Testing upgrade from too old data"
+  echo "5.0.12" >${datadir}/mysql_upgrade_info
+  # Create another container with same data and upgrade set to 'upgrade-auto'
+  assert_container_creation_fails -e MYSQL_USER=user -e MYSQL_PASSWORD=foo \
+    -e MYSQL_DATABASE=db -v ${datadir}:/var/lib/mysql/data:Z -e MYSQL_DATADIR_ACTION=upgrade-auto 2>/dev/null
+
+  # Create version file that we can upgrade from
+  echo "  Testing upgrade from previous version"
+  echo "$(get_previous_major_version ${VERSION}).12" >${datadir}/mysql_upgrade_info
+  # Create another container with same data and upgrade set to 'upgrade-aauto'
+  create_container "testupg3" -e MYSQL_USER=user -e MYSQL_PASSWORD=foo \
+    -e MYSQL_DATABASE=db -v ${datadir}:/var/lib/mysql/data:Z -e MYSQL_DATADIR_ACTION=upgrade-auto
+  test_connection testupg3 user foo
+  docker stop $(ct_get_cid testupg3) >/dev/null
+  # Check whether some upgrade happened
+  if ! docker logs $(ct_get_cid testupg3) 2>&1 | grep -qe 'Running mysql_upgrade' ; then
+    echo "Upgrade did not happen but it should when upgrading from previous version"
+    docker logs $(ct_get_cid testupg3)
+    return 1
+  fi
+
+  # Create version file that we don't need to upgrade from
+  echo "  Testing upgrade from the same version"
+  echo "${VERSION}.12" >${datadir}/mysql_upgrade_info
+  # Create another container with same data and upgrade set to 'upgrade-aauto'
+  create_container "testupg4" -e MYSQL_USER=user -e MYSQL_PASSWORD=foo \
+    -e MYSQL_DATABASE=db -v ${datadir}:/var/lib/mysql/data:Z -e MYSQL_DATADIR_ACTION=upgrade-auto
+  test_connection testupg4 user foo
+  docker stop $(ct_get_cid testupg4) >/dev/null
+  # Check whether some upgrade happened
+  if docker logs $(ct_get_cid testupg4) 2>&1 | grep -e 'Running mysql_upgrade' &>/dev/null ; then
+    echo "Upgrade happened but it should not when upgrading from current version"
+    return 1
+  fi
+
+  # Create second container with same data and upgrade set to 'analyze'
+  echo "  Testing running --analyze"
+  create_container "testupg5" -e MYSQL_USER=user -e MYSQL_PASSWORD=foo \
+    -e MYSQL_DATABASE=db -v ${datadir}:/var/lib/mysql/data:Z -e MYSQL_DATADIR_ACTION=analyze
+  test_connection testupg5 user foo
+  docker stop $(ct_get_cid testupg5) >/dev/null
+  # Check whether analyze happened
+  if ! docker logs $(ct_get_cid testupg5) 2>&1 | grep -e '--analyze --all-databases' &>/dev/null ; then
+    echo "Analyze did not happen but it should"
+    return 1
+  fi
+
+  # Create another container with same data and upgrade set to 'optimize'
+  echo "  Testing running --optimize"
+  create_container "testupg6" -e MYSQL_USER=user -e MYSQL_PASSWORD=foo \
+    -e MYSQL_DATABASE=db -v ${datadir}:/var/lib/mysql/data:Z -e MYSQL_DATADIR_ACTION=optimize
+  test_connection testupg6 user foo
+  docker stop $(ct_get_cid testupg6) >/dev/null
+  # Check whether optimize happened
+  if ! docker logs $(ct_get_cid testupg6) 2>&1 | grep -e '--optimize --all-databases' &>/dev/null ; then
+    echo "Optimize did not happen but it should"
+    return 1
+  fi
+
+  # Create version file that we cannot upgrade from
+  echo "  Testing upgrade from the future version"
+  echo "20.1.12" >${datadir}/mysql_upgrade_info
+  assert_container_creation_fails -e MYSQL_USER=user -e MYSQL_PASSWORD=foo \
+    -e MYSQL_DATABASE=db -v ${datadir}:/var/lib/mysql/data:Z -e MYSQL_DATADIR_ACTION=upgrade-auto 2>/dev/null
+
+  echo "  Upgrade tests succeeded!"
+  echo
+}
+
 function run_all_tests() {
   for test_case in $TEST_LIST; do
-    : "Running test $test_case"
+    echo "Running test $test_case for ${IMAGE_NAME}"
     $test_case
   done;
 }

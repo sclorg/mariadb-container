@@ -64,9 +64,9 @@ function unset_env_vars() {
 function wait_for_mysql() {
   pid=$1 ; shift
 
-  while [ true ]; do
+  while true; do
     if [ -d "/proc/$pid" ]; then
-      mysqladmin --socket=/tmp/mysql.sock ping &>/dev/null && log_info "MySQL started successfully" && return 0
+      mysqladmin $admin_flags ping &>/dev/null && log_info "MySQL started successfully" && return 0
     else
       return 1
     fi
@@ -103,7 +103,7 @@ function initialize_database() {
   # Running mysql_upgrade creates the mysql_upgrade_info file in the data dir,
   # which is necessary to detect which version of the mysqld daemon created the data.
   # Checking empty file should not take longer than a second and one extra check should not harm.
-  mysql_upgrade --socket=/tmp/mysql.sock
+  mysql_upgrade ${admin_flags}
 
   if [ -v MYSQL_RUNNING_AS_SLAVE ]; then
     log_info 'Initialization finished'

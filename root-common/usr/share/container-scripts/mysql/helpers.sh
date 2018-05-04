@@ -25,4 +25,7 @@ function log_volume_info {
     shift
   done
   set -e
+  if [[ -v DEBUG_IGNORE_SCRIPT_FAILURES ]]; then
+    set +e
+  fi
 }

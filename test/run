@@ -608,7 +608,6 @@ function run_upgrade_test() {
   # Create version file that we cannot upgrade from
   echo "  Testing upgrade from the future version"
   echo "20.1.12" >${datadir}/mysql_upgrade_info
-  # Create another container with same data and upgrade set to 'optimize'
   assert_container_creation_fails -e MYSQL_USER=user -e MYSQL_PASSWORD=foo \
     -e MYSQL_DATABASE=db -v ${datadir}:/var/lib/mysql/data:Z -e MYSQL_UPGRADE=auto 2>/dev/null
 

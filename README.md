@@ -21,7 +21,7 @@ Versions
 MariaDB versions currently provided are:
 * [MariaDB 10.0](10.0)
 * [MariaDB 10.1](10.1)
-* [MariaDB 10.1](10.1)
+* [MariaDB 10.2](10.2)
 
 RHEL versions currently supported are:
 * RHEL7

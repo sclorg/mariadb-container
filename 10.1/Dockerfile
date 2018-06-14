@@ -25,7 +25,7 @@ LABEL summary="$SUMMARY" \
       io.k8s.display-name="MariaDB 10.1" \
       io.openshift.expose-services="3306:mysql" \
       io.openshift.tags="database,mysql,mariadb,mariadb101,rh-mariadb101,galera" \
-      com.redhat.component="rh-mariadb101-docker" \
+      com.redhat.component="rh-mariadb101-container" \
       name="centos/mariadb-101-centos7" \
       version="10.1" \
       usage="docker run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 centos/mariadb-101-centos7" \

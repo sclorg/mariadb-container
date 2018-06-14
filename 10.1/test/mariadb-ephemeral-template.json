@@ -246,7 +246,7 @@
     {
       "name": "MARIADB_VERSION",
       "displayName": "Version of MariaDB Image",
-      "description": "Version of MariaDB image to be used (10.2 or latest).",
+      "description": "Version of MariaDB image to be used (10.1, 10.2 or latest).",
       "value": "10.2",
       "required": true
     }

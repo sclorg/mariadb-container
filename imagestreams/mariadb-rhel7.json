@@ -38,7 +38,7 @@
         },
         "from": {
           "kind": "DockerImage",
-          "name": "registry.access.redhat.com/rhscl/mariadb-101-rhel7:latest"
+          "name": "registry.redhat.io/rhscl/mariadb-101-rhel7:latest"
         },
         "referencePolicy": {
           "type": "Local"
@@ -56,7 +56,7 @@
         },
         "from": {
           "kind": "DockerImage",
-          "name": "registry.access.redhat.com/rhscl/mariadb-102-rhel7:latest"
+          "name": "registry.redhat.io/rhscl/mariadb-102-rhel7:latest"
         },
         "referencePolicy": {
           "type": "Local"

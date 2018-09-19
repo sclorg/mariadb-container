@@ -8,7 +8,7 @@ MariaDB container is very similar to the MySQL container available at
 [https://github.com/sclorg/mysql-container](https://github.com/sclorg/mysql-container).
 
 For more information about using these images with OpenShift, please see the
-official [OpenShift Documentation](https://docs.openshift.org/latest/using_images/db_images/mysql.html).
+official [OpenShift Documentation](https://docs.okd.io/latest/using_images/db_images/mariadb.html).
 
 For more information about contributing, see
 [the Contribution Guidelines](https://github.com/sclorg/welcome/blob/master/contribution.md).

@@ -96,8 +96,7 @@ function initialize_database() {
   log_info 'Initializing database ...'
   log_info 'Running mysql_install_db ...'
   # Using --rpm since we need mysql_install_db behaves as in RPM
-  # Using empty --basedir to work-around https://bugzilla.redhat.com/show_bug.cgi?id=1406391
-  mysql_install_db --rpm --datadir=$MYSQL_DATADIR --basedir=''
+  mysql_install_db --rpm --datadir=$MYSQL_DATADIR
   start_local_mysql "$@"
 
   # Running mysql_upgrade creates the mysql_upgrade_info file in the data dir,

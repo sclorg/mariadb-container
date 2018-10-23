@@ -1,4 +1,4 @@
-FROM registry.fedoraproject.org/f27/s2i-core:latest
+FROM registry.fedoraproject.org/f28/s2i-core:latest
 
 # MariaDB image for OpenShift.
 #
@@ -15,7 +15,6 @@ ENV MYSQL_VERSION=10.2 \
     HOME=/var/lib/mysql \
     NAME=mariadb \
     VERSION=10.2 \
-    RELEASE=1 \
     ARCH=x86_64 \
     SUMMARY="MariaDB 10.2 SQL database server" \
     DESCRIPTION="MariaDB is a multi-user, multi-threaded SQL database server. The container \
@@ -32,8 +31,6 @@ LABEL summary="$SUMMARY" \
       com.redhat.component="$NAME" \
       name="$FGC/$NAME" \
       version="$VERSION" \
-      release="$RELEASE.$DISTTAG" \
-      architecture="$ARCH" \
       usage="docker run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 $FGC/$NAME" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
@@ -64,8 +61,10 @@ COPY 10.2/root /
 # this is needed due to issues with squash
 # when this directory gets rm'd by the container-setup
 # script.
+# Also reset permissions of filesystem to default values
 RUN rm -rf /etc/my.cnf.d/* && \
-    /usr/libexec/container-setup
+    /usr/libexec/container-setup && \
+    rpm-file-permissions
 
 VOLUME ["/var/lib/mysql/data"]
 

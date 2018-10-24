@@ -46,10 +46,6 @@ RUN INSTALL_PKGS="rsync tar gettext hostname bind-utils groff-base shadow-utils 
     mkdir -p /var/lib/mysql/data && chown -R mysql.0 /var/lib/mysql && \
     test "$(id mysql)" = "uid=27(mysql) gid=27(mysql) groups=27(mysql)"
 
-# On Fedora, we fake missing python binary. In case user installs the python2
-# in the container, this hack will be removed by installing /usr/bin/python from RPM.
-RUN ln -s /usr/bin/python3 /usr/bin/python
-
 # Get prefix path and path to scripts rather than hard-code them in scripts
 ENV CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/mysql \
     MYSQL_PREFIX=/usr

@@ -21,9 +21,11 @@ Versions
 MariaDB versions currently provided are:
 * [MariaDB 10.1](10.1)
 * [MariaDB 10.2](10.2)
+* [MariaDB 10.3](10.3)
 
 RHEL versions currently supported are:
 * RHEL7
+* RHEL8
 
 CentOS versions currently supported are:
 * CentOS7
@@ -86,6 +88,8 @@ see [usage documentation](10.1).
 For information about usage of Dockerfile for MariaDB 10.2,
 see [usage documentation](10.2).
 
+For information about usage of Dockerfile for MariaDB 10.3,
+see [usage documentation](10.3).
 
 Test
 ---------------------------------

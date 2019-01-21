@@ -338,3 +338,5 @@ Dockerfile and other sources for this container image are available on
 https://github.com/sclorg/mariadb-container.
 In that repository, Dockerfile for CentOS is called Dockerfile, Dockerfile
 for RHEL is called Dockerfile.rhel7.
+
+<!--- end of file; updated counter: 1 -->

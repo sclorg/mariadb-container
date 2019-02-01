@@ -27,17 +27,19 @@ test_mysql_template "${IMAGE_NAME}"
 # TODO: Can we make the build against examples inside the same PR?
 test_mysql_s2i "${IMAGE_NAME}" "https://github.com/sclorg/mariadb-container.git" test/test-app
 
-# test with a current image and integrated template
-export CT_NAMESPACE=openshift
-test_mariadb_integration "${IMAGE_NAME}" "${VERSION}"
+test_mariadb_integration "${IMAGE_NAME}" "${VERSION}" mariadb
 
-# test with a released image and integrated template
+# test with a released image and an integrated template
+if [ "${OS}" == "rhel7" ] ; then
+  PUBLIC_IMAGE_NAME=${PUBLIC_IMAGE_NAME:-${REGISTRY:-registry.access.redhat.com/}rhscl/${BASE_IMAGE_NAME}-${VERSION//./}-rhel7}
+else
+  PUBLIC_IMAGE_NAME=${PUBLIC_IMAGE_NAME:-${REGISTRY:-}centos/${BASE_IMAGE_NAME}-${VERSION//./}-centos7}
+fi
+
 export CT_SKIP_UPLOAD_IMAGE=true
-case ${OS} in
-  rhel7) IMAGE_NAME=rhscl/mariadb-${VERSION//./}-rhel7 ;;
-  *) ;;
-esac
-test_mariadb_integration mariadb "${VERSION}" "registry.access.redhat.com/${IMAGE_NAME}"
+test_mariadb_integration mariadb "${VERSION}" "${PUBLIC_IMAGE_NAME}"
 
 OS_TESTSUITE_RESULT=0
+
+ct_os_cluster_down
 

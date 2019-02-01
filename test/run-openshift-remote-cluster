@@ -24,7 +24,7 @@ export CT_SKIP_NEW_PROJECT=true
 export CT_SKIP_UPLOAD_IMAGE=true
 export CT_NAMESPACE=openshift
 
-test_mariadb_integration mariadb ${VERSION} "registry.access.redhat.com/${IMAGE_NAME}"
+test_mariadb_integration mariadb ${VERSION} "${IMAGE_NAME}"
 
 OS_TESTSUITE_RESULT=0
 

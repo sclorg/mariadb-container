@@ -5,7 +5,7 @@ This container image includes MariaDB 10.3 SQL database server for OpenShift and
 Users can choose between RHEL and CentOS based images.
 The RHEL image is available in the [Red Hat Container Catalog](https://access.redhat.com/containers/#/registry.access.redhat.com/rhel8/mariadb-103)
 as registry.access.redhat.com/rhel8/mariadb-103.
-The CentOS image is then available on [Docker Hub](https://hub.docker.com/r/centos/mariadb-103-centos8/)
+After the CentOS 8 will be released, CentOS image will be available on [Docker Hub](https://hub.docker.com/r/centos/)
 as centos/mariadb-103-centos8.
 
 

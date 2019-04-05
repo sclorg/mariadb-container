@@ -195,16 +195,23 @@ available via `mariadb:10.2` imagestream tag in Openshift.
 
 
 For example, to build a customized MariaDB database image `my-mariadb-rhel7`
-with a configuration in `image-configuration/` run:
+with a configuration from `https://github.com/sclorg/mariadb-container/tree/master/examples/extend-image` run:
 
 ```
-$ oc new-app mariadb:10.2~./image-configuration/ --name my-mariadb-rhel7
+$ oc new-app mariadb:10.2~https://github.com/sclorg/mariadb-container.git \
+    --name my-mariadb-rhel7 \
+    --context-dir=examples/extend-image \
+    --env MYSQL_OPERATIONS_USER=opuser \
+    --env MYSQL_OPERATIONS_PASSWORD=oppass \
+    --env MYSQL_DATABASE=opdb \
+    --env MYSQL_USER=user \
+    --env MYSQL_PASSWORD=pass
 ```
 
 or via s2i:
 
 ```
-$ s2i build ./image-configuration/ rhscl/mariadb-102-rhel7 my-mariadb-rhel7
+$ s2i build --context-dir=examples/extend-image https://github.com/sclorg/mariadb-container.git rhscl/mariadb-102-rhel7 my-mariadb-rhel7
 ```
 
 The directory passed to Openshift can contain these directories:

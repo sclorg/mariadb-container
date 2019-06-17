@@ -19,7 +19,6 @@ For more information about concepts used in these podman images, see the
 Versions
 ---------------
 MariaDB versions currently provided are:
-* [MariaDB 10.1](10.1)
 * [MariaDB 10.2](10.2)
 * [MariaDB 10.3](10.3)
 
@@ -83,9 +82,6 @@ This variable must be set to a list with possible versions (subdirectories).**
 
 Usage
 ---------------------------------
-
-For information about usage of Dockerfile for MariaDB 10.1,
-see [usage documentation](10.1).
 
 For information about usage of Dockerfile for MariaDB 10.2,
 see [usage documentation](10.2).

@@ -27,24 +27,6 @@
         }
       },
       {
-        "name": "10.1",
-        "annotations": {
-          "openshift.io/display-name": "MariaDB 10.1",
-          "openshift.io/provider-display-name": "Red Hat, Inc.",
-          "description": "Provides a MariaDB 10.1 database on RHEL 7. For more information about using this database image, including OpenShift considerations, see https://github.com/sclorg/mariadb-container/tree/master/10.1/README.md.",
-          "iconClass": "icon-mariadb",
-          "tags": "hidden,database,mariadb",
-          "version": "10.1"
-        },
-        "from": {
-          "kind": "DockerImage",
-          "name": "registry.redhat.io/rhscl/mariadb-101-rhel7:latest"
-        },
-        "referencePolicy": {
-          "type": "Local"
-        }
-      },
-      {
         "name": "10.2",
         "annotations": {
           "openshift.io/display-name": "MariaDB 10.2",

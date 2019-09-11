@@ -38,7 +38,7 @@ EXPOSE 3306
 # to make sure of that.
 RUN yum -y module enable mariadb:$MYSQL_VERSION && \
     INSTALL_PKGS="policycoreutils rsync tar gettext hostname bind-utils groff-base mariadb-server" && \
-    yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS shadow-utils && \
+    yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     yum -y clean all --enablerepo='*' && \
     mkdir -p /var/lib/mysql/data && chown -R mysql.0 /var/lib/mysql && \

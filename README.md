@@ -36,11 +36,11 @@ Choose either the CentOS7 or RHEL7 based image:
 
 *  **RHEL7 based image**
 
-    These images are available in the [Red Hat Container Catalog](https://access.redhat.com/containers/#/registry.access.redhat.com/rhscl/mariadb-102-rhel7).
+    These images are available in the [Red Hat Container Catalog](https://access.redhat.com/containers/#/registry.access.redhat.com/rhscl/mariadb-103-rhel7).
     To download it run:
 
     ```
-    $ podman pull registry.access.redhat.com/rhscl/mariadb-102-rhel7
+    $ podman pull registry.access.redhat.com/rhscl/mariadb-103-rhel7
     ```
 
     To build a RHEL7 based MariaDB image, you need to run Docker build on a properly
@@ -50,7 +50,7 @@ Choose either the CentOS7 or RHEL7 based image:
     $ git clone --recursive https://github.com/sclorg/mariadb-container.git
     $ cd mariadb-container
     $ git submodule update --init
-    $ make build TARGET=rhel7 VERSIONS=10.2
+    $ make build TARGET=rhel7 VERSIONS=10.3
     ```
 
 *  **CentOS7 based image**
@@ -58,7 +58,7 @@ Choose either the CentOS7 or RHEL7 based image:
     This image is available on DockerHub. To download it run:
 
     ```
-    $ podman pull centos/mariadb-102-centos7
+    $ podman pull centos/mariadb-103-centos7
     ```
 
     To build a CentOS based MariaDB image from scratch, run:
@@ -67,10 +67,10 @@ Choose either the CentOS7 or RHEL7 based image:
     $ git clone --recursive https://github.com/sclorg/mariadb-container.git
     $ cd mariadb-container
     $ git submodule update --init
-    $ make build TARGET=centos7 VERSIONS=10.2
+    $ make build TARGET=centos7 VERSIONS=10.3
     ```
 
-For using other versions of MariaDB, just replace the `10.2` value by particular version
+For using other versions of MariaDB, just replace the `10.3` value by particular version
 in the commands above.
 
 Note: while the installation steps are calling `podman`, you can replace any such calls by `docker` with the same arguments.
@@ -105,7 +105,7 @@ Users can choose between testing MariaDB based on a RHEL or CentOS image.
     ```
     $ cd mariadb-container
     $ git submodule update --init
-    $ make test TARGET=rhel7 VERSIONS=10.2
+    $ make test TARGET=rhel7 VERSIONS=10.3
     ```
 
 *  **CentOS based image**
@@ -113,10 +113,10 @@ Users can choose between testing MariaDB based on a RHEL or CentOS image.
     ```
     $ cd mariadb-container
     $ git submodule update --init
-    $ make test TARGET=centos7 VERSIONS=10.2
+    $ make test TARGET=centos7 VERSIONS=10.3
     ```
 
-For using other versions of MariaDB, just replace the `10.2` value by particular version
+For using other versions of MariaDB, just replace the `10.3` value by particular version
 in the commands above.
 
 **Notice: By omitting the `VERSIONS` parameter, the build/test action will be performed

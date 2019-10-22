@@ -1,4 +1,4 @@
-FROM rhscl/s2i-core-rhel7
+FROM centos/s2i-core-centos7
 
 # MariaDB image for OpenShift.
 #
@@ -10,10 +10,10 @@ FROM rhscl/s2i-core-rhel7
 #  * $MYSQL_DATABASE - Name of the database to create
 #  * $MYSQL_ROOT_PASSWORD (Optional) - Password for the 'root' MySQL account
 
-ENV MYSQL_VERSION=10.3 \
+ENV MYSQL_VERSION=10.2 \
     APP_DATA=/opt/app-root/src \
     HOME=/var/lib/mysql \
-    SUMMARY="MariaDB 10.3 SQL database server" \
+    SUMMARY="MariaDB 10.2 SQL database server" \
     DESCRIPTION="MariaDB is a multi-user, multi-threaded SQL database server. The container \
 image provides a containerized packaging of the MariaDB mysqld daemon and client application. \
 The mysqld server daemon accepts connections from clients and provides access to content from \
@@ -22,14 +22,12 @@ MariaDB databases on behalf of the clients."
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
       io.k8s.description="$DESCRIPTION" \
-      io.k8s.display-name="MariaDB 10.3" \
+      io.k8s.display-name="MariaDB 10.2" \
       io.openshift.expose-services="3306:mysql" \
-      io.openshift.tags="database,mysql,mariadb,mariadb103,rh-mariadb103" \
-      com.redhat.component="rh-mariadb103-container" \
-      name="rhscl/mariadb-103-rhel7" \
-      version="1" \
-      com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#rhel" \
-      usage="docker run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 rhscl/mariadb-103-rhel7" \
+      io.openshift.tags="database,mysql,mariadb,mariadb102,rh-mariadb102,galera" \
+      com.redhat.component="rh-mariadb102-container" \
+      name="centos/mariadb-102-centos7" \
+      usage="docker run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 centos/mariadb-102-centos7" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 3306
@@ -37,9 +35,8 @@ EXPOSE 3306
 # This image must forever use UID 27 for mysql user so our volumes are
 # safe in the future. This should *never* change, the last test is there
 # to make sure of that.
-RUN yum install -y yum-utils && \
-    prepare-yum-repositories rhel-server-rhscl-7-rpms && \
-    INSTALL_PKGS="rsync tar gettext hostname bind-utils groff-base rh-mariadb103" && \
+RUN yum install -y centos-release-scl-rh && \
+    INSTALL_PKGS="rsync tar gettext hostname bind-utils groff-base rh-mariadb102" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     yum -y clean all --enablerepo='*' && \
@@ -48,8 +45,8 @@ RUN yum install -y yum-utils && \
 
 # Get prefix path and path to scripts rather than hard-code them in scripts
 ENV CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/mysql \
-    MYSQL_PREFIX=/opt/rh/rh-mariadb103/root/usr \
-    ENABLED_COLLECTIONS=rh-mariadb103
+    MYSQL_PREFIX=/opt/rh/rh-mariadb102/root/usr \
+    ENABLED_COLLECTIONS=rh-mariadb102
 
 # When bash is started non-interactively, to run a shell script, for example it
 # looks for this variable and source the content of this file. This will enable
@@ -58,9 +55,9 @@ ENV BASH_ENV=${CONTAINER_SCRIPTS_PATH}/scl_enable \
     ENV=${CONTAINER_SCRIPTS_PATH}/scl_enable \
     PROMPT_COMMAND=". ${CONTAINER_SCRIPTS_PATH}/scl_enable"
 
-COPY 10.3/root-common /
-COPY 10.3/s2i-common/bin/ $STI_SCRIPTS_PATH
-COPY 10.3/root /
+COPY 10.2/root-common /
+COPY 10.2/s2i-common/bin/ $STI_SCRIPTS_PATH
+COPY 10.2/root /
 
 # this is needed due to issues with squash
 # when this directory gets rm'd by the container-setup

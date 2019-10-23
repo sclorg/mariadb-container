@@ -30,14 +30,23 @@ test_mysql_s2i "${IMAGE_NAME}" "https://github.com/sclorg/mariadb-container.git"
 test_mariadb_integration "${IMAGE_NAME}" "${VERSION}" mariadb
 
 # test with a released image and an integrated template
+# ignore possible failure of this test for centos images
+fail_not_released=true
 if [ "${OS}" == "rhel7" ] ; then
-  PUBLIC_IMAGE_NAME=${PUBLIC_IMAGE_NAME:-${REGISTRY:-registry.access.redhat.com/}rhscl/${BASE_IMAGE_NAME}-${VERSION//./}-rhel7}
+  PUBLIC_IMAGE_NAME=${PUBLIC_IMAGE_NAME:-${REGISTRY:-registry.redhat.io/}rhscl/${BASE_IMAGE_NAME}-${VERSION//./}-rhel7}
 else
   PUBLIC_IMAGE_NAME=${PUBLIC_IMAGE_NAME:-${REGISTRY:-}centos/${BASE_IMAGE_NAME}-${VERSION//./}-centos7}
+  fail_not_released=false
 fi
 
 export CT_SKIP_UPLOAD_IMAGE=true
-test_mariadb_integration mariadb "${VERSION}" "${PUBLIC_IMAGE_NAME}"
+# Try pulling the image first to see if it is accessible
+if docker pull "${PUBLIC_IMAGE_NAME}"; then
+  test_mariadb_integration mariadb "${VERSION}" "${PUBLIC_IMAGE_NAME}"
+else
+  echo "Warning: ${PUBLIC_IMAGE_NAME} could not be downloaded via 'docker'"
+  ! $fail_not_released || false "ERROR: Failed to pull image"
+fi
 
 OS_TESTSUITE_RESULT=0
 

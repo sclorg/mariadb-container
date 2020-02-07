@@ -36,7 +36,7 @@ EXPOSE 3306
 # safe in the future. This should *never* change, the last test is there
 # to make sure of that.
 RUN yum install -y centos-release-scl-rh && \
-    INSTALL_PKGS="rsync tar gettext hostname bind-utils groff-base rh-mariadb103 rh-mariadb103-mariadb-server-utils" && \
+    INSTALL_PKGS="rsync tar gettext hostname bind-utils groff-base rh-mariadb103 rh-mariadb103-mariadb-server-utils rh-mariadb103-mariadb-syspaths" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     yum -y clean all --enablerepo='*' && \

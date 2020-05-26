@@ -18,6 +18,8 @@ trap ct_os_cleanup EXIT SIGINT
 
 ct_os_check_compulsory_vars
 
+ct_os_enable_print_logs
+
 ct_os_cluster_up
 
 test_mysql_pure_image "${IMAGE_NAME}"
@@ -27,6 +29,8 @@ test_mysql_template "${IMAGE_NAME}"
 # TODO: Can we make the build against examples inside the same PR?
 test_mysql_s2i "${IMAGE_NAME}" "https://github.com/sclorg/mariadb-container.git" test/test-app
 
+# test with the just built image and an integrated template
+echo "Running test_mariadb_integration with ${IMAGE_NAME}"
 test_mariadb_integration "${IMAGE_NAME}" "${VERSION}" mariadb
 
 # test with a released image and an integrated template
@@ -39,16 +43,22 @@ else
   fail_not_released=false
 fi
 
-export CT_SKIP_UPLOAD_IMAGE=true
 # Try pulling the image first to see if it is accessible
 if docker pull "${PUBLIC_IMAGE_NAME}"; then
-  test_mariadb_integration mariadb "${VERSION}" "${PUBLIC_IMAGE_NAME}"
+  echo "Running test_mariadb_integration with ${PUBLIC_IMAGE_NAME}"
+  test_mariadb_integration "${PUBLIC_IMAGE_NAME}" "${VERSION}" mariadb
 else
   echo "Warning: ${PUBLIC_IMAGE_NAME} could not be downloaded via 'docker'"
   ! $fail_not_released || false "ERROR: Failed to pull image"
 fi
 
+# Check the imagestream
+echo "Running test_mariadb_imagestream"
+test_mariadb_imagestream
+
 OS_TESTSUITE_RESULT=0
 
 ct_os_cluster_down
+
+# vim: set tabstop=2:shiftwidth=2:expandtab:
 

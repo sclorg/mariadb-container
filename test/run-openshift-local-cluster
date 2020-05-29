@@ -58,7 +58,10 @@ test_mariadb_imagestream
 
 OS_TESTSUITE_RESULT=0
 
-ct_os_cluster_down
+# Work-around: trying to disable cluster disposal to avoid errors like:
+# https://gist.github.com/rhscl-bot/c0e70f2cd3e44318db807e66895e0226
+# Error response from daemon: Get http://172.30.1.1:5000/v1/users/: dial tcp 172.30.1.1:5000: connect: connection refused
+# ct_os_cluster_down
 
 # vim: set tabstop=2:shiftwidth=2:expandtab:
 

@@ -30,6 +30,10 @@ test_mariadb_integration "${IMAGE_NAME}"
 # Check the imagestream
 test_mariadb_imagestream
 
+if [[ "${OS}" =~ rhel7 ]] || [[ "${OS}" =~ centos7 ]] ; then
+  ct_os_test_image_stream "${THISDIR}/imagestreams/mariadb-${OS}.json" "${THISDIR}/mariadb-ephemeral-template.json" mariadb
+fi
+
 OS_TESTSUITE_RESULT=0
 
 # vim: set tabstop=2:shiftwidth=2:expandtab:

@@ -40,6 +40,10 @@ PUBLIC_IMAGE_NAME=${PUBLIC_IMAGE_NAME:-$(ct_get_public_image_name "${OS}" "${BAS
 if docker pull "${PUBLIC_IMAGE_NAME}"; then
   echo "Running test_mariadb_integration with ${PUBLIC_IMAGE_NAME}"
   test_mariadb_integration "${PUBLIC_IMAGE_NAME}"
+
+  if [[ "${OS}" =~ rhel7 ]] || [[ "${OS}" =~ centos7 ]] ; then
+    ct_os_test_image_stream "${THISDIR}/imagestreams/mariadb-${OS}.json" "${THISDIR}/mariadb-ephemeral-template.json" mariadb
+  fi
 else
   echo "Warning: ${PUBLIC_IMAGE_NAME} could not be downloaded via 'docker'"
   # ignore possible failure of this test for centos images

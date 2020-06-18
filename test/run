@@ -24,6 +24,7 @@ run_doc_test
 run_s2i_test
 run_ssl_test
 run_upgrade_test
+run_latest_imagestreams
 "
 
 if [ -e "${IMAGE_NAME:-}" ] ; then
@@ -653,6 +654,17 @@ function run_upgrade_test() {
 
   echo "  Upgrade tests succeeded!"
   echo
+}
+
+function run_latest_imagestreams() {
+  local result=1
+  # Switch to root directory of a container
+  echo "Testing the latest version in imagestreams"
+  pushd "${test_dir}/.." >/dev/null || return 1
+  ct_check_latest_imagestreams
+  result=$?
+  popd >/dev/null || return 1
+  return $result
 }
 
 function run_all_tests() {

@@ -42,7 +42,7 @@ if docker pull "${PUBLIC_IMAGE_NAME}"; then
   test_mariadb_integration "${PUBLIC_IMAGE_NAME}"
 
   if [[ "${OS}" =~ rhel7 ]] || [[ "${OS}" =~ centos7 ]] ; then
-    ct_os_test_image_stream "${THISDIR}/imagestreams/mariadb-${OS}.json" "${THISDIR}/mariadb-ephemeral-template.json" mariadb
+    ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS}.json" "${THISDIR}/mariadb-ephemeral-template.json" mariadb
   fi
 else
   echo "Warning: ${PUBLIC_IMAGE_NAME} could not be downloaded via 'docker'"

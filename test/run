@@ -370,6 +370,8 @@ function run_configuration_tests() {
 
   DOCKER_ARGS='--memory=256m' create_container \
     "$container_name" \
+    --env MYSQL_COLLATION=latin2_czech_cs \
+    --env MYSQL_CHARSET=latin2 \
     --env MYSQL_USER=config_test_user \
     --env MYSQL_PASSWORD=config_test \
     --env MYSQL_DATABASE=db
@@ -383,6 +385,13 @@ function run_configuration_tests() {
   test_config_option "$container_name" "$configuration" innodb_buffer_pool_size 128M
   test_config_option "$container_name" "$configuration" innodb_log_file_size 38M
   test_config_option "$container_name" "$configuration" innodb_log_buffer_size 38M
+
+  # check character set and collation
+  container_ip=$(ct_get_cip $container_name)
+  mysql_cmd "$container_ip" config_test_user config_test -e 'CREATE TABLE tbl (col1 VARCHAR(20));'
+  tbl_def=$(mysql_cmd "$container_ip" config_test_user config_test -e 'SHOW CREATE TABLE tbl;')
+  echo "$tbl_def" | grep -e 'CHARSET=latin2'
+  echo "$tbl_def" | grep -e 'COLLATE=latin2_czech_cs'
 
   docker stop "$(ct_get_cid $container_name)" >/dev/null
 

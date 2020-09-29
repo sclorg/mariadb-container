@@ -42,7 +42,7 @@ if docker pull "${PUBLIC_IMAGE_NAME}"; then
   test_mariadb_integration "${PUBLIC_IMAGE_NAME}"
 
   if [[ "${OS}" =~ rhel7 ]] || [[ "${OS}" =~ centos7 ]] ; then
-    ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS}.json" "${THISDIR}/mariadb-ephemeral-template.json" mariadb
+    ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS%%[0-9]*}.json" "${THISDIR}/mariadb-ephemeral-template.json" mariadb
   fi
 else
   echo "Warning: ${PUBLIC_IMAGE_NAME} could not be downloaded via 'docker'"
@@ -53,6 +53,19 @@ fi
 # Check the imagestream
 echo "Running test_mariadb_imagestream"
 test_mariadb_imagestream
+
+function run_latest_imagestreams() {
+  local result=1
+  # Switch to root directory of a container
+  echo "Testing the latest version in imagestreams"
+  pushd "${THISDIR}/.." >/dev/null || return 1
+  ct_check_latest_imagestreams
+  result=$?
+  popd >/dev/null || return 1
+  return $result
+}
+
+run_latest_imagestreams
 
 OS_TESTSUITE_RESULT=0
 

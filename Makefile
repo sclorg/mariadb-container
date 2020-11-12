@@ -1,6 +1,6 @@
 # Variables are documented in hack/build.sh.
 BASE_IMAGE_NAME = mariadb
-VERSIONS = 10.2 10.3
+VERSIONS = 10.3
 OPENSHIFT_NAMESPACES = 
 DOCKER_BUILD_CONTEXT = ..
 

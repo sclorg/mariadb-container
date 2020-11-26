@@ -54,17 +54,7 @@ fi
 echo "Running test_mariadb_imagestream"
 test_mariadb_imagestream
 
-function run_latest_imagestreams() {
-  local result=1
-  # Switch to root directory of a container
-  echo "Testing the latest version in imagestreams"
-  pushd "${THISDIR}/.." >/dev/null || return 1
-  ct_check_latest_imagestreams
-  result=$?
-  popd >/dev/null || return 1
-  return $result
-}
-
+echo "Check the latest imagestreams"
 run_latest_imagestreams
 
 OS_TESTSUITE_RESULT=0

@@ -137,4 +137,15 @@ function test_mariadb_imagestream() {
   ct_os_test_image_stream_template "${THISDIR}/../imagestreams/mariadb-${OS%%[0-9]*}.json" "${THISDIR}/../examples/mariadb-ephemeral-template.json" mariadb "-p MARIADB_VERSION=${VERSION}"
 }
 
+# Check the latest imagestreams
+function run_latest_imagestreams() {
+  local result=1
+  # Switch to root directory of a container
+  echo "Testing the latest version in imagestreams"
+  pushd "${THISDIR}/../.." >/dev/null || return 1
+  ct_check_latest_imagestreams
+  result=$?
+  popd >/dev/null || return 1
+  return $result
+}
 # vim: set tabstop=2:shiftwidth=2:expandtab:

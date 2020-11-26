@@ -1,4 +1,4 @@
-FROM centos/s2i-core-centos7
+FROM quay.io/centos7/s2i-core-centos7
 
 # MariaDB image for OpenShift.
 #
@@ -28,8 +28,8 @@ LABEL summary="$SUMMARY" \
       io.openshift.expose-services="3306:mysql" \
       io.openshift.tags="database,mysql,mariadb,mariadb103,rh-mariadb103,galera" \
       com.redhat.component="rh-mariadb103-container" \
-      name="centos/mariadb-103-centos7" \
-      usage="docker run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 centos/mariadb-103-centos7" \
+      name="centos7/mariadb-103-centos7" \
+      usage="docker run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 quay.io/centos7/mariadb-103-centos7" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 3306

@@ -1,6 +1,8 @@
 MariaDB SQL Database Server Docker Image
 ========================================
 
+MariaDB 10.3 Quay.io status: [![Docker Repository on Quay](https://quay.io/repository/centos7/mariadb-103-centos7/status "Docker Repository on Quay")](https://quay.io/repository/centos7/mariadb-103-centos7)
+
 This repository contains Dockerfiles for MariaDB images for OpenShift and general usage.
 Users can choose between RHEL, Fedora and CentOS based images.
 
@@ -57,7 +59,7 @@ Choose either the CentOS7 or RHEL7 based image:
     This image is available on DockerHub. To download it run:
 
     ```
-    $ podman pull centos/mariadb-103-centos7
+    $ podman pull quay.io/centos7/mariadb-103-centos7
     ```
 
     To build a CentOS based MariaDB image from scratch, run:

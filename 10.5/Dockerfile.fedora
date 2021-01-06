@@ -1,4 +1,4 @@
-FROM registry.fedoraproject.org/f31/s2i-core:latest
+FROM registry.fedoraproject.org/f34/s2i-core:latest
 
 # MariaDB image for OpenShift.
 #
@@ -10,13 +10,13 @@ FROM registry.fedoraproject.org/f31/s2i-core:latest
 #  * $MYSQL_DATABASE - Name of the database to create
 #  * $MYSQL_ROOT_PASSWORD (Optional) - Password for the 'root' MySQL account
 
-ENV MYSQL_VERSION=10.3 \
+ENV MYSQL_VERSION=10.5 \
     APP_DATA=/opt/app-root/src \
     HOME=/var/lib/mysql \
     NAME=mariadb \
-    VERSION=10.3 \
+    VERSION=10.5 \
     ARCH=x86_64 \
-    SUMMARY="MariaDB 10.3 SQL database server" \
+    SUMMARY="MariaDB 10.5 SQL database server" \
     DESCRIPTION="MariaDB is a multi-user, multi-threaded SQL database server. The container \
 image provides a containerized packaging of the MariaDB mysqld daemon and client application. \
 The mysqld server daemon accepts connections from clients and provides access to content from \
@@ -25,9 +25,9 @@ MariaDB databases on behalf of the clients."
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
       io.k8s.description="MariaDB is a multi-user, multi-threaded SQL database server" \
-      io.k8s.display-name="MariaDB 10.3" \
+      io.k8s.display-name="MariaDB 10.5" \
       io.openshift.expose-services="3306:mysql" \
-      io.openshift.tags="database,mysql,mariadb,mariadb103,galera" \
+      io.openshift.tags="database,mysql,mariadb,mariadb105,galera" \
       com.redhat.component="$NAME" \
       name="$FGC/$NAME" \
       version="$VERSION" \
@@ -50,9 +50,9 @@ RUN INSTALL_PKGS="rsync tar gettext hostname bind-utils groff-base mariadb maria
 ENV CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/mysql \
     MYSQL_PREFIX=/usr
 
-COPY 10.3/root-common /
-COPY 10.3/s2i-common/bin/ $STI_SCRIPTS_PATH
-COPY 10.3/root /
+COPY 10.5/root-common /
+COPY 10.5/s2i-common/bin/ $STI_SCRIPTS_PATH
+COPY 10.5/root /
 
 # this is needed due to issues with squash
 # when this directory gets rm'd by the container-setup

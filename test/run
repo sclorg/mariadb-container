@@ -550,6 +550,7 @@ function get_previous_major_version() {
     10.1) echo "10.0" ;;
     10.2) echo "10.1" ;;
     10.3) echo "10.2" ;;
+    10.5) echo "10.3" ;;
     *) echo "Non expected version '${1}'" ; return 1 ;;
   esac
 }

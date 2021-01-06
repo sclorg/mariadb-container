@@ -12,10 +12,10 @@ FROM quay.io/centos7/s2i-core-centos7
 #  * $MYSQL_CHARSET (Optional) - Default character set
 #  * $MYSQL_COLLATION (Optional) - Default collation
 
-ENV MYSQL_VERSION=10.3 \
+ENV MYSQL_VERSION=10.5 \
     APP_DATA=/opt/app-root/src \
     HOME=/var/lib/mysql \
-    SUMMARY="MariaDB 10.3 SQL database server" \
+    SUMMARY="MariaDB 10.5 SQL database server" \
     DESCRIPTION="MariaDB is a multi-user, multi-threaded SQL database server. The container \
 image provides a containerized packaging of the MariaDB mysqld daemon and client application. \
 The mysqld server daemon accepts connections from clients and provides access to content from \
@@ -24,12 +24,12 @@ MariaDB databases on behalf of the clients."
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
       io.k8s.description="$DESCRIPTION" \
-      io.k8s.display-name="MariaDB 10.3" \
+      io.k8s.display-name="MariaDB 10.5" \
       io.openshift.expose-services="3306:mysql" \
-      io.openshift.tags="database,mysql,mariadb,mariadb103,rh-mariadb103,galera" \
-      com.redhat.component="rh-mariadb103-container" \
-      name="centos7/mariadb-103-centos7" \
-      usage="docker run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 quay.io/centos7/mariadb-103-centos7" \
+      io.openshift.tags="database,mysql,mariadb,mariadb105,rh-mariadb105,galera" \
+      com.redhat.component="rh-mariadb105-container" \
+      name="centos7/mariadb-105-centos7" \
+      usage="docker run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 quay.io/centos7/mariadb-105-centos7" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 3306
@@ -38,7 +38,7 @@ EXPOSE 3306
 # safe in the future. This should *never* change, the last test is there
 # to make sure of that.
 RUN yum install -y centos-release-scl-rh && \
-    INSTALL_PKGS="rsync tar gettext hostname bind-utils groff-base rh-mariadb103 rh-mariadb103-mariadb-server-utils rh-mariadb103-mariadb-syspaths" && \
+    INSTALL_PKGS="rsync tar gettext hostname bind-utils groff-base rh-mariadb105 rh-mariadb105-mariadb-server-utils rh-mariadb105-mariadb-syspaths" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     yum -y clean all --enablerepo='*' && \
@@ -47,8 +47,8 @@ RUN yum install -y centos-release-scl-rh && \
 
 # Get prefix path and path to scripts rather than hard-code them in scripts
 ENV CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/mysql \
-    MYSQL_PREFIX=/opt/rh/rh-mariadb103/root/usr \
-    ENABLED_COLLECTIONS=rh-mariadb103
+    MYSQL_PREFIX=/opt/rh/rh-mariadb105/root/usr \
+    ENABLED_COLLECTIONS=rh-mariadb105
 
 # When bash is started non-interactively, to run a shell script, for example it
 # looks for this variable and source the content of this file. This will enable
@@ -57,9 +57,9 @@ ENV BASH_ENV=${CONTAINER_SCRIPTS_PATH}/scl_enable \
     ENV=${CONTAINER_SCRIPTS_PATH}/scl_enable \
     PROMPT_COMMAND=". ${CONTAINER_SCRIPTS_PATH}/scl_enable"
 
-COPY 10.3/root-common /
-COPY 10.3/s2i-common/bin/ $STI_SCRIPTS_PATH
-COPY 10.3/root /
+COPY 10.5/root-common /
+COPY 10.5/s2i-common/bin/ $STI_SCRIPTS_PATH
+COPY 10.5/root /
 
 # this is needed due to issues with squash
 # when this directory gets rm'd by the container-setup

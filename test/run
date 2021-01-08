@@ -191,10 +191,11 @@ function run_replication_test() {
     result="$(mysql_cmd "$master_ip" root root -e 'SHOW SLAVE HOSTS;' | grep "$slave_ip" || true)"
     if [[ -n "${result}" ]]; then
       echo "${slave_ip} successfully registered as SLAVE for ${master_ip}"
+      echo "${result}"
       break
     fi
     if [[ "${i}" == "${max_attempts}" ]]; then
-      echo "The ${slave_ip} failed to register in MASTER"
+      echo "ERROR: The ${slave_ip} failed to register in MASTER"
       echo "Dumping logs for $(ct_get_cid slave.cid)"
       docker logs $(ct_get_cid slave.cid)
       return 1
@@ -202,20 +203,32 @@ function run_replication_test() {
     sleep 1
   done
 
+  local i
+  for i in $(seq $max_attempts); do
+    result="$(docker exec $(ct_get_cid slave.cid) bash -c 'mysql -uroot <<< "show slave status\G;"' || true)"
+    if echo "$result" | grep -e '\s*Slave_IO_Running:\s*Yes' && \
+       echo "$result" | grep -e '\s*Slave_SQL_Running:\s*Yes' ; then
+      echo "Slave ${slave_ip} in running state."
+      break
+    fi
+    if [[ "${i}" == "${max_attempts}" ]]; then
+      echo "ERROR: Slave ${slave_ip} not in correct state."
+      return 1
+    fi
+    sleep 1
+  done
+
   # do some real work to test replication in practice
-  mysql_cmd "$master_ip" root root -e "CREATE TABLE t1 (a INT); INSERT INTO t1 VALUES (24);"
+  mysql_cmd "$master_ip" user foo -e "CREATE TABLE t1 (a INT); INSERT INTO t1 VALUES (24);"
 
   # read value from slave and check whether it is expectd
   for i in $(seq $max_attempts); do
-    set +e
-    result="$(mysql_cmd "${slave_ip}" root root -e "select * from t1 \G" | grep -e ^a | grep 24)"
-    set -e
-    if [[ ! -z "${result}" ]]; then
+    if docker exec $(ct_get_cid slave.cid) bash -c 'mysql -uroot <<< "select * from db.t1 \G"' | grep -e ^a | grep 24; then
       echo "${slave_ip} successfully got value from MASTER ${master_ip}"
       break
     fi
     if [[ "${i}" == "${max_attempts}" ]]; then
-      echo "The ${slave_ip} failed to see value added on MASTER"
+      echo "ERROR: The ${slave_ip} failed to see value added on MASTER"
       echo "Dumping logs for $(ct_get_cid slave.cid)"
       docker logs $(ct_get_cid slave.cid)
       return 1

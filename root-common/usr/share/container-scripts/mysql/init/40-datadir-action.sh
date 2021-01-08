@@ -58,7 +58,9 @@ check_datadir_version() {
           continue
         fi
 
-        if [ $(( ${datadir_version} + 1 )) -eq "${mysqld_version}" -o "${datadir_version}" -eq 505 -a "${mysqld_version}" -eq 1000 ] ; then
+        if [ $(( ${datadir_version} + 1 )) -eq "${mysqld_version}" ] || [ "${datadir_version}" -eq 505 -a "${mysqld_version}" -eq 1000 ] || \
+           [ "${datadir_version}" -eq 1003 -a "${mysqld_version}" -eq 1005 ] ; then
+
           log_warn "MySQL server is version ${mysqld_version_dot} and datadir is version"\
                    "${datadir_version_dot}, which is a compatible combination."
           if [ "${MYSQL_DATADIR_ACTION}" == 'upgrade-auto' ] ; then

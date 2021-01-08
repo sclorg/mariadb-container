@@ -235,6 +235,23 @@ function run_replication_test() {
     fi
     sleep 1
   done
+
+  # read value from slave using root and user account and check whether it is expectd
+  if mysql_cmd "${slave_ip}" root root -e "select * from t1 \G" | grep -e ^a | grep 24 ; then
+    echo "Successfully got value from MASTER ${master_ip} using root access on SLAVE ${slave_ip}"
+  else
+    echo "The ${slave_ip} failed to see value added on MASTER using root access on SLAVE ${slave_ip}"
+    docker logs $(ct_get_cid slave.cid)
+    return 1
+  fi
+
+  if mysql_cmd "${slave_ip}" user foo -e "select * from t1 \G" | grep -e ^a | grep 24 ; then
+    echo "Successfully got value from MASTER ${master_ip} using root access on SLAVE ${slave_ip}"
+  else
+    echo "The ${slave_ip} failed to see value added on MASTER using non-root user access on SLAVE ${slave_ip}"
+    docker logs $(ct_get_cid slave.cid)
+    return 1
+  fi
 }
 
 function assert_login_access() {

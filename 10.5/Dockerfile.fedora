@@ -1,4 +1,4 @@
-FROM registry.fedoraproject.org/f34/s2i-core:latest
+FROM registry.fedoraproject.org/f33/s2i-core:latest
 
 # MariaDB image for OpenShift.
 #
@@ -39,7 +39,8 @@ EXPOSE 3306
 # This image must forever use UID 27 for mysql user so our volumes are
 # safe in the future. This should *never* change, the last test is there
 # to make sure of that.
-RUN INSTALL_PKGS="rsync tar gettext hostname bind-utils groff-base mariadb mariadb-server policycoreutils" && \
+RUN yum -y module enable mariadb:$MYSQL_VERSION && \
+    INSTALL_PKGS="policycoreutils rsync tar gettext hostname bind-utils groff-base mariadb-server" && \
     dnf install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     dnf clean all && \

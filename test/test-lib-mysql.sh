@@ -10,6 +10,7 @@ THISDIR=$(dirname ${BASH_SOURCE[0]})
 
 source ${THISDIR}/test-lib.sh
 source ${THISDIR}/test-lib-openshift.sh
+source ${THISDIR}/test-lib-remote-openshift.sh
 
 function check_mysql_os_service_connection() {
   local util_image_name="${1}" ; shift

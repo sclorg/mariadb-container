@@ -45,7 +45,7 @@ function check_mysql_os_service_connection() {
 }
 
 function test_mysql_pure_image() {
-  local image_name=${1:-centos/mariadb-101-centos7}
+  local image_name=${1:-quay.io/centos7/mariadb-103-centos7}
   local image_name_no_namespace=${image_name##*/}
   local service_name="${image_name_no_namespace%%:*}-testing"
 
@@ -64,7 +64,7 @@ function test_mysql_pure_image() {
 }
 
 function test_mysql_template() {
-  local image_name=${1:-centos/mariadb-101-centos7}
+  local image_name=${1:-quay.io/centos7/mariadb-103-centos7}
   local image_name_no_namespace=${image_name##*/}
   local service_name="${image_name_no_namespace%%:*}-testing"
 
@@ -86,7 +86,7 @@ function test_mysql_template() {
 }
 
 function test_mysql_s2i() {
-  local image_name=${1:-centos/mariadb-101-centos7}
+  local image_name=${1:-quay.io/centos7/mariadb-103-centos7}
   local app=${2:-https://github.com/sclorg/mariadb-container.git}
   local context_dir=${3:-test/test-app}
   local image_name_no_namespace=${image_name##*/}
@@ -135,7 +135,7 @@ function test_mariadb_imagestream() {
     *) echo "Imagestream testing not supported for $OS environment." ; return 0 ;;
   esac
 
-  ct_os_test_image_stream_template "${THISDIR}/../imagestreams/mariadb-${OS%%[0-9]*}.json" "${THISDIR}/../examples/mariadb-ephemeral-template.json" mariadb "-p MARIADB_VERSION=${VERSION}"
+  ct_os_test_image_stream_template "${THISDIR}/../imagestreams/mariadb-${OS%[0-9]*}.json" "${THISDIR}/../examples/mariadb-ephemeral-template.json" mariadb "-p MARIADB_VERSION=${VERSION}"
 }
 
 # Check the latest imagestreams

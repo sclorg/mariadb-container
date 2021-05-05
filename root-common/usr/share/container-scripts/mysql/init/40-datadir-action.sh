@@ -5,7 +5,8 @@ upstream_upgrade_info() {
     10.1) echo "https://mariadb.com/kb/en/library/upgrading-from-mariadb-100-to-mariadb-101/" ;;
     10.2) echo "https://mariadb.com/kb/en/library/upgrading-from-mariadb-101-to-mariadb-102/" ;;
     10.3) echo "https://mariadb.com/kb/en/library/upgrading-from-mariadb-102-to-mariadb-103/" ;;
-    10.5) echo "https://mariadb.com/kb/en/upgrading-from-mariadb-104-to-mariadb-105/" ;;
+    10.5) echo "https://mariadb.com/kb/en/upgrading-from-mariadb-103-to-mariadb-104/"
+          echo "https://mariadb.com/kb/en/upgrading-from-mariadb-104-to-mariadb-105/" ;;
     5.6) echo "https://dev.mysql.com/doc/refman/5.6/en/upgrading-from-previous-series.html" ;;
     5.7) echo "https://dev.mysql.com/doc/refman/5.7/en/upgrading-from-previous-series.html" ;;
     *) echo "Non expected version '${MYSQL_VERSION}'" ; return 1 ;;

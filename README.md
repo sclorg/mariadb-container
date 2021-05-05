@@ -2,6 +2,7 @@ MariaDB SQL Database Server Docker Image
 ========================================
 
 MariaDB 10.3 Quay.io status: [![Docker Repository on Quay](https://quay.io/repository/centos7/mariadb-103-centos7/status "Docker Repository on Quay")](https://quay.io/repository/centos7/mariadb-103-centos7)
+MariaDB 10.5 Quay.io status: [![Docker Repository on Quay](https://quay.io/repository/centos7/mariadb-105-centos7/status "Docker Repository on Quay")](https://quay.io/repository/centos7/mariadb-105-centos7)
 
 This repository contains Dockerfiles for MariaDB images for OpenShift and general usage.
 Users can choose between RHEL, Fedora and CentOS based images.
@@ -22,6 +23,7 @@ Versions
 ---------------
 MariaDB versions currently provided are:
 * [MariaDB 10.3](10.3)
+* [MariaDB 10.5](10.5)
 
 RHEL versions currently supported are:
 * RHEL7

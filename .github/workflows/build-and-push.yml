@@ -26,7 +26,7 @@ jobs:
             quayio_username: "QUAY_IMAGE_BUILDER_USERNAME"
             quayio_token: "QUAY_IMAGE_BUILDER_TOKEN"
             tag: "centos7"
-          - version: "10.5"
+          - dockerfile_path: "10.5"
             dockerfile: "Dockerfile.c9s"
             registry_namespace: "sclorg"
             quayio_username: "QUAY_IMAGE_SCLORG_BUILDER_USERNAME"

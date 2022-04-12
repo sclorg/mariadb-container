@@ -1,6 +1,8 @@
 MariaDB SQL Database Server Docker Image
 ========================================
 
+[![Build and push images to Quay.io registry](https://github.com/sclorg/mariadb-container/actions/workflows/build-and-push.yml/badge.svg)](https://github.com/sclorg/mariadb-container/actions/workflows/build-and-push.yml)
+
 MariaDB 10.3 Quay.io status: [![Docker Repository on Quay](https://quay.io/repository/centos7/mariadb-103-centos7/status "Docker Repository on Quay")](https://quay.io/repository/centos7/mariadb-103-centos7)
 MariaDB 10.5 Quay.io status: [![Docker Repository on Quay](https://quay.io/repository/centos7/mariadb-105-centos7/status "Docker Repository on Quay")](https://quay.io/repository/centos7/mariadb-105-centos7)
 

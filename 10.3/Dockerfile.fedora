@@ -1,4 +1,4 @@
-FROM registry.fedoraproject.org/f31/s2i-core:latest
+FROM quay.io/fedora/s2i-core:35
 
 # MariaDB image for OpenShift.
 #
@@ -29,9 +29,9 @@ LABEL summary="$SUMMARY" \
       io.openshift.expose-services="3306:mysql" \
       io.openshift.tags="database,mysql,mariadb,mariadb103,galera" \
       com.redhat.component="$NAME" \
-      name="$FGC/$NAME" \
+      name="fedora/$NAME-103" \
       version="$VERSION" \
-      usage="docker run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 $FGC/$NAME" \
+      usage="docker run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 quay.io/fedora/$NAME-103" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 3306
@@ -39,7 +39,8 @@ EXPOSE 3306
 # This image must forever use UID 27 for mysql user so our volumes are
 # safe in the future. This should *never* change, the last test is there
 # to make sure of that.
-RUN INSTALL_PKGS="rsync tar gettext hostname bind-utils groff-base mariadb mariadb-server policycoreutils" && \
+RUN yum -y module enable mariadb:$MYSQL_VERSION && \
+    INSTALL_PKGS="rsync tar gettext hostname bind-utils groff-base mariadb mariadb-server policycoreutils" && \
     dnf install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     dnf clean all && \

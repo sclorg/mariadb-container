@@ -113,10 +113,9 @@ function test_mysql_s2i() {
 }
 
 function test_mariadb_integration() {
-  local image_name=$1
   local service_name=mariadb
   ct_os_template_exists mariadb-ephemeral && t=mariadb-ephemeral || t=mariadb-persistent
-  ct_os_test_template_app_func "${image_name}" \
+  ct_os_test_template_app_func "${IMAGE_NAME}" \
                                "${t}" \
                                "${service_name}" \
                                "ct_os_check_cmd_internal '<SAME_IMAGE>' '${service_name}-testing' \"echo 'SELECT 42 as testval\g' | mysql --connect-timeout=15 -h <IP> testdb -utestu -ptestp\" '^42' 120" \
@@ -146,6 +145,12 @@ function test_mariadb_imagestream() {
     echo "Warning: ${PUBLIC_IMAGE_NAME} could not be downloaded via 'docker'"
     # ignore possible failure of this test for centos images
     [ "${OS}" == "rhel7" ] && false "ERROR: Failed to pull image"
+  fi
+}
+function test_mariadb_template() {
+  if [[ "${OS}" =~ rhel7 ]] || [[ "${OS}" =~ centos7 ]] ; then
+    ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS%[0-9]*}.json" "${THISDIR}/mariadb-ephemer
+  al-template.json" mariadb
   fi
 }
 

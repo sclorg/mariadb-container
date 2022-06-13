@@ -126,7 +126,6 @@ function test_mariadb_integration() {
                                 -p MYSQL_DATABASE=testdb"
 }
 
-
 # Check the imagestream
 function test_mariadb_imagestream() {
   case ${OS} in
@@ -147,8 +146,9 @@ function test_mariadb_imagestream() {
     [ "${OS}" == "rhel7" ] && false "ERROR: Failed to pull image"
   fi
 }
+
 function test_mariadb_template() {
-  if [[ "${OS}" =~ rhel7 ]] || [[ "${OS}" =~ centos7 ]] ; then
+  if [[ "${OS}" =~ rhel7 ]] || [[ "${OS}" =~ centos7 ]] || [[ "${OS}" =~ rhel8 ]] ; then
     ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS%[0-9]*}.json" "${THISDIR}/mariadb-ephemer
   al-template.json" mariadb
   fi

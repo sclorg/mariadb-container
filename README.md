@@ -3,6 +3,15 @@ MariaDB SQL Database Server Docker Image
 
 [![Build and push images to Quay.io registry](https://github.com/sclorg/mariadb-container/actions/workflows/build-and-push.yml/badge.svg)](https://github.com/sclorg/mariadb-container/actions/workflows/build-and-push.yml)
 
+Images available on Quay are:
+* CentOS 7 [mariadb-103](https://quay.io/repository/centos7/mariadb-103-centos7)
+* CentOS 7 [mariadb-105](https://quay.io/repository/centos7/mariadb-105-centos7)
+* CentOS Stream 8 [mariadb-103](https://quay.io/repository/sclorg/mariadb-103-c8s)
+* CentOS Stream 8 [mariadb-105](https://quay.io/repository/sclorg/mariadb-105-c8s)
+* CentOS Stream 9 [mariadb-105](https://quay.io/repository/sclorg/mariadb-105-c9s)
+* Fedora [mariadb-103](https://quay.io/repository/fedora/mariadb-103)
+* Fedora [mariadb-105](https://quay.io/repository/fedora/mariadb-105)
+
 This repository contains Dockerfiles for MariaDB images for OpenShift and general usage.
 Users can choose between RHEL, Fedora and CentOS based images.
 
@@ -27,6 +36,7 @@ MariaDB versions currently provided are:
 RHEL versions currently supported are:
 * RHEL7
 * RHEL8
+* RHEL9
 
 CentOS versions currently supported are:
 * CentOS7

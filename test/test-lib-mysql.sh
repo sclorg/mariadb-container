@@ -149,8 +149,7 @@ function test_mariadb_imagestream() {
 
 function test_mariadb_template() {
   if [[ "${OS}" =~ rhel7 ]] || [[ "${OS}" =~ centos7 ]] || [[ "${OS}" =~ rhel8 ]] ; then
-    ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS%[0-9]*}.json" "${THISDIR}/mariadb-ephemer
-  al-template.json" mariadb
+    ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS%[0-9]*}.json" "${THISDIR}/mariadb-ephemeral-template.json" mariadb
   fi
 }
 

@@ -129,22 +129,14 @@ function test_mariadb_integration() {
 # Check the imagestream
 function test_mariadb_imagestream() {
   case ${OS} in
-    rhel7|centos7) ;;
+    rhel7|centos7|rhel8) ;;
     *) echo "Imagestream testing not supported for $OS environment." ; return 0 ;;
   esac
   local tag="-el7"
   if [ "${OS}" == "rhel8" ]; then
     tag="-el8"
   fi
-  # Try pulling the image first to see if it is accessible
-  PUBLIC_IMAGE_NAME=${PUBLIC_IMAGE_NAME:-$(ct_get_public_image_name "${OS}" "${BASE_IMAGE_NAME}" "${VERSION}")}
-  if docker pull "${PUBLIC_IMAGE_NAME}"; then
-    ct_os_test_image_stream_template "${THISDIR}/../imagestreams/mariadb-${OS%[0-9]*}.json" "${THISDIR}/../examples/mariadb-ephemeral-template.json" mariadb "-p MARIADB_VERSION=${VERSION}${tag}"
-  else
-    echo "Warning: ${PUBLIC_IMAGE_NAME} could not be downloaded via 'docker'"
-    # ignore possible failure of this test for centos images
-    [ "${OS}" == "rhel7" ] && false "ERROR: Failed to pull image"
-  fi
+  ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS%[0-9]*}.json" "${THISDIR}/examples/mariadb-ephemeral-template.json" mariadb "-p MARIADB_VERSION=${VERSION}${tag}"
 }
 
 function test_mariadb_template() {

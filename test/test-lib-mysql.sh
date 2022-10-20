@@ -128,10 +128,6 @@ function test_mariadb_integration() {
 
 # Check the imagestream
 function test_mariadb_imagestream() {
-  case ${OS} in
-    rhel7|centos7|rhel8|rhel9) ;;
-    *) echo "Imagestream testing not supported for $OS environment." ; return 0 ;;
-  esac
   local tag="-el7"
   if [ "${OS}" == "rhel8" ]; then
     tag="-el8"
@@ -142,13 +138,7 @@ function test_mariadb_imagestream() {
 }
 
 function test_mariadb_template() {
-  if [[ "${OS}" =~ rhel9 ]] && [[ "${VERSION}" == "10.3" ]]; then
-    echo "Testing mariadb_template is not supported for RHEL9 and version 10.3"
-    return
-  fi
-  if [[ "${OS}" =~ rhel7 ]] || [[ "${OS}" =~ centos7 ]] || [[ "${OS}" =~ rhel8 ]] || [[ "${OS}" =~ rhel9 ]]; then
-    ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS%[0-9]*}.json" "${THISDIR}/mariadb-ephemeral-template.json" mariadb
-  fi
+  ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS%[0-9]*}.json" "${THISDIR}/mariadb-ephemeral-template.json" mariadb
 }
 
 # Check the latest imagestreams

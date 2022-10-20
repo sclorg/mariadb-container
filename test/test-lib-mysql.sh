@@ -8,9 +8,9 @@
 
 THISDIR=$(dirname ${BASH_SOURCE[0]})
 
-source ${THISDIR}/test-lib.sh
-source ${THISDIR}/test-lib-openshift.sh
-source ${THISDIR}/test-lib-remote-openshift.sh
+source "${THISDIR}/test-lib.sh"
+source "${THISDIR}/test-lib-openshift.sh"
+source "${THISDIR}/test-lib-remote-openshift.sh"
 
 function check_mysql_os_service_connection() {
   local util_image_name="${1}" ; shift
@@ -128,21 +128,17 @@ function test_mariadb_integration() {
 
 # Check the imagestream
 function test_mariadb_imagestream() {
-  case ${OS} in
-    rhel7|centos7|rhel8) ;;
-    *) echo "Imagestream testing not supported for $OS environment." ; return 0 ;;
-  esac
   local tag="-el7"
   if [ "${OS}" == "rhel8" ]; then
     tag="-el8"
+  elif [ "${OS}" == "rhel9" ]; then
+    tag="-el9"
   fi
   ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS%[0-9]*}.json" "${THISDIR}/examples/mariadb-ephemeral-template.json" mariadb "-p MARIADB_VERSION=${VERSION}${tag}"
 }
 
 function test_mariadb_template() {
-  if [[ "${OS}" =~ rhel7 ]] || [[ "${OS}" =~ centos7 ]] || [[ "${OS}" =~ rhel8 ]] ; then
-    ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS%[0-9]*}.json" "${THISDIR}/mariadb-ephemeral-template.json" mariadb
-  fi
+  ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS%[0-9]*}.json" "${THISDIR}/mariadb-ephemeral-template.json" mariadb
 }
 
 # Check the latest imagestreams

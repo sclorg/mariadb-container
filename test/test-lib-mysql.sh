@@ -114,9 +114,9 @@ function test_mysql_s2i() {
 
 function test_mariadb_integration() {
   local service_name=mariadb
-  ct_os_template_exists mariadb-ephemeral && t=mariadb-ephemeral || t=mariadb-persistent
+  ct_os_template_exists mariadb-ephemeral && t=mariadb-ephemeral-template.json || t=mariadb-persistent-template.json
   ct_os_test_template_app_func "${IMAGE_NAME}" \
-                               "${t}" \
+                               "${THISDIR}/${t}" \
                                "${service_name}" \
                                "ct_os_check_cmd_internal '<SAME_IMAGE>' '${service_name}-testing' \"echo 'SELECT 42 as testval\g' | mysql --connect-timeout=15 -h <IP> testdb -utestu -ptestp\" '^42' 120" \
                                "-p MARIADB_VERSION=${VERSION} \

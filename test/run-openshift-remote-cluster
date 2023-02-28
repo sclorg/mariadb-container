@@ -17,6 +17,7 @@ TEST_LIST="\
 test_mariadb_integration
 test_mariadb_imagestream
 test_mariadb_template
+run_latest_imagestreams
 "
 
 trap ct_os_cleanup EXIT SIGINT

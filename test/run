@@ -25,6 +25,7 @@ run_ssl_test
 run_upgrade_test
 "
 
+
 if [ -e "${IMAGE_NAME:-}" ] ; then
   echo "Error: IMAGE_NAME must be specified"
   exit 1
@@ -76,6 +77,7 @@ function test_connection() {
   fi
   echo "Logs:"
   docker logs $(ct_get_cid $name)
+  ct_check_testcase_result 1
   return 1
 }
 
@@ -86,12 +88,18 @@ function test_mysql() {
 
   echo "  Testing MySQL"
   mysql_cmd "$container_ip" "$login" "$password" <<< 'CREATE TABLE tbl (col1 VARCHAR(20), col2 VARCHAR(20));'
+  ct_check_testcase_result $?
   mysql_cmd "$container_ip" "$login" "$password" <<< 'INSERT INTO tbl VALUES ("foo1", "bar1");'
+  ct_check_testcase_result $?
   mysql_cmd "$container_ip" "$login" "$password" <<< 'INSERT INTO tbl VALUES ("foo2", "bar2");'
+  ct_check_testcase_result $?
   mysql_cmd "$container_ip" "$login" "$password" <<< 'INSERT INTO tbl VALUES ("foo3", "bar3");'
+  ct_check_testcase_result $?
   mysql_cmd "$container_ip" "$login" "$password" <<< 'SELECT * FROM tbl;'
+  ct_check_testcase_result $?
   mysql_cmd "$container_ip" "$login" "$password" <<< 'DROP TABLE tbl;'
-  echo "  Success!"
+  ct_check_testcase_result $?
+  echo "  Done!"
 }
 
 function create_container() {
@@ -161,6 +169,7 @@ function run_replication_test() {
     -e MYSQL_ROOT_PASSWORD=root \
     -e MYSQL_INNODB_BUFFER_POOL_SIZE=5M \
     -d --cidfile ${CID_FILE_DIR}/master.cid $IMAGE_NAME mysqld-master >/dev/null
+  ct_check_testcase_result $?
   local master_ip
   master_ip=$(ct_get_cip master.cid)
 
@@ -168,6 +177,7 @@ function run_replication_test() {
   docker run $cluster_args -e MYSQL_MASTER_SERVICE_NAME=${master_ip} \
     -e MYSQL_INNODB_BUFFER_POOL_SIZE=5M \
     -d --cidfile ${CID_FILE_DIR}/slave.cid $IMAGE_NAME mysqld-slave >/dev/null
+  ct_check_testcase_result $?
   local slave_ip
   slave_ip=$(ct_get_cip slave.cid)
 
@@ -206,6 +216,7 @@ function run_replication_test() {
 
   # do some real work to test replication in practice
   mysql_cmd "$master_ip" user foo -e "CREATE TABLE t1 (a INT); INSERT INTO t1 VALUES (24);"
+  ct_check_testcase_result $?
 
   # read value from slave and check whether it is expectd
   for i in $(seq $max_attempts); do
@@ -258,7 +269,7 @@ function assert_login_access() {
     fi
   fi
   echo "    $USER($PASS) login assertion failed"
-  exit 1
+  ct_check_testcase_result 1
 }
 
 function assert_local_access() {
@@ -268,6 +279,7 @@ function assert_local_access() {
     return
   fi
   echo "    local access assertion failed"
+  ct_check_testcase_result 1
   return 1
 }
 
@@ -282,6 +294,7 @@ function assert_container_creation_fails() {
 
   # Timeout will exit with a high number.
   if [ $ret -gt 30 ]; then
+    ct_check_testcase_result 1
     return 1
   fi
   echo "  Success!"
@@ -323,6 +336,7 @@ function test_config_option() {
     echo >&2
     echo >&2 "$configuration"
     echo >&2
+    ct_check_testcase_result 1
     return 1
   fi
 
@@ -379,7 +393,6 @@ function run_configuration_tests() {
 
   docker stop "$(ct_get_cid $container_name)" >/dev/null
 
-  echo "  Success!"
   echo "  Testing image auto-calculated configuration settings"
 
   container_name=dynamic_config_test
@@ -407,11 +420,13 @@ function run_configuration_tests() {
   mysql_cmd "$container_ip" config_test_user config_test -e 'CREATE TABLE tbl (col1 VARCHAR(20));'
   tbl_def=$(mysql_cmd "$container_ip" config_test_user config_test -e 'SHOW CREATE TABLE tbl;')
   echo "$tbl_def" | grep -e 'CHARSET=latin2'
+  ct_check_testcase_result $?
   echo "$tbl_def" | grep -e 'COLLATE=latin2_czech_cs'
+  ct_check_testcase_result $?
 
   docker stop "$(ct_get_cid $container_name)" >/dev/null
 
-  echo "  Success!"
+  echo "  End of 'run_configuration_tests'"
 }
 
 function run_tests() {
@@ -424,6 +439,7 @@ function run_tests() {
   test_connection "$name" "$USER" "$PASS"
   echo "  Testing scl usage"
   ct_scl_usage_old $name 'mysql --version' "$VERSION"
+  ct_check_testcase_result $?
   echo "  Testing login accesses"
   local container_ip
   container_ip=$(ct_get_cip $name)
@@ -437,14 +453,13 @@ function run_tests() {
     assert_login_access "$container_ip" root '' false
   fi
   assert_local_access "$name"
-  echo "  Success!"
   test_mysql "$container_ip" "$USER" "$PASS"
 }
 
 run_doc_test() {
   echo "  Testing documentation in the container image"
   ct_doc_content_old 'MYSQL\\?_ROOT\\?_PASSWORD' volume 3306
-  echo "  Success!"
+  ct_check_testcase_result $?
   echo
 }
 
@@ -453,6 +468,7 @@ _s2i_test_image() {
   local mount_opts="$2"
   echo "  Testing s2i app image with invalid configuration"
   assert_container_creation_fails -e MYSQL_USER=root -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -e MYSQL_ROOT_PASSWORD=pass
+  ct_check_testcase_result $?
   echo "  Testing s2i app image with correct configuration"
   create_container \
     "$container_name" \
@@ -462,6 +478,7 @@ _s2i_test_image() {
     --env MYSQL_OPERATIONS_USER=operations_user \
     --env MYSQL_OPERATIONS_PASSWORD=operations_pass \
     ${mount_opts}
+  ct_check_testcase_result $?
 
   test_connection "$container_name" operations_user operations_pass
 
@@ -473,9 +490,11 @@ _s2i_test_image() {
 run_s2i_test() {
   echo "  Testing s2i usage"
   ct_s2i_usage ${IMAGE_NAME} ${s2i_args} &>/dev/null
+  ct_check_testcase_result $?
 
   echo "  Testing s2i build"
   ct_s2i_build_as_df file://${test_dir}/test-app ${IMAGE_NAME} ${IMAGE_NAME}-testapp
+  ct_check_testcase_result $?
   local image_name_backup=${IMAGE_NAME}
   export IMAGE_NAME=${IMAGE_NAME}-testapp
 
@@ -491,7 +510,7 @@ run_s2i_test() {
   chown -R 27:27 ${test_app_dir}
   _s2i_test_image "_s2i_test_mount" "-v ${test_app_dir}/test-app:/opt/app-root/src/:z"
   rm -rf ${test_app_dir}
-  echo "  Success!"
+  echo "  Done!"
 }
 
 gen_self_signed_cert() {

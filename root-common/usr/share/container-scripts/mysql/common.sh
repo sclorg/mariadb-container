@@ -97,7 +97,8 @@ function initialize_database() {
   log_info 'Running mysql_install_db ...'
   # Using --rpm since we need mysql_install_db behaves as in RPM
   # Using --auth-root-authentication-method=normal because we are not root in the container
-  mysql_install_db --rpm --datadir=$MYSQL_DATADIR --auth-root-authentication-method=normal
+  # Using --skip-test-db because the anonymous users are not recomended in the production databases. With this option no test database and no anonymous users will be created (GH issue #198)
+  mysql_install_db --rpm --datadir=$MYSQL_DATADIR --auth-root-authentication-method=normal --skip-test-db
   start_local_mysql "$@"
 
   # Running mysql_upgrade creates the mysql_upgrade_info file in the data dir,

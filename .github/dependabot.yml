@@ -6,7 +6,11 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    labels:
+      - 'ready for review'
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
+    labels:
+      - 'ready for review'

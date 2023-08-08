@@ -14,18 +14,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - dockerfile: "10.3/Dockerfile"
-            registry_namespace: "centos7"
-            quayio_username: "QUAY_IMAGE_BUILDER_USERNAME"
-            quayio_token: "QUAY_IMAGE_BUILDER_TOKEN"
-            tag: "centos7"
-            image_name: "mariadb-103-centos7"
-          - dockerfile: "10.5/Dockerfile"
-            registry_namespace: "centos7"
-            quayio_username: "QUAY_IMAGE_BUILDER_USERNAME"
-            quayio_token: "QUAY_IMAGE_BUILDER_TOKEN"
-            tag: "centos7"
-            image_name: "mariadb-105-centos7"
           - dockerfile: "10.5/Dockerfile.c9s"
             registry_namespace: "sclorg"
             quayio_username: "QUAY_IMAGE_SCLORG_BUILDER_USERNAME"

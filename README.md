@@ -54,7 +54,7 @@ Choose either the CentOS7 or RHEL7 based image:
     To download it run:
 
     ```
-    $ podman pull registry.access.redhat.com/rhscl/mariadb-103-rhel7
+    $ podman pull registry.access.redhat.com/rhscl/mariadb-105-rhel7
     ```
 
     To build a RHEL7 based MariaDB image, you need to run Docker build on a properly
@@ -64,7 +64,7 @@ Choose either the CentOS7 or RHEL7 based image:
     $ git clone --recursive https://github.com/sclorg/mariadb-container.git
     $ cd mariadb-container
     $ git submodule update --init
-    $ make build TARGET=rhel7 VERSIONS=10.3
+    $ make build TARGET=rhel7 VERSIONS=10.5
     ```
 
 *  **CentOS7 based image**
@@ -100,6 +100,9 @@ Usage
 For information about usage of Dockerfile for MariaDB 10.3,
 see [usage documentation](10.3).
 
+For information about usage of Dockerfile for MariaDB 10.5,
+see [usage documentation](10.5).
+
 Test
 ---------------------------------
 
@@ -116,7 +119,7 @@ Users can choose between testing MariaDB based on a RHEL or CentOS image.
     ```
     $ cd mariadb-container
     $ git submodule update --init
-    $ make test TARGET=rhel7 VERSIONS=10.3
+    $ make test TARGET=rhel7 VERSIONS=10.5
     ```
 
 *  **CentOS based image**

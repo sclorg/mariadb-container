@@ -140,9 +140,14 @@ function test_mariadb_imagestream() {
   ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS%[0-9]*}.json" "${THISDIR}/examples/mariadb-ephemeral-template.json" mariadb "-p MARIADB_VERSION=${VERSION}${tag}"
 }
 
-function test_mariadb_template() {
-  ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS%[0-9]*}.json" "${THISDIR}/mariadb-ephemeral-template.json" mariadb
+function test_mariadb_templates() {
+  TEMPLATES="mariadb-ephemeral-template.json
+  mariadb-persistent-template.json"
+  for template in $TEMPLATES; do
+    ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS%[0-9]*}.json" "${THISDIR}/${template}" mariadb
+  done
 }
+
 
 # Check the latest imagestreams
 function run_latest_imagestreams() {

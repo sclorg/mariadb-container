@@ -116,11 +116,12 @@ function test_mariadb_integration() {
   local service_name=mariadb
   TEMPLATES="mariadb-ephemeral-template.json
   mariadb-persistent-template.json"
+  SHORT_VERSION="${VERSION//.}"
   for template in $TEMPLATES; do
     ct_os_test_template_app_func "${IMAGE_NAME}" \
                                  "${THISDIR}/${template}" \
                                  "${service_name}" \
-                                 "ct_os_check_cmd_internal '<SAME_IMAGE>' '${service_name}-testing' \"echo 'SELECT 42 as testval\g' | mysql --connect-timeout=15 -h <IP> testdb -utestu -ptestp\" '^42' 120" \
+                                 "ct_os_check_cmd_internal 'registry.redhat.io/${OS}/mariadb-${SHORT_VERSION}:latest' '${service_name}-testing' \"echo 'SELECT 42 as testval\g' | mysql --connect-timeout=15 -h <IP> testdb -utestu -ptestp\" '^42' 120" \
                                  "-p MARIADB_VERSION=${VERSION} \
                                   -p DATABASE_SERVICE_NAME="${service_name}-testing" \
                                   -p MYSQL_USER=testu \

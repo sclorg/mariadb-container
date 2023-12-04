@@ -16,7 +16,7 @@ source "${THISDIR}/test-lib-remote-openshift.sh"
 TEST_LIST="\
 test_mariadb_integration
 test_mariadb_imagestream
-test_mariadb_templates
+test_mariadb_template
 run_latest_imagestreams
 "
 

@@ -117,11 +117,16 @@ function test_mariadb_integration() {
   TEMPLATES="mariadb-ephemeral-template.json
   mariadb-persistent-template.json"
   SHORT_VERSION="${VERSION//.}"
+  if [ "${OS}" == "rhel7" ]; then
+    namespace_image="rhscl/mariadb-${SHORT_VERSION}-rhel7"
+  else
+    namespace_image="${OS}/mariadb-${SHORT_VERSION}"
+  fi
   for template in $TEMPLATES; do
     ct_os_test_template_app_func "${IMAGE_NAME}" \
                                  "${THISDIR}/${template}" \
                                  "${service_name}" \
-                                 "ct_os_check_cmd_internal 'registry.redhat.io/${OS}/mariadb-${SHORT_VERSION}:latest' '${service_name}-testing' \"echo 'SELECT 42 as testval\g' | mysql --connect-timeout=15 -h <IP> testdb -utestu -ptestp\" '^42' 120" \
+                                 "ct_os_check_cmd_internal 'registry.redhat.io/${namespace_image}' '${service_name}-testing' \"echo 'SELECT 42 as testval\g' | mysql --connect-timeout=15 -h <IP> testdb -utestu -ptestp\" '^42' 120" \
                                  "-p MARIADB_VERSION=${VERSION} \
                                   -p DATABASE_SERVICE_NAME="${service_name}-testing" \
                                   -p MYSQL_USER=testu \
@@ -138,14 +143,18 @@ function test_mariadb_imagestream() {
   elif [ "${OS}" == "rhel9" ]; then
     tag="-el9"
   fi
-  ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS%[0-9]*}.json" "${THISDIR}/examples/mariadb-ephemeral-template.json" mariadb "-p MARIADB_VERSION=${VERSION}${tag}"
-}
-
-function test_mariadb_templates() {
   TEMPLATES="mariadb-ephemeral-template.json
   mariadb-persistent-template.json"
   for template in $TEMPLATES; do
-    ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS%[0-9]*}.json" "${THISDIR}/${template}" mariadb
+    ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS%[0-9]*}.json" "${THISDIR}/examples/${template}" mariadb "-p MARIADB_VERSION=${VERSION}${tag}"
+  done
+}
+
+function test_mariadb_template() {
+  TEMPLATES="mariadb-ephemeral-template.json
+  mariadb-persistent-template.json"
+  for template in $TEMPLATES; do
+    ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS%[0-9]*}.json" "${THISDIR}/examples/${template}" mariadb
   done
 }
 

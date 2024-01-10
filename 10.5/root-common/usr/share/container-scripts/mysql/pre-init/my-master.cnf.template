@@ -1,0 +1,9 @@
+[mysqld]
+
+server-id     = ${MYSQL_SERVER_ID}
+log_bin       = ${MYSQL_DATADIR}/mysql-bin.log
+# Not using explicit DB filtering, from some unknown reason this makes the user
+# permissions not being replicated on 10.5 and further
+# binlog_do_db  = mysql
+# binlog_do_db  = ${MYSQL_DATABASE}
+binlog_format = ${MYSQL_BINLOG_FORMAT}

@@ -9,8 +9,11 @@ Images available on Quay are:
 * CentOS Stream 8 [mariadb-103](https://quay.io/repository/sclorg/mariadb-103-c8s)
 * CentOS Stream 8 [mariadb-105](https://quay.io/repository/sclorg/mariadb-105-c8s)
 * CentOS Stream 9 [mariadb-105](https://quay.io/repository/sclorg/mariadb-105-c9s)
+* CentOS Stream 8 [mariadb-1011](https://quay.io/repository/sclorg/mariadb-1011-c8s)
+* CentOS Stream 9 [mariadb-1011](https://quay.io/repository/sclorg/mariadb-1011-c9s)
 * Fedora [mariadb-103](https://quay.io/repository/fedora/mariadb-103)
 * Fedora [mariadb-105](https://quay.io/repository/fedora/mariadb-105)
+* Fedora [mariadb-1011](https://quay.io/repository/fedora/mariadb-1011)
 
 This repository contains Dockerfiles for MariaDB images for OpenShift and general usage.
 Users can choose between RHEL, Fedora and CentOS based images.
@@ -32,6 +35,7 @@ Versions
 MariaDB versions currently provided are:
 * [MariaDB 10.3](10.3)
 * [MariaDB 10.5](10.5)
+* [MariaDB 10.11](10.11)
 
 RHEL versions currently supported are:
 * RHEL7
@@ -102,6 +106,9 @@ see [usage documentation](10.3).
 
 For information about usage of Dockerfile for MariaDB 10.5,
 see [usage documentation](10.5).
+
+For information about usage of Dockerfile for MariaDB 10.11,
+see [usage documentation](10.11).
 
 Test
 ---------------------------------

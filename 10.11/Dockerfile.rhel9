@@ -1,4 +1,4 @@
-FROM quay.io/sclorg/s2i-core-c9s:c9s
+FROM ubi9/s2i-core
 
 # MariaDB image for OpenShift.
 #
@@ -10,10 +10,10 @@ FROM quay.io/sclorg/s2i-core-c9s:c9s
 #  * $MYSQL_DATABASE - Name of the database to create
 #  * $MYSQL_ROOT_PASSWORD (Optional) - Password for the 'root' MySQL account
 
-ENV MYSQL_VERSION=10.5 \
+ENV MYSQL_VERSION=10.11 \
     APP_DATA=/opt/app-root/src \
     HOME=/var/lib/mysql \
-    SUMMARY="MariaDB 10.5 SQL database server" \
+    SUMMARY="MariaDB 10.11 SQL database server" \
     DESCRIPTION="MariaDB is a multi-user, multi-threaded SQL database server. The container \
 image provides a containerized packaging of the MariaDB mysqld daemon and client application. \
 The mysqld server daemon accepts connections from clients and provides access to content from \
@@ -22,13 +22,13 @@ MariaDB databases on behalf of the clients."
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
       io.k8s.description="$DESCRIPTION" \
-      io.k8s.display-name="MariaDB 10.5" \
+      io.k8s.display-name="MariaDB 10.11" \
       io.openshift.expose-services="3306:mysql" \
-      io.openshift.tags="database,mysql,mariadb,mariadb105,mariadb-105" \
-      com.redhat.component="mariadb-105-container" \
-      name="sclorg/mariadb-105-c9s" \
+      io.openshift.tags="database,mysql,mariadb,mariadb1011,mariadb-1011" \
+      com.redhat.component="mariadb-1011-container" \
+      name="rhel9/mariadb-1011" \
       version="1" \
-      usage="podman run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 quay.io/sclorg/mariadb-105-c9s" \
+      usage="podman run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 rhel9/mariadb-1011" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 3306
@@ -36,7 +36,7 @@ EXPOSE 3306
 # This image must forever use UID 27 for mysql user so our volumes are
 # safe in the future. This should *never* change, the last test is there
 # to make sure of that.
-RUN yum -y module disable mariadb && \
+RUN yum -y module enable mariadb:$MYSQL_VERSION && \
     INSTALL_PKGS="policycoreutils rsync tar gettext hostname bind-utils groff-base mariadb-server" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
@@ -49,9 +49,9 @@ RUN yum -y module disable mariadb && \
 ENV CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/mysql \
     MYSQL_PREFIX=/usr
 
-COPY 10.5/root-common /
-COPY 10.5/s2i-common/bin/ $STI_SCRIPTS_PATH
-COPY 10.5/root /
+COPY 10.11/root-common /
+COPY 10.11/s2i-common/bin/ $STI_SCRIPTS_PATH
+COPY 10.11/root /
 
 # this is needed due to issues with squash
 # when this directory gets rm'd by the container-setup

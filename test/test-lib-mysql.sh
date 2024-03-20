@@ -121,6 +121,15 @@ function test_mariadb_integration() {
     namespace_image="rhscl/mariadb-${SHORT_VERSION}-rhel7"
   else
     namespace_image="${OS}/mariadb-${SHORT_VERSION}"
+    # Check if the current version is already GA
+    # This directory is cloned from TMT plan repo 'sclorg-tmt-plans'
+    local devel_file="/root/sclorg-tmt-plans/devel_images"
+    if [ -f "${devel_file}" ]; then
+      if grep -q "${OS}=postgresql-container=${VERSION}" "$devel_file" ; then
+        echo "This version is currently developed, so skipping this test."
+        return
+      fi
+    fi
   fi
   for template in $TEMPLATES; do
     ct_os_test_template_app_func "${IMAGE_NAME}" \
@@ -143,6 +152,17 @@ function test_mariadb_imagestream() {
   elif [ "${OS}" == "rhel9" ]; then
     tag="-el9"
   fi
+  if [ "${OS}" != "rhel7" ]; then
+    # Check if the current version is already GA
+    # This directory is cloned from TMT plan repo 'sclorg-tmt-plans'
+    local devel_file="/root/sclorg-tmt-plans/devel_images"
+    if [ -f "${devel_file}" ]; then
+      if grep -q "${OS}=postgresql-container=${VERSION}" "$devel_file" ; then
+        echo "This version is currently developed, so skipping this test."
+        return
+      fi
+    fi
+  fi
   TEMPLATES="mariadb-ephemeral-template.json
   mariadb-persistent-template.json"
   for template in $TEMPLATES; do
@@ -151,6 +171,17 @@ function test_mariadb_imagestream() {
 }
 
 function test_mariadb_template() {
+  if [ "${OS}" != "rhel7" ]; then
+    # Check if the current version is already GA
+    # This directory is cloned from TMT plan repo 'sclorg-tmt-plans'
+    local devel_file="/root/sclorg-tmt-plans/devel_images"
+    if [ -f "${devel_file}" ]; then
+      if grep -q "${OS}=postgresql-container=${VERSION}" "$devel_file" ; then
+        echo "This version is currently developed, so skipping this test."
+        return
+      fi
+    fi
+  fi
   TEMPLATES="mariadb-ephemeral-template.json
   mariadb-persistent-template.json"
   for template in $TEMPLATES; do
@@ -162,6 +193,17 @@ function test_mariadb_template() {
 # Check the latest imagestreams
 function run_latest_imagestreams() {
   local result=1
+  if [ "${OS}" != "rhel7" ]; then
+  # Check if the current version is already GA
+  # This directory is cloned from TMT plan repo 'sclorg-tmt-plans'
+  local devel_file="/root/sclorg-tmt-plans/devel_images"
+  if [ -f "${devel_file}" ]; then
+    if grep -q "${OS}=postgresql-container=${VERSION}" "$devel_file" ; then
+      echo "This version is currently developed, so skipping this test."
+      return
+    fi
+  fi
+  fi
   # Switch to root directory of a container
   echo "Testing the latest version in imagestreams"
   pushd "${THISDIR}/../.." >/dev/null || return 1

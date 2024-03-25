@@ -61,6 +61,11 @@ COPY 10.3/root-common /
 COPY 10.3/s2i-common/bin/ $STI_SCRIPTS_PATH
 COPY 10.3/root /
 
+# Hard links are not supported in Testing Farm approach during sync to guest
+# operation system. Therefore tests are failing on error
+# /usr/libexec/s2i/run no such file or directory
+RUN ln -s /bin/run-mysqld $STI_SCRIPTS_PATH/run
+
 # this is needed due to issues with squash
 # when this directory gets rm'd by the container-setup
 # script.
@@ -68,10 +73,6 @@ COPY 10.3/root /
 RUN rm -rf /etc/my.cnf.d/* && \
     /usr/libexec/container-setup && \
     rpm-file-permissions
-
-# Not using VOLUME statement since it's not working in OpenShift Online:
-# https://github.com/sclorg/httpd-container/issues/30
-# VOLUME ["/var/lib/mysql/data"]
 
 USER 27
 

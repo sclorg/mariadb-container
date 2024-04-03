@@ -192,6 +192,15 @@ function test_mariadb_template() {
 
 # Check the latest imagestreams
 function run_latest_imagestreams() {
+  # Check if the current version is already GA
+  # This directory is cloned from TMT plan repo 'sclorg-tmt-plans'
+  local devel_file="/root/sclorg-tmt-plans/devel_images"
+  if [ -f "${devel_file}" ]; then
+    if grep -q "${OS}=postgresql-container=${VERSION}" "$devel_file" ; then
+      echo "This version is currently developed, so skipping this test."
+      return
+    fi
+  fi
   local result=1
   # Switch to root directory of a container
   echo "Testing the latest version in imagestreams"

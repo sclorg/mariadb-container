@@ -3,7 +3,7 @@ on:
     types:
       - created
 jobs:
- check-imagestreams:
+  check-imagestreams:
     runs-on: ubuntu-latest
     permissions:
       contents: read

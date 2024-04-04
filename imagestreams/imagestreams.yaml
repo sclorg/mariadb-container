@@ -1,7 +1,7 @@
 ---
 - name: mariadb
   pretty_name: MariaDB
-  sample_repo: https://github.com/sclorg/httpd-ex.git
+  sample_repo: ""
   category: database
   description: >-
     Provides a MariaDB APP_VERSION database on DISTRO_NAME. For more information

@@ -17,8 +17,7 @@
           "description": "Provides a MariaDB 10.3 database on CentOS Stream 8. For more information about using this database image, including OpenShift considerations, see https://github.com/sclorg/mariadb-container/tree/master/10.3/README.md.",
           "iconClass": "icon-mariadb",
           "tags": "database,mariadb",
-          "version": "10.3",
-          "sampleRepo": "https://github.com/sclorg/httpd-ex.git"
+          "version": "10.3"
         },
         "from": {
           "kind": "DockerImage",
@@ -36,8 +35,7 @@
           "description": "Provides a MariaDB 10.5 database on CentOS Stream 8. For more information about using this database image, including OpenShift considerations, see https://github.com/sclorg/mariadb-container/tree/master/10.5/README.md.",
           "iconClass": "icon-mariadb",
           "tags": "database,mariadb",
-          "version": "10.5",
-          "sampleRepo": "https://github.com/sclorg/httpd-ex.git"
+          "version": "10.5"
         },
         "from": {
           "kind": "DockerImage",
@@ -55,8 +53,7 @@
           "description": "Provides a MariaDB 10.5 database on CentOS Stream 9. For more information about using this database image, including OpenShift considerations, see https://github.com/sclorg/mariadb-container/tree/master/10.5/README.md.",
           "iconClass": "icon-mariadb",
           "tags": "database,mariadb",
-          "version": "10.5",
-          "sampleRepo": "https://github.com/sclorg/httpd-ex.git"
+          "version": "10.5"
         },
         "from": {
           "kind": "DockerImage",
@@ -74,8 +71,7 @@
           "description": "Provides a MariaDB 10.5 database on CentOS Stream 9. For more information about using this database image, including OpenShift considerations, see https://github.com/sclorg/mariadb-container/tree/master/10.5/README.md.\n\nWARNING: By selecting this tag, your application will automatically update to use the latest version available on OpenShift, including major version updates.\n",
           "iconClass": "icon-mariadb",
           "tags": "database,mariadb",
-          "version": "10.5",
-          "sampleRepo": "https://github.com/sclorg/httpd-ex.git"
+          "version": "10.5"
         },
         "from": {
           "kind": "ImageStreamTag",

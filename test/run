@@ -23,6 +23,7 @@ run_doc_test
 run_s2i_test
 run_ssl_test
 run_upgrade_test
+run_plugin_test
 "
 
 
@@ -691,5 +692,30 @@ function run_upgrade_test() {
   echo "  Upgrade tests succeeded!"
   echo
 }
+
+run_plugin_test() {
+  echo "  Testing plugin installation"
+  local test_name="plugin_install"
+
+  create_container \
+    "${test_name}" \
+    --env MYSQL_ROOT_PASSWORD=rootpass \
+    --env MYSQL_USER=user \
+    --env MYSQL_PASSWORD=foo \
+    --env MYSQL_DATABASE=db
+
+  test_connection "${test_name}" root rootpass
+  ip=$(ct_get_cip "${test_name}")
+
+  mysql_cmd "$ip" "root" "rootpass" -e "INSTALL PLUGIN SQL_ERROR_LOG SONAME 'sql_errlog' \G"
+  ct_check_testcase_result $?
+
+  # should fail, deliberately not checking return status
+  mysql_cmd "$ip" "root" "rootpass" -e "select * from mysql.IdonotExist;"
+
+  docker exec $(ct_get_cid "${test_name}") bash -c 'grep IdonotExist /var/lib/mysql/data/sql_errors.log'
+  ct_check_testcase_result $?
+}
+
 ct_init
 TEST_SET=${@:-$TEST_LIST} ct_run_tests_from_testset

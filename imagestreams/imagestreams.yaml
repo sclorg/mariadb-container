@@ -9,7 +9,7 @@
     https://github.com/sclorg/mariadb-container/tree/master/APP_VERSION/README.md.
   imagestream_files:
   - filename: mariadb-centos.json
-    latest: "10.5-el9"
+    latest: "10.11-el9"
     distros:
       - name: CentOS Stream 8
         app_versions: ["10.3", "10.5"]

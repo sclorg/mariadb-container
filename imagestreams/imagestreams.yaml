@@ -11,9 +11,6 @@
   - filename: mariadb-centos.json
     latest: "10.11-el9"
     distros:
-      - name: CentOS Stream 8
-        app_versions: ["10.3", "10.5"]
-
       - name: CentOS Stream 9
         app_versions: ["10.5", "10.11"]
 

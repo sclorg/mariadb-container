@@ -4,19 +4,14 @@ MariaDB SQL Database Server Docker Image
 [![Build and push images to Quay.io registry](https://github.com/sclorg/mariadb-container/actions/workflows/build-and-push.yml/badge.svg)](https://github.com/sclorg/mariadb-container/actions/workflows/build-and-push.yml)
 
 Images available on Quay are:
-* CentOS 7 [mariadb-103](https://quay.io/repository/centos7/mariadb-103-centos7)
-* CentOS 7 [mariadb-105](https://quay.io/repository/centos7/mariadb-105-centos7)
-* CentOS Stream 8 [mariadb-103](https://quay.io/repository/sclorg/mariadb-103-c8s)
-* CentOS Stream 8 [mariadb-105](https://quay.io/repository/sclorg/mariadb-105-c8s)
 * CentOS Stream 9 [mariadb-105](https://quay.io/repository/sclorg/mariadb-105-c9s)
-* CentOS Stream 8 [mariadb-1011](https://quay.io/repository/sclorg/mariadb-1011-c8s)
 * CentOS Stream 9 [mariadb-1011](https://quay.io/repository/sclorg/mariadb-1011-c9s)
 * Fedora [mariadb-103](https://quay.io/repository/fedora/mariadb-103)
 * Fedora [mariadb-105](https://quay.io/repository/fedora/mariadb-105)
 * Fedora [mariadb-1011](https://quay.io/repository/fedora/mariadb-1011)
 
 This repository contains Dockerfiles for MariaDB images for OpenShift and general usage.
-Users can choose between RHEL, Fedora and CentOS based images.
+Users can choose between RHEL, Fedora and CentOS Stream based images.
 
 MariaDB container is very similar to the MySQL container available at
 [https://github.com/sclorg/mysql-container](https://github.com/sclorg/mysql-container).
@@ -43,14 +38,11 @@ RHEL versions currently supported are:
 * RHEL9
 
 CentOS versions currently supported are:
-* CentOS7
-* CentOS Stream 8
 * CentOS Stream 9
 
 
 Installation
 ----------------------
-Choose either the CentOS7 or RHEL7 based image:
 
 *  **RHEL7 based image**
 
@@ -69,23 +61,6 @@ Choose either the CentOS7 or RHEL7 based image:
     $ cd mariadb-container
     $ git submodule update --init
     $ make build TARGET=rhel7 VERSIONS=10.5
-    ```
-
-*  **CentOS7 based image**
-
-    This image is available on DockerHub. To download it run:
-
-    ```
-    $ podman pull quay.io/centos7/mariadb-103-centos7
-    ```
-
-    To build a CentOS based MariaDB image from scratch, run:
-
-    ```
-    $ git clone --recursive https://github.com/sclorg/mariadb-container.git
-    $ cd mariadb-container
-    $ git submodule update --init
-    $ make build TARGET=centos7 VERSIONS=10.3
     ```
 
 For using other versions of MariaDB, just replace the `10.3` value by particular version
@@ -127,14 +102,6 @@ Users can choose between testing MariaDB based on a RHEL or CentOS image.
     $ cd mariadb-container
     $ git submodule update --init
     $ make test TARGET=rhel7 VERSIONS=10.5
-    ```
-
-*  **CentOS based image**
-
-    ```
-    $ cd mariadb-container
-    $ git submodule update --init
-    $ make test TARGET=centos7 VERSIONS=10.3
     ```
 
 For using other versions of MariaDB, just replace the `10.3` value by particular version

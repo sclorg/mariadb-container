@@ -15,6 +15,7 @@ jobs:
       matrix:
         include:
           - dockerfile: "10.11/Dockerfile.c9s"
+            docker_context: 10.11
             registry_namespace: "sclorg"
             quayio_username: "QUAY_IMAGE_SCLORG_BUILDER_USERNAME"
             quayio_token: "QUAY_IMAGE_SCLORG_BUILDER_TOKEN"
@@ -22,6 +23,7 @@ jobs:
             image_name: "mariadb-1011-c9s"
 
           - dockerfile: "10.5/Dockerfile.c9s"
+            docker_context: 10.5
             registry_namespace: "sclorg"
             quayio_username: "QUAY_IMAGE_SCLORG_BUILDER_USERNAME"
             quayio_token: "QUAY_IMAGE_SCLORG_BUILDER_TOKEN"
@@ -29,6 +31,7 @@ jobs:
             image_name: "mariadb-105-c9s"
 
           - dockerfile: "10.5/Dockerfile.fedora"
+            docker_context: 10.5
             registry_namespace: "fedora"
             quayio_username: "QUAY_IMAGE_FEDORA_BUILDER_USERNAME"
             quayio_token: "QUAY_IMAGE_FEDORA_BUILDER_TOKEN"
@@ -36,6 +39,7 @@ jobs:
             image_name: "mariadb-105"
 
           - dockerfile: "10.11/Dockerfile.fedora"
+            docker_context: 10.11
             registry_namespace: "fedora"
             quayio_username: "QUAY_IMAGE_FEDORA_BUILDER_USERNAME"
             quayio_token: "QUAY_IMAGE_FEDORA_BUILDER_TOKEN"
@@ -53,3 +57,5 @@ jobs:
           dockerfile: ${{ matrix.dockerfile }}
           tag: ${{ matrix.tag }}
           image_name: ${{ matrix.image_name }}
+          readme: "${{ matrix.docker_context }}/README.md"
+          quay_application_token: ${{ secrets.QUAY_IMAGE_SCLORG_UPDATE_DESC }}

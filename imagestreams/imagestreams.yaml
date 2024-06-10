@@ -21,7 +21,7 @@
         app_versions: ["10.3", "10.5"]
 
       - name: RHEL 8
-        app_versions: ["10.3", "10.5"]
+        app_versions: ["10.3", "10.5", "10.11"]
 
       - name: RHEL 9
         app_versions: ["10.5", "10.11"]
@@ -30,7 +30,7 @@
     latest: "10.11-el9"
     distros:
       - name: RHEL 8
-        app_versions: ["10.3", "10.5"]
+        app_versions: ["10.3", "10.5", "10.11" ]
 
       - name: RHEL 9
         app_versions: ["10.5", "10.11"]

@@ -15,6 +15,12 @@ VERSION = os.getenv("SINGLE_VERSION")
 IMAGE_NAME = os.getenv("IMAGE_NAME")
 OS = os.getenv("TARGET")
 
+TAGS = {
+    "rhel8": "-el8",
+    "rhel9": "-el9"
+}
+TAG = TAGS.get(OS, None)
+
 
 class TestMariaDBDeployTemplate:
 
@@ -38,7 +44,7 @@ class TestMariaDBDeployTemplate:
             template=template,
             name_in_template="mariadb",
             openshift_args=[
-                f"MARIADB_VERSION={VERSION}",
+                f"MARIADB_VERSION={VERSION}{TAG}",
                 f"DATABASE_SERVICE_NAME={self.oc_api.pod_name_prefix}",
                 f"MYSQL_USER=testu",
                 f"MYSQL_PASSWORD=testp",

@@ -17,9 +17,6 @@
   - filename: mariadb-rhel.json
     latest: "10.11-el9"
     distros:
-      - name: RHEL 7
-        app_versions: ["10.3", "10.5"]
-
       - name: RHEL 8
         app_versions: ["10.3", "10.5", "10.11"]
 

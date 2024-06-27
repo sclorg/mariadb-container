@@ -45,7 +45,7 @@ function check_mysql_os_service_connection() {
 }
 
 function test_mysql_pure_image() {
-  local image_name=${1:-quay.io/centos7/mariadb-103-centos7}
+  local image_name=${1:-quay.io/sclorg/mariadb-105-c9s}
   local image_name_no_namespace=${image_name##*/}
   local service_name="${image_name_no_namespace%%:*}-testing"
 
@@ -64,7 +64,7 @@ function test_mysql_pure_image() {
 }
 
 function test_mysql_template() {
-  local image_name=${1:-quay.io/centos7/mariadb-103-centos7}
+  local image_name=${1:-quay.io/sclorg/mariadb-105-c9s}
   local image_name_no_namespace=${image_name##*/}
   local service_name="${image_name_no_namespace%%:*}-testing"
 
@@ -86,7 +86,7 @@ function test_mysql_template() {
 }
 
 function test_mysql_s2i() {
-  local image_name=${1:-quay.io/centos7/mariadb-103-centos7}
+  local image_name=${1:-quay.io/sclorg/mariadb-105-c9s}
   local app=${2:-https://github.com/sclorg/mariadb-container.git}
   local context_dir=${3:-test/test-app}
   local image_name_no_namespace=${image_name##*/}
@@ -117,18 +117,14 @@ function test_mariadb_integration() {
   TEMPLATES="mariadb-ephemeral-template.json
   mariadb-persistent-template.json"
   SHORT_VERSION="${VERSION//.}"
-  if [ "${OS}" == "rhel7" ]; then
-    namespace_image="rhscl/mariadb-${SHORT_VERSION}-rhel7"
-  else
-    namespace_image="${OS}/mariadb-${SHORT_VERSION}"
-    # Check if the current version is already GA
-    # This directory is cloned from TMT plan repo 'sclorg-tmt-plans'
-    local devel_file="/root/sclorg-tmt-plans/devel_images"
-    if [ -f "${devel_file}" ]; then
-      if grep -q "${OS}=mariadb-container=${VERSION}" "$devel_file" ; then
-        echo "This version is currently developed, so skipping this test."
-        return
-      fi
+  namespace_image="${OS}/mariadb-${SHORT_VERSION}"
+  # Check if the current version is already GA
+  # This directory is cloned from TMT plan repo 'sclorg-tmt-plans'
+  local devel_file="/root/sclorg-tmt-plans/devel_images"
+  if [ -f "${devel_file}" ]; then
+    if grep -q "${OS}=mariadb-container=${VERSION}" "$devel_file" ; then
+      echo "This version is currently developed, so skipping this test."
+      return
     fi
   fi
   for template in $TEMPLATES; do
@@ -146,21 +142,17 @@ function test_mariadb_integration() {
 
 # Check the imagestream
 function test_mariadb_imagestream() {
-  local tag="-el7"
-  if [ "${OS}" == "rhel8" ]; then
-    tag="-el8"
-  elif [ "${OS}" == "rhel9" ]; then
+  local tag="-el8"
+  if [ "${OS}" == "rhel9" ]; then
     tag="-el9"
   fi
-  if [ "${OS}" != "rhel7" ]; then
-    # Check if the current version is already GA
-    # This directory is cloned from TMT plan repo 'sclorg-tmt-plans'
-    local devel_file="/root/sclorg-tmt-plans/devel_images"
-    if [ -f "${devel_file}" ]; then
-      if grep -q "${OS}=mariadb-container=${VERSION}" "$devel_file" ; then
-        echo "This version is currently developed, so skipping this test."
-        return
-      fi
+  # Check if the current version is already GA
+  # This directory is cloned from TMT plan repo 'sclorg-tmt-plans'
+  local devel_file="/root/sclorg-tmt-plans/devel_images"
+  if [ -f "${devel_file}" ]; then
+    if grep -q "${OS}=mariadb-container=${VERSION}" "$devel_file" ; then
+      echo "This version is currently developed, so skipping this test."
+      return
     fi
   fi
   TEMPLATES="mariadb-ephemeral-template.json
@@ -171,15 +163,13 @@ function test_mariadb_imagestream() {
 }
 
 function test_mariadb_template() {
-  if [ "${OS}" != "rhel7" ]; then
-    # Check if the current version is already GA
-    # This directory is cloned from TMT plan repo 'sclorg-tmt-plans'
-    local devel_file="/root/sclorg-tmt-plans/devel_images"
-    if [ -f "${devel_file}" ]; then
-      if grep -q "${OS}=mariadb-container=${VERSION}" "$devel_file" ; then
-        echo "This version is currently developed, so skipping this test."
-        return
-      fi
+  # Check if the current version is already GA
+  # This directory is cloned from TMT plan repo 'sclorg-tmt-plans'
+  local devel_file="/root/sclorg-tmt-plans/devel_images"
+  if [ -f "${devel_file}" ]; then
+    if grep -q "${OS}=mariadb-container=${VERSION}" "$devel_file" ; then
+      echo "This version is currently developed, so skipping this test."
+      return
     fi
   fi
   TEMPLATES="mariadb-ephemeral-template.json

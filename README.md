@@ -33,7 +33,6 @@ MariaDB versions currently provided are:
 * [MariaDB 10.11](10.11)
 
 RHEL versions currently supported are:
-* RHEL7
 * RHEL8
 * RHEL9
 
@@ -44,26 +43,26 @@ CentOS versions currently supported are:
 Installation
 ----------------------
 
-*  **RHEL7 based image**
+*  **RHEL8 based image**
 
-    These images are available in the [Red Hat Container Catalog](https://access.redhat.com/containers/#/registry.access.redhat.com/rhscl/mariadb-103-rhel7).
+    These images are available in the [Red Hat Container Catalog](https://access.redhat.com/containers/#/registry.access.redhat.com/rhel8/mariadb-105).
     To download it run:
 
     ```
-    $ podman pull registry.access.redhat.com/rhscl/mariadb-105-rhel7
+    $ podman pull registry.access.redhat.com/rhel8/mariadb-105
     ```
 
-    To build a RHEL7 based MariaDB image, you need to run Docker build on a properly
+    To build a RHEL8 based MariaDB image, you need to run Docker build on a properly
     subscribed RHEL machine.
 
     ```
     $ git clone --recursive https://github.com/sclorg/mariadb-container.git
     $ cd mariadb-container
     $ git submodule update --init
-    $ make build TARGET=rhel7 VERSIONS=10.5
+    $ make build TARGET=rhel8 VERSIONS=10.5
     ```
 
-For using other versions of MariaDB, just replace the `10.3` value by particular version
+For using other versions of MariaDB, just replace the `10.5` value by particular version
 in the commands above.
 
 Note: while the installation steps are calling `podman`, you can replace any such calls by `docker` with the same arguments.
@@ -95,16 +94,16 @@ Users can choose between testing MariaDB based on a RHEL or CentOS image.
 
 *  **RHEL based image**
 
-    To test a RHEL7 based MariaDB image, you need to run the test on a properly
+    To test a RHEL8 based MariaDB image, you need to run the test on a properly
     subscribed RHEL machine.
 
     ```
     $ cd mariadb-container
     $ git submodule update --init
-    $ make test TARGET=rhel7 VERSIONS=10.5
+    $ make test TARGET=rhel8 VERSIONS=10.5
     ```
 
-For using other versions of MariaDB, just replace the `10.3` value by particular version
+For using other versions of MariaDB, just replace the `10.5` value by particular version
 in the commands above.
 
 **Notice: By omitting the `VERSIONS` parameter, the build/test action will be performed

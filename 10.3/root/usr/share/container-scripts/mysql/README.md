@@ -4,7 +4,6 @@ MariaDB 10.3 SQL Database Server Docker image
 This container image includes MariaDB 10.3 SQL database server for OpenShift and general usage.
 Users can choose between RHEL, CentOS and Fedora based images.
 The RHEL images are available in the [Red Hat Container Catalog](https://access.redhat.com/containers/),
-the CentOS images are available on [Quay.io/centos7](https://quay.io/organization/centos7),
 the CentOS Stream images are available on [Quay.io/sclorg](https://quay.io/organization/sclorg),
 and the Fedora images are available in [Fedora Registry](https://registry.fedoraproject.org/).
 The resulting image can be run using [podman](https://github.com/containers/libpod).
@@ -197,16 +196,16 @@ Extending image
 ---------------
 This image can be extended in Openshift using the `Source` build strategy or via the standalone
 [source-to-image](https://docs.openshift.com/container-platform/4.14/openshift_images/create-images.html#images-create-s2i_create-images) application (where available).
-For this, we will assume that you are using the `rhscl/mariadb-103-rhel7` image,
+For this, we will assume that you are using the `rhel8/mariadb-103` image,
 available via `mariadb:10.3` imagestream tag in Openshift.
 
 
-For example, to build a customized MariaDB database image `my-mariadb-rhel7`
+For example, to build a customized MariaDB database image `my-mariadb-rhel8`
 with a configuration from `https://github.com/sclorg/mariadb-container/tree/master/examples/extend-image` run:
 
 ```
 $ oc new-app mariadb:10.3~https://github.com/sclorg/mariadb-container.git \
-    --name my-mariadb-rhel7 \
+    --name my-mariadb-rhel8 \
     --context-dir=examples/extend-image \
     --env MYSQL_OPERATIONS_USER=opuser \
     --env MYSQL_OPERATIONS_PASSWORD=oppass \
@@ -218,7 +217,7 @@ $ oc new-app mariadb:10.3~https://github.com/sclorg/mariadb-container.git \
 or via s2i:
 
 ```
-$ s2i build --context-dir=examples/extend-image https://github.com/sclorg/mariadb-container.git rhscl/mariadb-103-rhel7 my-mariadb-rhel7
+$ s2i build --context-dir=examples/extend-image https://github.com/sclorg/mariadb-container.git rhel8/mariadb-103 my-mariadb-rhel8
 ```
 
 The directory passed to Openshift can contain these directories:
@@ -361,7 +360,6 @@ See also
 --------
 Dockerfile and other sources for this container image are available on
 https://github.com/sclorg/mariadb-container.
-In that repository, the Dockerfile for RHEL7 is called Dockerfile.rhel7,
-the Dockerfile for RHEL8 is called Dockerfile.rhel8,
+In that repository, the Dockerfile for RHEL8 is called Dockerfile.rhel8,
 the Dockerfile for CentOS Stream 9 is called Dockerfile.c9s,
 and the Dockerfile for Fedora is called Dockerfile.fedora.

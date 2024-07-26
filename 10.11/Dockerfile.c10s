@@ -1,4 +1,4 @@
-FROM quay.io/sclorg/s2i-core-c9s:c9s
+FROM quay.io/sclorg/s2i-core-c10s:c10s
 
 # MariaDB image for OpenShift.
 #
@@ -13,6 +13,9 @@ FROM quay.io/sclorg/s2i-core-c9s:c9s
 ENV MYSQL_VERSION=10.11 \
     APP_DATA=/opt/app-root/src \
     HOME=/var/lib/mysql \
+    NAME=mariadb \
+    VERSION=10.11 \
+    ARCH=x86_64 \
     SUMMARY="MariaDB 10.11 SQL database server" \
     DESCRIPTION="MariaDB is a multi-user, multi-threaded SQL database server. The container \
 image provides a containerized packaging of the MariaDB mysqld daemon and client application. \
@@ -22,13 +25,13 @@ MariaDB databases on behalf of the clients."
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
       io.k8s.description="$DESCRIPTION" \
-      io.k8s.display-name="MariaDB 10.11" \
+      io.k8s.display-name="MariaDB $VERSION" \
       io.openshift.expose-services="3306:mysql" \
       io.openshift.tags="database,mysql,mariadb,mariadb1011,mariadb-1011" \
-      com.redhat.component="mariadb-1011-container" \
-      name="sclorg/mariadb-1011-c9s" \
+      com.redhat.component="$NAME-1011-container" \
+      name="sclorg/$NAME-1011-c10s" \
       version="1" \
-      usage="podman run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 quay.io/sclorg/mariadb-1011-c9s" \
+      usage="podman run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 quay.io/sclorg/$NAME-1011-c10s" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 3306
@@ -36,12 +39,11 @@ EXPOSE 3306
 # This image must forever use UID 27 for mysql user so our volumes are
 # safe in the future. This should *never* change, the last test is there
 # to make sure of that.
-RUN yum -y module enable mariadb:$MYSQL_VERSION && \
-    INSTALL_PKGS="policycoreutils rsync tar gettext hostname bind-utils groff-base mariadb-server" && \
-    yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
+RUN INSTALL_PKGS="policycoreutils rsync tar gettext hostname bind-utils groff-base mariadb-server" && \
+    dnf install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     /usr/libexec/mysqld -V | grep -qe "$MYSQL_VERSION\." && echo "Found VERSION $MYSQL_VERSION" && \
-    yum -y clean all --enablerepo='*' && \
+    dnf -y clean all --enablerepo='*' && \
     mkdir -p /var/lib/mysql/data && chown -R mysql.0 /var/lib/mysql && \
     test "$(id mysql)" = "uid=27(mysql) gid=27(mysql) groups=27(mysql)"
 

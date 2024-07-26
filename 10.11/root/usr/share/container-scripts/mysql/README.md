@@ -363,4 +363,5 @@ https://github.com/sclorg/mariadb-container.
 In that repository, the Dockerfile for RHEL8 is called Dockerfile.rhel8,
 the Dockerfile for RHEL9 is called Dockerfile.rhel9,
 the Dockerfile for CentOS Stream 9 is called Dockerfile.c9s,
+the Dockerfile for CentOS Stream 10 is called Dockerfile.c10s,
 and the Dockerfile for Fedora is called Dockerfile.fedora.

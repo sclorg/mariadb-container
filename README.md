@@ -6,6 +6,7 @@ MariaDB SQL Database Server Docker Image
 Images available on Quay are:
 * CentOS Stream 9 [mariadb-105](https://quay.io/repository/sclorg/mariadb-105-c9s)
 * CentOS Stream 9 [mariadb-1011](https://quay.io/repository/sclorg/mariadb-1011-c9s)
+* CentOS Stream 10 [mariadb-1011](https://quay.io/repository/sclorg/mariadb-1011-c10s)
 * Fedora [mariadb-103](https://quay.io/repository/fedora/mariadb-103)
 * Fedora [mariadb-105](https://quay.io/repository/fedora/mariadb-105)
 * Fedora [mariadb-1011](https://quay.io/repository/fedora/mariadb-1011)
@@ -38,6 +39,7 @@ RHEL versions currently supported are:
 
 CentOS versions currently supported are:
 * CentOS Stream 9
+* CentOS Stream 10
 
 
 Installation

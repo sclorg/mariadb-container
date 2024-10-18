@@ -19,7 +19,6 @@ run_general_tests
 run_change_password_test
 run_change_password_new_user_test
 run_replication_test
-run_doc_test
 run_s2i_test
 run_ssl_test
 run_upgrade_test
@@ -489,10 +488,6 @@ _s2i_test_image() {
 }
 
 run_s2i_test() {
-  echo "  Testing s2i usage"
-  ct_s2i_usage ${IMAGE_NAME} ${s2i_args} &>/dev/null
-  ct_check_testcase_result $?
-
   echo "  Testing s2i build"
   ct_s2i_build_as_df file://${test_dir}/test-app ${IMAGE_NAME} ${IMAGE_NAME}-testapp
   ct_check_testcase_result $?

@@ -15,7 +15,6 @@ ENV MYSQL_VERSION=10.11 \
     HOME=/var/lib/mysql \
     NAME=mariadb \
     VERSION=10.11 \
-    ARCH=x86_64 \
     SUMMARY="MariaDB 10.11 SQL database server" \
     DESCRIPTION="MariaDB is a multi-user, multi-threaded SQL database server. The container \
 image provides a containerized packaging of the MariaDB mysqld daemon and client application. \

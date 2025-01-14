@@ -28,7 +28,7 @@ jobs:
       fail-fast: false
       matrix:
         version: [ "10.3", "10.5", "10.11" ]
-        os_test: [ "rhel8", "rhel9"]
+        os_test: [ "rhel8", "rhel9", "rhel10" ]
         test_case: [ "openshift-4" ]
 
     steps:

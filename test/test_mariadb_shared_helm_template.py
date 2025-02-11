@@ -11,7 +11,7 @@ test_dir = Path(os.path.abspath(os.path.dirname(__file__)))
 class TestHelmMariaDBPersistent:
 
     def setup_method(self):
-        package_name = "mariadb-persistent"
+        package_name = "redhat-mariadb-persistent"
         path = test_dir
         self.hc_api = HelmChartsAPI(path=path, package_name=package_name, tarball_dir=test_dir)
         self.hc_api.clone_helm_chart_repo(
@@ -23,10 +23,10 @@ class TestHelmMariaDBPersistent:
         self.hc_api.delete_project()
 
     def test_package_persistent(self):
-        self.hc_api.package_name = "mariadb-imagestreams"
+        self.hc_api.package_name = "redhat-mariadb-imagestreams"
         assert self.hc_api.helm_package()
         assert self.hc_api.helm_installation()
-        self.hc_api.package_name = "mariadb-persistent"
+        self.hc_api.package_name = "redhat-mariadb-persistent"
         assert self.hc_api.helm_package()
         assert self.hc_api.helm_installation(values={".mariadb_version": "10.5-el8", ".namespace": self.hc_api.namespace})
         assert self.hc_api.is_pod_running(pod_name_prefix="mariadb")

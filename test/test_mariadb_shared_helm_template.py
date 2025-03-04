@@ -7,13 +7,23 @@ from container_ci_suite.helm import HelmChartsAPI
 
 test_dir = Path(os.path.abspath(os.path.dirname(__file__)))
 
+VERSION = os.getenv("VERSION")
+IMAGE_NAME = os.getenv("IMAGE_NAME")
+OS = os.getenv("TARGET")
+
+TAGS = {
+    "rhel8": "-el8",
+    "rhel9": "-el9",
+    "rhel10": "-el10",
+}
+TAG = TAGS.get(OS, None)
 
 class TestHelmMariaDBPersistent:
 
     def setup_method(self):
         package_name = "redhat-mariadb-persistent"
         path = test_dir
-        self.hc_api = HelmChartsAPI(path=path, package_name=package_name, tarball_dir=test_dir)
+        self.hc_api = HelmChartsAPI(path=path, package_name=package_name, tarball_dir=test_dir, shared_cluster=True)
         self.hc_api.clone_helm_chart_repo(
             repo_url="https://github.com/sclorg/helm-charts", repo_name="helm-charts",
             subdir="charts/redhat"
@@ -23,11 +33,18 @@ class TestHelmMariaDBPersistent:
         self.hc_api.delete_project()
 
     def test_package_persistent(self):
+        if OS == "rhel10":
+            pytest.skip("Skipping test for rhel10")
         self.hc_api.package_name = "redhat-mariadb-imagestreams"
         assert self.hc_api.helm_package()
         assert self.hc_api.helm_installation()
         self.hc_api.package_name = "redhat-mariadb-persistent"
         assert self.hc_api.helm_package()
-        assert self.hc_api.helm_installation(values={".mariadb_version": "10.5-el8", ".namespace": self.hc_api.namespace})
+        assert self.hc_api.helm_installation(
+            values={
+                "mariadb_version": f"{VERSION}{TAG}",
+                "namespace": self.hc_api.namespace
+            }
+        )
         assert self.hc_api.is_pod_running(pod_name_prefix="mariadb")
         assert self.hc_api.test_helm_chart(expected_str=["42", "testval"])

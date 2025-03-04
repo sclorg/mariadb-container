@@ -16,7 +16,8 @@ IMAGE_NAME = os.getenv("IMAGE_NAME")
 OS = os.getenv("TARGET")
 TAGS = {
     "rhel8": "-el8",
-    "rhel9": "-el9"
+    "rhel9": "-el9",
+    "rhel10": "-el10"
 }
 TAG = TAGS.get(OS, None)
 
@@ -37,6 +38,8 @@ class TestMariaDBImagestreamTemplate:
         ]
     )
     def test_mariadb_imagestream_template(self, template):
+        if OS == "rhel10":
+            pytest.skip("Skipping test for rhel10")
         os_name = ''.join(i for i in OS if not i.isdigit())
         assert self.oc_api.deploy_image_stream_template(
             imagestream_file=f"imagestreams/mariadb-{os_name}.json",

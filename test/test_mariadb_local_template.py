@@ -17,7 +17,8 @@ OS = os.getenv("TARGET")
 
 TAGS = {
     "rhel8": "-el8",
-    "rhel9": "-el9"
+    "rhel9": "-el9",
+    "rhel10": "-el10",
 }
 TAG = TAGS.get(OS, None)
 
@@ -39,6 +40,8 @@ class TestMariaDBDeployTemplate:
         ]
     )
     def test_python_template_inside_cluster(self, template):
+        if OS == "rhel10":
+            pytest.skip("Skipping test for rhel10")
         short_version = VERSION.replace(".", "")
         assert self.oc_api.deploy_template_with_image(
             image_name=IMAGE_NAME,

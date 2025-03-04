@@ -25,7 +25,7 @@ TAG = TAGS.get(OS, None)
 class TestMariaDBDeployTemplate:
 
     def setup_method(self):
-        self.oc_api = OpenShiftAPI(pod_name_prefix="mariadb-testing", version=VERSION)
+        self.oc_api = OpenShiftAPI(pod_name_prefix="mariadb-testing", version=VERSION, shared_cluster=True)
         self.oc_api.import_is("imagestreams/mariadb-rhel.json", "", skip_check=True)
 
     def teardown_method(self):

@@ -13,6 +13,7 @@ FROM quay.io/sclorg/s2i-core-c9s:c9s
 ENV MYSQL_VERSION=10.5 \
     APP_DATA=/opt/app-root/src \
     HOME=/var/lib/mysql \
+    NAME=mariadb \
     SUMMARY="MariaDB 10.5 SQL database server" \
     DESCRIPTION="MariaDB is a multi-user, multi-threaded SQL database server. The container \
 image provides a containerized packaging of the MariaDB mysqld daemon and client application. \
@@ -24,11 +25,11 @@ LABEL summary="${SUMMARY}" \
       io.k8s.description="${DESCRIPTION}" \
       io.k8s.display-name="MariaDB 10.5" \
       io.openshift.expose-services="3306:mysql" \
-      io.openshift.tags="database,mysql,mariadb,mariadb105,mariadb-105" \
-      com.redhat.component="mariadb-105-container" \
-      name="sclorg/mariadb-105-c9s" \
+      io.openshift.tags="database,mysql,${NAME},${NAME}105,${NAME}-105" \
+      com.redhat.component="${NAME}-105-container" \
+      name="sclorg/${NAME}-105-c9s" \
       version="1" \
-      usage="podman run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 quay.io/sclorg/mariadb-105-c9s" \
+      usage="podman run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 quay.io/sclorg/${NAME}-105-c9s" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 3306
@@ -36,8 +37,8 @@ EXPOSE 3306
 # This image must forever use UID 27 for mysql user so our volumes are
 # safe in the future. This should *never* change, the last test is there
 # to make sure of that.
-RUN yum -y module disable mariadb && \
-    INSTALL_PKGS="policycoreutils rsync tar gettext hostname bind-utils groff-base mariadb-server" && \
+RUN yum -y module disable ${NAME} && \
+    INSTALL_PKGS="policycoreutils rsync tar gettext hostname bind-utils groff-base ${NAME}-server" && \
     yum install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
     rpm -V ${INSTALL_PKGS} && \
     /usr/libexec/mysqld -V | grep -qe "${MYSQL_VERSION}\." && echo "Found VERSION ${MYSQL_VERSION}" && \

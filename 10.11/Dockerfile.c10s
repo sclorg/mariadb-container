@@ -27,7 +27,7 @@ LABEL summary="${SUMMARY}" \
       io.k8s.description="${DESCRIPTION}" \
       io.k8s.display-name="MariaDB ${VERSION}" \
       io.openshift.expose-services="3306:mysql" \
-      io.openshift.tags="database,mysql,mariadb,mariadb1011,mariadb-1011" \
+      io.openshift.tags="database,mysql,${NAME},${NAME}1011,${NAME}-1011" \
       com.redhat.component="${NAME}-1011-container" \
       name="sclorg/${NAME}-1011-c10s" \
       version="1" \
@@ -39,7 +39,7 @@ EXPOSE 3306
 # This image must forever use UID 27 for mysql user so our volumes are
 # safe in the future. This should *never* change, the last test is there
 # to make sure of that.
-RUN INSTALL_PKGS="policycoreutils rsync tar xz gettext hostname bind-utils groff-base mariadb-server" && \
+RUN INSTALL_PKGS="policycoreutils rsync tar xz gettext hostname bind-utils groff-base ${NAME}-server" && \
     dnf install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
     rpm -V ${INSTALL_PKGS} && \
     /usr/libexec/mysqld -V | grep -qe "${MYSQL_VERSION}\." && echo "Found VERSION ${MYSQL_VERSION}" && \

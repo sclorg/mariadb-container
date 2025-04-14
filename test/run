@@ -369,6 +369,7 @@ function run_configuration_tests() {
     --env WORKAROUND_DOCKER_BUG_14203=
     #
 
+  pull_in_mariadb-upgrade_tool "$container_name"
   test_connection "$container_name" config_test_user config_test
 
   # TODO: this check is far from perfect and could be improved:
@@ -587,6 +588,18 @@ function get_previous_major_version() {
   esac
 }
 
+function pull_in_mariadb-upgrade_tool() {
+  case "${OS}" in
+    c9s|c10s|fedora)
+      local container_name="$1"
+      docker run --rm "$container_name" sh -c "dnf install -y mariadb-server-utils"
+      ;;
+    *)
+      # OK, do nothing
+      return ;;
+  esac
+}
+
 function run_upgrade_test() {
   local tmpdir=$(mktemp -d)
   echo "  Testing upgrade of the container image"
@@ -596,6 +609,7 @@ function run_upgrade_test() {
   local datadir=${tmpdir}/data
   create_container "testupg1" -e MYSQL_USER=user -e MYSQL_PASSWORD=foo \
     -e MYSQL_DATABASE=db -v ${datadir}:/var/lib/mysql/data:Z
+  pull_in_mariadb-upgrade_tool testupg1
   test_connection testupg1 user foo
   docker stop $(ct_get_cid testupg1) >/dev/null
 
@@ -605,6 +619,7 @@ function run_upgrade_test() {
   # This should work, but warning should be printed
   create_container "testupg2" -e MYSQL_USER=user -e MYSQL_PASSWORD=foo \
     -e MYSQL_DATABASE=db -v ${datadir}:/var/lib/mysql/data:Z
+  pull_in_mariadb-upgrade_tool testupg2
   test_connection testupg2 user foo
   docker stop $(ct_get_cid testupg2) >/dev/null
   # Check whether some information is provided
@@ -631,6 +646,7 @@ function run_upgrade_test() {
   # Create another container with same data and upgrade set to 'upgrade-aauto'
   create_container "testupg3" -e MYSQL_USER=user -e MYSQL_PASSWORD=foo \
     -e MYSQL_DATABASE=db -v ${datadir}:/var/lib/mysql/data:Z -e MYSQL_DATADIR_ACTION=upgrade-auto
+  pull_in_mariadb-upgrade_tool testupg3
   test_connection testupg3 user foo
   docker stop $(ct_get_cid testupg3) >/dev/null
   # Check whether some upgrade happened
@@ -646,6 +662,7 @@ function run_upgrade_test() {
   # Create another container with same data and upgrade set to 'upgrade-aauto'
   create_container "testupg4" -e MYSQL_USER=user -e MYSQL_PASSWORD=foo \
     -e MYSQL_DATABASE=db -v ${datadir}:/var/lib/mysql/data:Z -e MYSQL_DATADIR_ACTION=upgrade-auto
+  pull_in_mariadb-upgrade_tool testupg4
   test_connection testupg4 user foo
   docker stop $(ct_get_cid testupg4) >/dev/null
   # Check whether some upgrade happened
@@ -658,6 +675,7 @@ function run_upgrade_test() {
   echo "  Testing running --analyze"
   create_container "testupg5" -e MYSQL_USER=user -e MYSQL_PASSWORD=foo \
     -e MYSQL_DATABASE=db -v ${datadir}:/var/lib/mysql/data:Z -e MYSQL_DATADIR_ACTION=analyze
+  pull_in_mariadb-upgrade_tool testupg5
   test_connection testupg5 user foo
   docker stop $(ct_get_cid testupg5) >/dev/null
   # Check whether analyze happened
@@ -670,6 +688,7 @@ function run_upgrade_test() {
   echo "  Testing running --optimize"
   create_container "testupg6" -e MYSQL_USER=user -e MYSQL_PASSWORD=foo \
     -e MYSQL_DATABASE=db -v ${datadir}:/var/lib/mysql/data:Z -e MYSQL_DATADIR_ACTION=optimize
+  pull_in_mariadb-upgrade_tool testupg6
   test_connection testupg6 user foo
   docker stop $(ct_get_cid testupg6) >/dev/null
   # Check whether optimize happened

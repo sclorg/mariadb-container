@@ -14,6 +14,9 @@
       - name: CentOS Stream 9
         app_versions: ["10.5", "10.11"]
 
+      - name: CentOS Stream 10
+        app_versions: ["10.11"]
+
   - filename: mariadb-rhel.json
     latest: "10.11-el9"
     distros:
@@ -23,6 +26,9 @@
       - name: RHEL 9
         app_versions: ["10.5", "10.11"]
 
+      - name: RHEL 10
+        app_versions: ["10.11"]
+
   - filename: mariadb-rhel-aarch64.json
     latest: "10.11-el9"
     distros:
@@ -31,3 +37,6 @@
 
       - name: RHEL 9
         app_versions: ["10.5", "10.11"]
+
+      - name: RHEL 10
+        app_versions: ["10.11"]

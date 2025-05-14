@@ -145,7 +145,10 @@ function test_mariadb_imagestream() {
   local tag="-el8"
   if [ "${OS}" == "rhel9" ]; then
     tag="-el9"
+  elfi [ "${OS}" == "rhel10" ]; then
+    tag="-el10"
   fi
+
   # Check if the current version is already GA
   # This directory is cloned from TMT plan repo 'sclorg-tmt-plans'
   local devel_file="/root/sclorg-tmt-plans/devel_images"

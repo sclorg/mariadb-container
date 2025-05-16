@@ -6,6 +6,8 @@ import pytest
 from container_ci_suite.openshift import OpenShiftAPI
 from container_ci_suite.utils import check_variables
 
+from constants import TAGS
+
 if not check_variables():
     print("At least one variable from IMAGE_NAME, OS, VERSION is missing.")
     sys.exit(1)
@@ -14,12 +16,8 @@ if not check_variables():
 VERSION = os.getenv("VERSION")
 IMAGE_NAME = os.getenv("IMAGE_NAME")
 OS = os.getenv("TARGET")
-TAGS = {
-    "rhel8": "-el8",
-    "rhel9": "-el9",
-    "rhel10": "-el10",
-}
-TAG = TAGS.get(OS, None)
+
+TAG = TAGS.get(OS)
 
 
 class TestMariaDBImagestreamTemplate:
@@ -38,8 +36,6 @@ class TestMariaDBImagestreamTemplate:
         ]
     )
     def test_mariadb_imagestream_template(self, template):
-        if OS == "rhel10":
-            pytest.skip("Skipping test for rhel10")
         os_name = ''.join(i for i in OS if not i.isdigit())
         print(os.getcwd())
         assert self.oc_api.deploy_image_stream_template(

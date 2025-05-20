@@ -5,18 +5,15 @@ from pathlib import Path
 
 from container_ci_suite.helm import HelmChartsAPI
 
+from constants import TAGS
 test_dir = Path(os.path.abspath(os.path.dirname(__file__)))
 
 VERSION = os.getenv("VERSION")
 IMAGE_NAME = os.getenv("IMAGE_NAME")
 OS = os.getenv("TARGET")
 
-TAGS = {
-    "rhel8": "-el8",
-    "rhel9": "-el9",
-    "rhel10": "-el10",
-}
-TAG = TAGS.get(OS, None)
+TAG = TAGS.get(OS)
+
 
 class TestHelmMariaDBPersistent:
 
@@ -33,8 +30,6 @@ class TestHelmMariaDBPersistent:
         self.hc_api.delete_project()
 
     def test_package_persistent(self):
-        if OS == "rhel10":
-            pytest.skip("Skipping test for rhel10")
         self.hc_api.package_name = "redhat-mariadb-imagestreams"
         assert self.hc_api.helm_package()
         assert self.hc_api.helm_installation()

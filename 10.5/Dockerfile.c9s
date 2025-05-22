@@ -10,9 +10,11 @@ FROM quay.io/sclorg/s2i-core-c9s:c9s
 #  * $MYSQL_DATABASE - Name of the database to create
 #  * $MYSQL_ROOT_PASSWORD (Optional) - Password for the 'root' MySQL account
 
+# Standalone ENV call so these values can be re-used in the other ENV calls
 ENV MYSQL_VERSION=10.5 \
-    MYSQL_SHORT_VERSION=105 \
-    VERSION="${MYSQL_VERSION}" \
+    MYSQL_SHORT_VERSION=105  
+
+ENV VERSION="${MYSQL_VERSION}" \
     APP_DATA=/opt/app-root/src \
     HOME=/var/lib/mysql \
     NAME=mariadb \

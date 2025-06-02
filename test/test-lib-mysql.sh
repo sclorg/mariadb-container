@@ -117,7 +117,8 @@ function test_mariadb_integration() {
   TEMPLATES="mariadb-ephemeral-template.json
   mariadb-persistent-template.json"
   SHORT_VERSION="${VERSION//.}"
-  namespace_image="${OS}/mariadb-${SHORT_VERSION}"
+  # MariaDB-103 exists only for RHEL8 and MariaDB exists only for all versions so let's use version 10.5
+  namespace_image="${OS}/mariadb-105"
   # Check if the current version is already GA
   # This directory is cloned from TMT plan repo 'sclorg-tmt-plans'
   local devel_file="/root/sclorg-tmt-plans/devel_images"
@@ -161,7 +162,7 @@ function test_mariadb_imagestream() {
   TEMPLATES="mariadb-ephemeral-template.json
   mariadb-persistent-template.json"
   for template in $TEMPLATES; do
-    ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS%[0-9]*}.json" "${THISDIR}/examples/${template}" mariadb "-p MARIADB_VERSION=${VERSION}${tag}"
+    ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS//[0-9]/}.json" "${THISDIR}/examples/${template}" mariadb "-p MARIADB_VERSION=${VERSION}${tag}"
   done
 }
 
@@ -178,7 +179,7 @@ function test_mariadb_template() {
   TEMPLATES="mariadb-ephemeral-template.json
   mariadb-persistent-template.json"
   for template in $TEMPLATES; do
-    ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS%[0-9]*}.json" "${THISDIR}/examples/${template}" mariadb
+    ct_os_test_image_stream_template "${THISDIR}/imagestreams/mariadb-${OS//[0-9]/}.json" "${THISDIR}/examples/${template}" mariadb
   done
 }
 

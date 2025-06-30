@@ -163,8 +163,9 @@ EOSQL
   if [ -v MYSQL_ROOT_PASSWORD ]; then
     log_info "Setting password for MySQL root user ..."
     if [ "$MYSQL_VERSION" \> "10.0" ] ; then
+    # use a password here, because otherwise a password policy can reject the creation of the root user
 mysql $mysql_flags <<EOSQL
-      CREATE USER IF NOT EXISTS 'root'@'%';
+      CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
 EOSQL
     fi
 mysql $mysql_flags <<EOSQL

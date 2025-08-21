@@ -54,6 +54,15 @@ jobs:
             tag: "fedora"
             image_name: "mariadb-1011"
 
+          - dockerfile: "11.8/Dockerfile.fedora"
+            docker_context: "11.8"
+            registry_namespace: "fedora"
+            quayio_username: "QUAY_IMAGE_FEDORA_BUILDER_USERNAME"
+            quayio_token: "QUAY_IMAGE_FEDORA_BUILDER_TOKEN"
+            tag: "fedora"
+            image_name: "mariadb-118"
+
+
     steps:
       - name: Build and push to quay.io registry
         uses: sclorg/build-and-push-action@v4

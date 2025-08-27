@@ -167,7 +167,7 @@ function run_replication_test() {
   # Run the MySQL master
   docker run $cluster_args -e MYSQL_USER=user -e MYSQL_PASSWORD=foo \
     -e MYSQL_ROOT_PASSWORD=root \
-    -e MYSQL_INNODB_BUFFER_POOL_SIZE=5M \
+    -e MYSQL_INNODB_BUFFER_POOL_SIZE=6M \
     -d --cidfile ${CID_FILE_DIR}/master.cid $IMAGE_NAME mysqld-master >/dev/null
   ct_check_testcase_result $?
   local master_ip
@@ -175,7 +175,7 @@ function run_replication_test() {
 
   # Run the MySQL slave
   docker run $cluster_args -e MYSQL_MASTER_SERVICE_NAME=${master_ip} \
-    -e MYSQL_INNODB_BUFFER_POOL_SIZE=5M \
+    -e MYSQL_INNODB_BUFFER_POOL_SIZE=6M \
     -d --cidfile ${CID_FILE_DIR}/slave.cid $IMAGE_NAME mysqld-slave >/dev/null
   ct_check_testcase_result $?
   local slave_ip

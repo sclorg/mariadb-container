@@ -55,6 +55,7 @@ RUN /usr/sbin/groupadd -g 27 -o -r mysql && \
 ENV CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/mysql \
     MYSQL_PREFIX=/usr
 
+
 COPY ${MYSQL_VERSION}/root-common /
 COPY ${MYSQL_VERSION}/s2i-common/bin/ ${STI_SCRIPTS_PATH}
 COPY ${MYSQL_VERSION}/root /

@@ -60,7 +60,7 @@ check_datadir_version() {
         fi
 
         if [ $(( ${datadir_version} + 1 )) -eq "${mysqld_version}" ] || [ "${datadir_version}" -eq 505 -a "${mysqld_version}" -eq 1000 ] || \
-           [ "${datadir_version}" -eq 1003 -a "${mysqld_version}" -eq 1005 ] || [ "${datadir_version}" -eq 1005 -a "${mysqld_version}" -eq 1011 ] ; then
+           [ "${datadir_version}" -eq 1003 -a "${mysqld_version}" -eq 1005 ] || [ "${datadir_version}" -eq 1005 -a "${mysqld_version}" -eq 1011 ] || [ "${datadir_version}" -eq 1011 -a "${mysqld_version}" -eq 1108 ] ; then
 
           log_warn "MySQL server is version ${mysqld_version_dot} and datadir is version"\
                    "${datadir_version_dot}, which is a compatible combination."

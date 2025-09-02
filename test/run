@@ -551,6 +551,7 @@ ssl-cert=\${APP_DATA}/mysql-certs/server-cert-selfsigned.pem
     echo "  Success!"
     rm -rf ${test_app_dir}
   else
+    tail -10 /var/log/mariadb/mariadb.log
     echo "  FAIL!"
     mysql_cmd "$ip" "ssl_test_user" "ssl_test" --ssl-ca=${ca_cert_path} -e 'show status like "%ssl%" \G'
     return 1

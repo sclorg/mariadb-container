@@ -36,10 +36,16 @@ test_dir="$(readlink -f $(dirname "${BASH_SOURCE[0]}"))"
 s2i_args="--pull-policy=never "
 
 function mysql_cmd() {
+  # MariaDB 11.3+ enforces stricter SSL/TLS verification (certificate & hostname checks),
+  # so tests may require this option for compatibility.
   local container_ip="$1"; shift
   local login="$1"; shift
   local password="$1"; shift
-  docker run --rm ${CONTAINER_EXTRA_ARGS:-} "$IMAGE_NAME" mysql --host "$container_ip" -u"$login" -p"$password" "$@" db
+  local disable_verify_server=""
+  if [ "$VERSION" == "11.8" ]; then
+    disable_verify_server="--disable-ssl-verify-server-cert"
+  fi
+  docker run --rm ${CONTAINER_EXTRA_ARGS:-} "$IMAGE_NAME" mysql --host "$container_ip" -u "$login" -p"$password" "$@" $disable_verify_server db
 }
 
 function test_connection() {

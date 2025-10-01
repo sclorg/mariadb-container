@@ -2,13 +2,10 @@ MariaDB 10.3 SQL Database Server Docker image
 =============================================
 
 This container image includes MariaDB 10.3 SQL database server for OpenShift and general usage.
-Users can choose between RHEL, CentOS and Fedora based images.
-The RHEL images are available in the [Red Hat Container Catalog](https://access.redhat.com/containers/),
-the CentOS Stream images are available on [Quay.io/sclorg](https://quay.io/organization/sclorg),
-and the Fedora images are available in [Fedora Registry](https://registry.fedoraproject.org/).
+The RHEL image is available in the [Red Hat Container Catalog](https://access.redhat.com/containers/),
 The resulting image can be run using [podman](https://github.com/containers/libpod).
 
-Note: while the examples in this README are calling `podman`, you can replace any such calls by `docker` with the same arguments
+Note: while the examples in this README call `podman`, you can replace any such calls by `docker` with the same arguments
 
 Description
 -----------
@@ -360,6 +357,4 @@ See also
 --------
 Dockerfile and other sources for this container image are available on
 https://github.com/sclorg/mariadb-container.
-In that repository, the Dockerfile for RHEL8 is called Dockerfile.rhel8,
-the Dockerfile for CentOS Stream 9 is called Dockerfile.c9s,
-and the Dockerfile for Fedora is called Dockerfile.fedora.
+In that repository, the Dockerfile for RHEL8 is called Dockerfile.rhel8.

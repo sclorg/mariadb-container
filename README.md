@@ -7,9 +7,8 @@ Images available on Quay are:
 * CentOS Stream 9 [mariadb-105](https://quay.io/repository/sclorg/mariadb-105-c9s)
 * CentOS Stream 9 [mariadb-1011](https://quay.io/repository/sclorg/mariadb-1011-c9s)
 * CentOS Stream 10 [mariadb-1011](https://quay.io/repository/sclorg/mariadb-1011-c10s)
-* Fedora [mariadb-103](https://quay.io/repository/fedora/mariadb-103)
-* Fedora [mariadb-105](https://quay.io/repository/fedora/mariadb-105)
 * Fedora [mariadb-1011](https://quay.io/repository/fedora/mariadb-1011)
+* Fedora [mariadb-118](https://quay.io/repository/fedora/mariadb-118)
 
 This repository contains Dockerfiles for MariaDB images for OpenShift and general usage.
 Users can choose between RHEL, Fedora and CentOS Stream based images.
@@ -38,34 +37,53 @@ RHEL versions currently supported are:
 * RHEL9
 * RHEL10
 
-CentOS versions currently supported are:
+CentOS Stream versions currently supported are:
 * CentOS Stream 9
 * CentOS Stream 10
 
 
 Installation
 ----------------------
+Choose either the CentOS Stream or RHEL based image:
 
-*  **RHEL8 based image**
+*  **RHEL based image**
 
-    These images are available in the [Red Hat Container Catalog](https://access.redhat.com/containers/#/registry.access.redhat.com/rhel8/mariadb-105).
-    To download it run:
+    These images are available in the [Red Hat Container Catalog](https://catalog.redhat.com/en/search?searchType=containers).
+    To download it, run:
 
     ```
-    $ podman pull registry.access.redhat.com/rhel8/mariadb-105
+    $ podman pull registry.redhat.io/rhel10/mariadb-1011
     ```
 
-    To build a RHEL8 based MariaDB image, you need to run Docker build on a properly
+    To build a RHEL10 based MariaDB image, you need to run Docker build on a properly
     subscribed RHEL machine.
 
     ```
     $ git clone --recursive https://github.com/sclorg/mariadb-container.git
     $ cd mariadb-container
     $ git submodule update --init
-    $ make build TARGET=rhel8 VERSIONS=10.5
+    $ make build TARGET=rhel10 VERSIONS=10.11
     ```
 
-For using other versions of MariaDB, just replace the `10.5` value by particular version
+* **CentOS Stream based image**
+
+    This image is available on [Quay.io](https://quay.io/search).
+    To download it, run:
+
+    ```
+    $ podman pull quay.io/sclorg/mariadb-1011-c10s
+    ```
+
+    To build a CentOS Stream based MariaDB image from scratch, run:
+
+    ```
+    $ git clone --recursive https://github.com/sclorg/mariadb-container.git
+    $ cd mariadb-container
+    $ git submodule update --init
+    $ make build TARGET=c10s VERSIONS=10.11
+    ```
+
+For using other versions of MariaDB, just replace the `10.11` value with a particular version
 in the commands above.
 
 Note: while the installation steps are calling `podman`, you can replace any such calls by `docker` with the same arguments.
@@ -87,26 +105,36 @@ see [usage documentation](10.5).
 For information about usage of Dockerfile for MariaDB 10.11,
 see [usage documentation](10.11).
 
-Test
+Testing
 ---------------------------------
 
 This repository also provides a test framework, which checks basic functionality
 of the MariaDB image.
 
-Users can choose between testing MariaDB based on a RHEL or CentOS image.
+Users can choose between testing MariaDB based on a RHEL or CentOS Stream image.
 
 *  **RHEL based image**
 
-    To test a RHEL8 based MariaDB image, you need to run the test on a properly
+    To test a RHEL10 based MariaDB image, you need to run the test on a properly
     subscribed RHEL machine.
 
     ```
+    $ git clone --recursive https://github.com/sclorg/mariadb-container.git
     $ cd mariadb-container
     $ git submodule update --init
-    $ make test TARGET=rhel8 VERSIONS=10.5
+    $ make test TARGET=rhel10 VERSIONS=10.11
     ```
 
-For using other versions of MariaDB, just replace the `10.5` value by particular version
+*  **CentOS Stream based image**
+
+    ```
+    $ git clone --recursive https://github.com/sclorg/mariadb-container.git
+    $ cd mariadb-container
+    $ git submodule update --init
+    $ make test TARGET=c10s VERSIONS=10.11
+    ```
+    
+For using other versions of MariaDB, just replace the `10.11` value with a particular version
 in the commands above.
 
 **Notice: By omitting the `VERSIONS` parameter, the build/test action will be performed

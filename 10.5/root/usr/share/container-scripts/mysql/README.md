@@ -2,13 +2,12 @@ MariaDB 10.5 SQL Database Server Docker image
 =============================================
 
 This container image includes MariaDB 10.5 SQL database server for OpenShift and general usage.
-Users can choose between RHEL, CentOS and Fedora based images.
+Users can choose between RHEL and CentOS Stream based images.
 The RHEL images are available in the [Red Hat Container Catalog](https://access.redhat.com/containers/),
-the CentOS Stream images are available on [Quay.io/sclorg](https://quay.io/organization/sclorg),
-and the Fedora images are available in [Fedora Registry](https://quay.io/organization/fedora).
+and the CentOS Stream images are available on [Quay.io/sclorg](https://quay.io/organization/sclorg).
 The resulting image can be run using [podman](https://github.com/containers/libpod).
 
-Note: while the examples in this README are calling `podman`, you can replace any such calls by `docker` with the same arguments
+Note: while the examples in this README call `podman`, you can replace any such calls by `docker` with the same arguments
 
 Description
 -----------
@@ -24,12 +23,12 @@ Usage
 -----
 
 For this, we will assume that you are using the MariaDB 10.5 container image from the
-Red Hat Container Catalog called `rhel8/mariadb-105`.
+Red Hat Container Catalog called `rhel9/mariadb-105`.
 If you want to set only the mandatory environment variables and not store
 the database in a host directory, execute the following command:
 
 ```
-$ podman run -d --name mariadb_database -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 rhel8/mariadb-105
+$ podman run -d --name mariadb_database -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 rhel9/mariadb-105
 ```
 
 This will create a container named `mariadb_database` running MySQL with database
@@ -196,16 +195,16 @@ Extending image
 ---------------
 This image can be extended in Openshift using the `Source` build strategy or via the standalone
 [source-to-image](https://docs.openshift.com/container-platform/4.14/openshift_images/create-images.html#images-create-s2i_create-images) application (where available).
-For this, we will assume that you are using the `rhel8/mariadb-105` image,
+For this, we will assume that you are using the `rhel9/mariadb-105` image,
 available via `mariadb:10.5` imagestream tag in Openshift.
 
 
-For example, to build a customized MariaDB database image `my-mariadb-rhel8`
+For example, to build a customized MariaDB database image `my-mariadb-rhel9`
 with a configuration from `https://github.com/sclorg/mariadb-container/tree/master/examples/extend-image` run:
 
 ```
 $ oc new-app mariadb:10.5~https://github.com/sclorg/mariadb-container.git \
-    --name my-mariadb-rhel8 \
+    --name my-mariadb-rhel9 \
     --context-dir=examples/extend-image \
     --env MYSQL_OPERATIONS_USER=opuser \
     --env MYSQL_OPERATIONS_PASSWORD=oppass \
@@ -217,7 +216,7 @@ $ oc new-app mariadb:10.5~https://github.com/sclorg/mariadb-container.git \
 or via s2i:
 
 ```
-$ s2i build --context-dir=examples/extend-image https://github.com/sclorg/mariadb-container.git rhel8/mariadb-105 my-mariadb-rhel8
+$ s2i build --context-dir=examples/extend-image https://github.com/sclorg/mariadb-container.git rhel9/mariadb-105 my-mariadb-rhel9
 ```
 
 The directory passed to Openshift can contain these directories:
@@ -361,6 +360,5 @@ See also
 Dockerfile and other sources for this container image are available on
 https://github.com/sclorg/mariadb-container.
 In that repository, the Dockerfile for RHEL8 is called Dockerfile.rhel8,
-the Dockerfile for RHEL9 is called Dockerfile.rhel9,
-the Dockerfile for CentOS Stream 9 is called Dockerfile.c9s,
-and the Dockerfile for Fedora is called Dockerfile.fedora.
+the Dockerfile for RHEL9 is called Dockerfile.rhel9
+and the Dockerfile for CentOS Stream 9 is called Dockerfile.c9s.

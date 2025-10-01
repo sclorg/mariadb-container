@@ -1,15 +1,15 @@
 upstream_upgrade_info() {
   echo -n "For upstream documentation about upgrading, see: "
   case ${MYSQL_VERSION} in
-    10.0) echo "https://mariadb.com/kb/en/library/upgrading-from-mariadb-55-to-mariadb-100/" ;;
-    10.1) echo "https://mariadb.com/kb/en/library/upgrading-from-mariadb-100-to-mariadb-101/" ;;
-    10.2) echo "https://mariadb.com/kb/en/library/upgrading-from-mariadb-101-to-mariadb-102/" ;;
-    10.3) echo "https://mariadb.com/kb/en/library/upgrading-from-mariadb-102-to-mariadb-103/" ;;
-    10.5) echo "https://mariadb.com/kb/en/upgrading-from-mariadb-103-to-mariadb-104/"
-          echo "https://mariadb.com/kb/en/upgrading-from-mariadb-104-to-mariadb-105/" ;;
-    5.6) echo "https://dev.mysql.com/doc/refman/5.6/en/upgrading-from-previous-series.html" ;;
-    5.7) echo "https://dev.mysql.com/doc/refman/5.7/en/upgrading-from-previous-series.html" ;;
-    *) echo "Non expected version '${MYSQL_VERSION}'" ; return 1 ;;
+    10.3) echo "https://mariadb.com/docs/server/server-management/install-and-upgrade-mariadb/upgrading/mariadb-community-server-upgrade-paths/upgrading-to-unmaintained-mariadb-releases/upgrading-from-mariadb-102-to-mariadb-103" ;;
+    10.5) echo "https://mariadb.com/docs/server/server-management/install-and-upgrade-mariadb/upgrading/mariadb-community-server-upgrade-paths/upgrading-to-unmaintained-mariadb-releases/upgrading-from-mariadb-103-to-mariadb-104"
+          echo "https://mariadb.com/docs/server/server-management/install-and-upgrade-mariadb/upgrading/mariadb-community-server-upgrade-paths/upgrading-to-unmaintained-mariadb-releases/upgrading-from-mariadb-10-4-to-mariadb-10-5" ;;
+    10.11)  echo "https://mariadb.com/docs/server/server-management/install-and-upgrade-mariadb/upgrading/mariadb-community-server-upgrade-paths/upgrading-from-mariadb-10-5-to-mariadb-10-6"
+            echo "https://mariadb.com/docs/server/server-management/install-and-upgrade-mariadb/upgrading/mariadb-community-server-upgrade-paths/upgrading-from-mariadb-10-6-to-mariadb-10-11" ;;
+# TODO: Uncomment when 11.8 is released
+#    11.8) echo "https://mariadb.com/docs/server/server-management/install-and-upgrade-mariadb/upgrading/mariadb-community-server-upgrade-paths/upgrading-from-mariadb-10-11-to-mariadb-11-4"
+#          echo "https://mariadb.com/docs/server/server-management/install-and-upgrade-mariadb/upgrading/mariadb-community-server-upgrade-paths/upgrading-from-mariadb-11-4-to-mariadb-11-8" ;;
+    *) echo "Unexpected or unsupported version '${MYSQL_VERSION}'" ; return 1 ;;
   esac
 }
 

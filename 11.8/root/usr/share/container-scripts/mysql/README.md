@@ -1,14 +1,17 @@
-MariaDB 10.11 SQL Database Server Container image
+MariaDB 11.8 SQL Database Server Container image
 =============================================
 
-This container image includes MariaDB 10.11 SQL database server for OpenShift and general usage.
-Users can choose between RHEL, CentOS and Fedora based images.
+This container image includes MariaDB 11.8 SQL database server for OpenShift and general usage.
+
+<!---Users can choose between RHEL, CentOS and Fedora based images.
 The RHEL images are available in the [Red Hat Container Catalog](https://access.redhat.com/containers/),
 the CentOS Stream images are available on [Quay.io/sclorg](https://quay.io/organization/sclorg),
-and the Fedora images are available in [Fedora Registry](https://quay.io/organization/fedora).
+and the Fedora images are available in [Fedora Registry](https://quay.io/organization/fedora).-->
+
+Fedora images are available in [Fedora Registry](https://quay.io/organization/fedora).
 The resulting image can be run using [podman](https://github.com/containers/libpod).
 
-Note: while the examples in this README are calling `podman`, you can replace any such calls by `docker` with the same arguments
+Note: while the examples in this README call `podman`, you can replace any such calls by `docker` with the same arguments
 
 Description
 -----------
@@ -22,14 +25,14 @@ You can find more information on the MariaDB project from the project Web site
 
 Usage
 -----
-
-For this, we will assume that you are using the MariaDB 1011 container image from the
-Red Hat Container Catalog called `rhel8/mariadb-1011`.
+<!--- TODO: change back to rhel10 when the image comes out -->
+For this, we will assume that you are using the MariaDB 11.8 container image from the
+Quay.io registry called `fedora/mariadb-118`.
 If you want to set only the mandatory environment variables and not store
 the database in a host directory, execute the following command:
 
 ```
-$ podman run -d --name mariadb_database -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 rhel8/mariadb-1011
+$ podman run -d --name mariadb_database -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 fedora/mariadb-118
 ```
 
 This will create a container named `mariadb_database` running MySQL with database
@@ -47,7 +50,7 @@ or if it was already present, `mysqld` is executed and will run as PID 1. You ca
 
 Environment variables and volumes
 ---------------------------------
-
+<!--- TODO: review if correct -->
 The image recognizes the following environment variables that you can set during
 initialization by passing `-e VAR=VALUE` to the Docker run command.
 
@@ -191,21 +194,21 @@ variable with the full path of the file you wish to use. For example, the defaul
 location is `/etc/my.cnf` but you can change it to `/etc/mysql/my.cnf` by setting
  `MYSQL_DEFAULTS_FILE=/etc/mysql/my.cnf`
 
-
+<!--- TODO: put back when the rhel/centos images are released
 Extending image
 ---------------
 This image can be extended in Openshift using the `Source` build strategy or via the standalone
 [source-to-image](https://docs.openshift.com/container-platform/4.14/openshift_images/create-images.html#images-create-s2i_create-images) application (where available).
-For this, we will assume that you are using the `rhel8/mariadb-1011` image,
-available via `mariadb:10.11` imagestream tag in Openshift.
+For this, we will assume that you are using the `rhel10/mariadb-118` image,
+available via `mariadb:11.8` imagestream tag in Openshift.
 
 
-For example, to build a customized MariaDB database image `my-mariadb-rhel8`
+For example, to build a customized MariaDB database image `my-mariadb-rhel10`
 with a configuration from `https://github.com/sclorg/mariadb-container/tree/master/examples/extend-image` run:
 
 ```
-$ oc new-app mariadb:10.11~https://github.com/sclorg/mariadb-container.git \
-    --name my-mariadb-rhel8 \
+$ oc new-app mariadb:11.8~https://github.com/sclorg/mariadb-container.git \
+    --name my-mariadb-rhel10 \
     --context-dir=examples/extend-image \
     --env MYSQL_OPERATIONS_USER=opuser \
     --env MYSQL_OPERATIONS_PASSWORD=oppass \
@@ -217,7 +220,7 @@ $ oc new-app mariadb:10.11~https://github.com/sclorg/mariadb-container.git \
 or via s2i:
 
 ```
-$ s2i build --context-dir=examples/extend-image https://github.com/sclorg/mariadb-container.git rhel8/mariadb-1011 my-mariadb-rhel8
+$ s2i build --context-dir=examples/extend-image https://github.com/sclorg/mariadb-container.git rhel10/mariadb-118 my-mariadb-rhel10
 ```
 
 The directory passed to Openshift can contain these directories:
@@ -263,7 +266,7 @@ every time the image is started using `podman run`. The directory has to be
 mounted into `/opt/app-root/src/` in the image
 (`-v ./image-configuration/:/opt/app-root/src/`).
 This overwrites customization built into the image.
-
+-->
 
 Securing the connection with SSL
 --------------------------------
@@ -286,7 +289,7 @@ or a new container image can be built using s2i.
 
 Upgrading and data directory version checking
 ---------------------------------------------
-
+<!--- TODO: review if still true -->
 MySQL and MariaDB use versions that consist of three numbers X.Y.Z (e.g. 5.6.23).
 For version changes in Z part, the server's binary data format stays compatible and thus no
 special upgrade procedure is needed. For upgrades from X.Y to X.Y+1, consider doing manual
@@ -360,7 +363,7 @@ See also
 --------
 Dockerfile and other sources for this container image are available on
 https://github.com/sclorg/mariadb-container.
-In that repository, the Dockerfile for RHEL8 is called Dockerfile.rhel8,
+In that repository,
 the Dockerfile for RHEL9 is called Dockerfile.rhel9,
 the Dockerfile for RHEL10 is called Dockerfile.rhel10,
 the Dockerfile for CentOS Stream 9 is called Dockerfile.c9s,

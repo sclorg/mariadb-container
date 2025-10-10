@@ -50,7 +50,6 @@ or if it was already present, `mysqld` is executed and will run as PID 1. You ca
 
 Environment variables and volumes
 ---------------------------------
-<!--- TODO: review if correct -->
 The image recognizes the following environment variables that you can set during
 initialization by passing `-e VAR=VALUE` to the Docker run command.
 
@@ -289,7 +288,6 @@ or a new container image can be built using s2i.
 
 Upgrading and data directory version checking
 ---------------------------------------------
-<!--- TODO: review if still true -->
 MySQL and MariaDB use versions that consist of three numbers X.Y.Z (e.g. 5.6.23).
 For version changes in Z part, the server's binary data format stays compatible and thus no
 special upgrade procedure is needed. For upgrades from X.Y to X.Y+1, consider doing manual

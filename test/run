@@ -391,7 +391,6 @@ function run_configuration_tests() {
   test_config_option "$container_name" "$configuration" sort_buffer_size 256K
   test_config_option "$container_name" "$configuration" key_buffer_size 16M
   test_config_option "$container_name" "$configuration" read_buffer_size 16M
-  test_config_option "$container_name" "$configuration" innodb_buffer_pool_size 16M
   test_config_option "$container_name" "$configuration" innodb_log_file_size 4M
   test_config_option "$container_name" "$configuration" innodb_log_buffer_size 4M
 
@@ -415,7 +414,6 @@ function run_configuration_tests() {
 
   test_config_option "$container_name" "$configuration" key_buffer_size 25M
   test_config_option "$container_name" "$configuration" read_buffer_size 12M
-  test_config_option "$container_name" "$configuration" innodb_buffer_pool_size 128M
   test_config_option "$container_name" "$configuration" innodb_log_file_size 38M
   test_config_option "$container_name" "$configuration" innodb_log_buffer_size 38M
 

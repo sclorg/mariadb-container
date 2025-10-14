@@ -36,12 +36,13 @@ test_dir="$(readlink -f $(dirname "${BASH_SOURCE[0]}"))"
 s2i_args="--pull-policy=never "
 
 function mysql_cmd() {
-  # MariaDB 11.3+ enforces stricter SSL/TLS verification (certificate & hostname checks),
-  # so tests may require this option for compatibility.
   local container_ip="$1"; shift
   local login="$1"; shift
   local password="$1"; shift
   local disable_verify_server=""
+  # MariaDB 11.3+ enforces stricter SSL/TLS verification (certificate & hostname checks),
+  # so tests may require this option for compatibility.
+  # https://mariadb.org/mission-impossible-zero-configuration-ssl/
   if [ "$VERSION" == "11.8" ]; then
     disable_verify_server="--disable-ssl-verify-server-cert"
   fi

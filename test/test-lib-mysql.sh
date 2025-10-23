@@ -118,7 +118,7 @@ function test_mariadb_integration() {
   mariadb-persistent-template.json"
   SHORT_VERSION="${VERSION//.}"
   # MariaDB-103 exists only for RHEL8 and MariaDB exists only for all versions so let's use version 10.5
-  namespace_image="${OS}/mariadb-105"
+  namespace_image="${OS}/mariadb-1011"
   # Check if the current version is already GA
   # This directory is cloned from TMT plan repo 'sclorg-tmt-plans'
   local devel_file="/root/sclorg-tmt-plans/devel_images"

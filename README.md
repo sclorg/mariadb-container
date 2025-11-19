@@ -3,13 +3,6 @@ MariaDB SQL Database Server Docker Image
 
 [![Build and push images to Quay.io registry](https://github.com/sclorg/mariadb-container/actions/workflows/build-and-push.yml/badge.svg)](https://github.com/sclorg/mariadb-container/actions/workflows/build-and-push.yml)
 
-Images available on Quay are:
-* CentOS Stream 9 [mariadb-105](https://quay.io/repository/sclorg/mariadb-105-c9s)
-* CentOS Stream 9 [mariadb-1011](https://quay.io/repository/sclorg/mariadb-1011-c9s)
-* CentOS Stream 10 [mariadb-1011](https://quay.io/repository/sclorg/mariadb-1011-c10s)
-* Fedora [mariadb-1011](https://quay.io/repository/fedora/mariadb-1011)
-* Fedora [mariadb-118](https://quay.io/repository/fedora/mariadb-118)
-
 This repository contains Dockerfiles for MariaDB images for OpenShift and general usage.
 Users can choose between RHEL, Fedora and CentOS Stream based images.
 
@@ -27,20 +20,18 @@ For more information about concepts used in these podman images, see the
 
 Versions
 ---------------
-MariaDB versions currently provided are:
-* [MariaDB 10.3](10.3)
-* [MariaDB 10.5](10.5)
-* [MariaDB 10.11](10.11)
-
-RHEL versions currently supported are:
-* RHEL8
-* RHEL9
-* RHEL10
-
-CentOS Stream versions currently supported are:
-* CentOS Stream 9
-* CentOS Stream 10
-
+<!--
+Table start
+-->
+||CentOS Stream 9|CentOS Stream 10|Fedora|RHEL 8|RHEL 9|RHEL 10|
+|:--|:--:|:--:|:--:|:--:|:--:|:--:|
+|10.3||||<details><summary>✓</summary>`registry.redhat.io/rhel8/mariadb-103`</details>|||
+|10.5|<details><summary>✓</summary>`quay.io/sclorg/mariadb-105-c9s`</details>|||<details><summary>✓</summary>`registry.redhat.io/rhel8/mariadb-105`</details>|<details><summary>✓</summary>`registry.redhat.io/rhel9/mariadb-105`</details>||
+|10.11|<details><summary>✓</summary>`quay.io/sclorg/mariadb-1011-c9s`</details>|<details><summary>✓</summary>`quay.io/sclorg/mariadb-1011-c10s`</details>|<details><summary>✓</summary>`quay.io/fedora/mariadb-1011`</details>|<details><summary>✓</summary>`registry.redhat.io/rhel8/mariadb-1011`</details>|<details><summary>✓</summary>`registry.redhat.io/rhel9/mariadb-1011`</details>|<details><summary>✓</summary>`registry.redhat.io/rhel10/mariadb-1011`</details>|
+|11.8|||<details><summary>✓</summary>`quay.io/fedora/mariadb-118`</details>||||
+<!--
+Table end
+-->
 
 Installation
 ----------------------

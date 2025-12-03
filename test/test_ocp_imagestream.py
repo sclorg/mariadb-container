@@ -6,7 +6,7 @@ import pytest
 from container_ci_suite.openshift import OpenShiftAPI
 from container_ci_suite.utils import check_variables
 
-from constants import TAGS
+from conftest import TAGS
 
 if not check_variables():
     print("At least one variable from IMAGE_NAME, OS, VERSION is missing.")

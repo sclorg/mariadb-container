@@ -5,7 +5,7 @@ from pathlib import Path
 
 from container_ci_suite.helm import HelmChartsAPI
 
-from constants import TAGS
+from conftest import TAGS
 test_dir = Path(os.path.abspath(os.path.dirname(__file__)))
 
 VERSION = os.getenv("VERSION")

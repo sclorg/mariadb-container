@@ -75,7 +75,7 @@ class TestMariaDBGeneralContainer:
 
         mysql_cmd = (
             f"mysql --host {cip} -u{username} -p{password} --ssl-ca={ca_cert_path}"
-            + " -e 'show status like \"Ssl_cipher\" \\G' db"
+            + f" -e 'show status like \"Ssl_cipher\" \\G' {VARS.DB_NAME}"
         )
         ssl_output = PodmanCLIWrapper.podman_run_command(
             cmd=f"--rm -v {ssl_dir}:/opt/app-root/src/:z {VARS.IMAGE_NAME} {mysql_cmd}",

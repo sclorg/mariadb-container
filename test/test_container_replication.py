@@ -54,7 +54,7 @@ class TestMariaDBReplicationContainer:
         assert slave_cip
         slave_cid = self.replication_db.get_cid(cid_file_name=slave_cid_name)
         assert slave_cid
-        print(f"Replica IP: {slave_cid}")
+        print(f"Slave IP: {slave_cip}")
         # Now wait till the SOURCE will see the REPLICA
         result = self.replication_db.test_db_connection(
             container_ip=master_cip,
@@ -62,20 +62,25 @@ class TestMariaDBReplicationContainer:
             password="root",
         )
         result = PodmanCLIWrapper.call_podman_command(
-            cmd=f"exec {master_cid} mysql -uroot -e 'SHOW SLAVE HOSTS;' db",
+            cmd=f"exec {master_cid} mysql -uroot -e 'SHOW SLAVE HOSTS;' {VARS.DB_NAME}",
             ignore_error=True,
         )
         print(f"Showing replicas: {result}")
         assert slave_cip in result, (
             f"Replica {slave_cip} not found in MASTER {master_cip}"
         )
-        mysql_cmd = "mysql -uroot <<< 'show slave status\\G;'"
-        slave_status = PodmanCLIWrapper.podman_exec_shell_command(
-            cid_file_name=slave_cid,
-            cmd=mysql_cmd,
+        result = self.replication_db.test_db_connection(
+            container_ip=slave_cip,
+            username="root",
+            password="root",
+        )
+        sql_cmd = "show slave status\\G;"
+        mysql_cmd = f'mysql -uroot <<< "{sql_cmd}"'
+        print(f"MySQL command: {mysql_cmd}")
+        slave_status = PodmanCLIWrapper.call_podman_command(
+            cmd=f"exec {slave_cid} bash -c '{mysql_cmd}'",
         )
         print(f"Slave status: {slave_status}")
-        assert slave_status
         assert re.search(r"Slave_IO_Running:\s*Yes", slave_status), (
             f"Slave {slave_cid} is not running"
         )

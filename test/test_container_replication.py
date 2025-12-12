@@ -2,6 +2,7 @@ import re
 from time import sleep
 
 from container_ci_suite.container_lib import ContainerTestLib
+from container_ci_suite.container_lib import DatabaseWrapper
 from container_ci_suite.engines.podman_wrapper import PodmanCLIWrapper
 
 from conftest import VARS
@@ -13,14 +14,23 @@ class TestMariaDBReplicationContainer:
     """
 
     def setup_method(self):
+        """
+        Setup the test environment.
+        """
         self.replication_db = ContainerTestLib(image_name=VARS.IMAGE_NAME)
         self.replication_db.set_new_db_type(db_type="mysql")
+        self.db_wrapper_api = DatabaseWrapper(image_name=VARS.IMAGE_NAME)
 
     def teardown_method(self):
+        """
+        Teardown the test environment.
+        """
         self.replication_db.cleanup()
 
     def test_replication(self):
-        """ """
+        """
+        Test replication.
+        """
         cluster_args = "-e MYSQL_MASTER_USER=master -e MYSQL_MASTER_PASSWORD=master -e MYSQL_DATABASE=db"
         master_cid_name = "master.cid"
         username = "user"
@@ -37,7 +47,6 @@ class TestMariaDBReplicationContainer:
             command="mysqld-master",
         )
         master_cip = self.replication_db.get_cip(cid_file_name=master_cid_name)
-        print(f"Master IP: {master_cip}")
         master_cid = self.replication_db.get_cid(cid_file_name=master_cid_name)
         assert master_cid
         # Run the MySQL replica
@@ -54,22 +63,25 @@ class TestMariaDBReplicationContainer:
         assert slave_cip
         slave_cid = self.replication_db.get_cid(cid_file_name=slave_cid_name)
         assert slave_cid
-        print(f"Slave IP: {slave_cip}")
         # Now wait till the SOURCE will see the REPLICA
-        result = self.replication_db.test_db_connection(
+        assert self.replication_db.test_db_connection(
             container_ip=master_cip,
             username="root",
             password="root",
         )
-        result = PodmanCLIWrapper.call_podman_command(
-            cmd=f"exec {master_cid} mysql -uroot -e 'SHOW SLAVE HOSTS;' {VARS.DB_NAME}",
-            ignore_error=True,
+        result = self.db_wrapper_api.run_sql_command(
+            container_ip=master_cip,
+            username="root",
+            password="root",
+            container_id=master_cid,
+            database=VARS.DB_NAME,
+            sql_cmd="SHOW SLAVE HOSTS;",
+            podman_run_command="exec",
         )
-        print(f"Showing replicas: {result}")
         assert slave_cip in result, (
             f"Replica {slave_cip} not found in MASTER {master_cip}"
         )
-        result = self.replication_db.test_db_connection(
+        assert self.replication_db.test_db_connection(
             container_ip=slave_cip,
             username="root",
             password="root",
@@ -80,20 +92,23 @@ class TestMariaDBReplicationContainer:
         slave_status = PodmanCLIWrapper.call_podman_command(
             cmd=f"exec {slave_cid} bash -c '{mysql_cmd}'",
         )
-        print(f"Slave status: {slave_status}")
-        assert re.search(r"Slave_IO_Running:\s*Yes", slave_status), (
-            f"Slave {slave_cid} is not running"
-        )
+        words = [
+            "Slave_IO_Running:\\s*Yes",
+            "Slave_SQL_Running:\\s*Yes",
+        ]
+        for word in words:
+            assert re.search(word, slave_status), (
+                f"Word {word} not found in {slave_status}"
+            )
 
-        assert re.search(r"Slave_SQL_Running:\s*Yes", slave_status), (
-            f"Slave {slave_cid} is not running"
-        )
-        self.replication_db.test_db_connection(
+        table_output = self.db_wrapper_api.run_sql_command(
             container_ip=master_cip,
-            username=username,
-            password=password,
-            max_attempts=120,
-            sql_cmd="-e 'CREATE TABLE t1 (a INT); INSERT INTO t1 VALUES (24);'",
+            username="root",
+            password="root",
+            container_id=master_cid,
+            database=VARS.DB_NAME,
+            sql_cmd="CREATE TABLE t1 (a INT); INSERT INTO t1 VALUES (24);",
+            podman_run_command="exec",
         )
         # let's wait for the table to be created and available for replication
         sleep(3)
@@ -101,7 +116,6 @@ class TestMariaDBReplicationContainer:
             cid_file_name=slave_cid,
             cmd=f"mysql -uroot <<< 'select * from t1;' {VARS.DB_NAME}",
         )
-        print(f"Selecting from table: {table_output}")
         assert re.search(r"^a\n^24", table_output.strip(), re.MULTILINE), (
             f"Replica {slave_cip} did not get value from MASTER {master_cip}"
         )

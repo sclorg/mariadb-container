@@ -1,26 +1,34 @@
 import re
 
 from container_ci_suite.container_lib import ContainerTestLib
+from container_ci_suite.container_lib import DatabaseWrapper
 from container_ci_suite.engines.podman_wrapper import PodmanCLIWrapper
 
 from conftest import VARS
 
 
-class TestMariaDBUpgradeContainer:
+class TestMariaDBPluginContainer:
     """
     Test MariaDB container configuration.
     """
 
     def setup_method(self):
+        """
+        Setup the test environment.
+        """
         self.s2i_db = ContainerTestLib(image_name=VARS.IMAGE_NAME)
         self.s2i_db.set_new_db_type(db_type="mysql")
+        self.dw_api = DatabaseWrapper(image_name=VARS.IMAGE_NAME)
 
     def teardown_method(self):
+        """
+        Teardown the test environment.
+        """
         self.s2i_db.cleanup()
 
-    def test_upgrade_test(self):
+    def test_plugin_installation(self):
         """
-        Test container creation fails with invalid combinations of arguments.
+        Test plugin installation.
         """
         cid_file_name = "plugin_install"
 
@@ -46,14 +54,23 @@ class TestMariaDBUpgradeContainer:
             password="rootpass",
         )
         assert output, "Database connection should not fail"
-        sql_cmd = "INSTALL PLUGIN SQL_ERROR_LOG SONAME 'sql_errlog'"
-        podman_cmd = f"run --rm {VARS.IMAGE_NAME} mysql --host {cip} -u root -prootpass"
-        output = PodmanCLIWrapper.call_podman_command(
-            cmd=f'{podman_cmd} -e "{sql_cmd}  \\G" {VARS.DB_NAME}',
+        self.dw_api.run_sql_command(
+            container_ip=cip,
+            username="root",
+            password="rootpass",
+            container_id=VARS.IMAGE_NAME,
+            database=VARS.DB_NAME,
+            sql_cmd='INSTALL PLUGIN SQL_ERROR_LOG SONAME "sql_errlog" \\G',
         )
         # should fail, deliberately not checking return status
-        PodmanCLIWrapper.call_podman_command(
-            cmd=f'{podman_cmd} -e "select * from mysql.IdonotExist;" {VARS.DB_NAME}',
+        sql_cmd = "select * from mysql.IdonotExist;"
+        self.dw_api.run_sql_command(
+            container_ip=cip,
+            username="root",
+            password="rootpass",
+            container_id=VARS.IMAGE_NAME,
+            database=VARS.DB_NAME,
+            sql_cmd=sql_cmd,
             ignore_error=True,
         )
         output = PodmanCLIWrapper.podman_get_file_content(

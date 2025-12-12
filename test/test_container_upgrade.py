@@ -14,10 +14,16 @@ class TestMariaDBUpgradeContainer:
     """
 
     def setup_method(self):
+        """
+        Setup the test environment.
+        """
         self.s2i_db = ContainerTestLib(image_name=VARS.IMAGE_NAME)
         self.s2i_db.set_new_db_type(db_type="mysql")
 
     def teardown_method(self):
+        """
+        Teardown the test environment.
+        """
         self.s2i_db.cleanup()
 
     def test_upgrade_test(self):
@@ -134,7 +140,6 @@ class TestMariaDBUpgradeContainer:
         output = PodmanCLIWrapper.podman_logs(
             container_id=cid3,
         )
-        print(output)
         assert re.search("Running mysql_upgrade", output), "mysql_upgrade did not run"
 
         # Testing upgrade from the same version
@@ -165,7 +170,6 @@ class TestMariaDBUpgradeContainer:
         output = PodmanCLIWrapper.podman_logs(
             container_id=cid4,
         )
-        print(output)
         assert not re.search("Running mysql_upgrade", output), (
             "Upgrade happened but it should not when upgrading from current version"
         )
@@ -193,7 +197,6 @@ class TestMariaDBUpgradeContainer:
         output = PodmanCLIWrapper.podman_logs(
             container_id=cid5,
         )
-        print(output)
         assert re.search(r"--analyze --all-databases", output)
         PodmanCLIWrapper.call_podman_command(cmd=f"stop {cid5}")
 
@@ -201,9 +204,9 @@ class TestMariaDBUpgradeContainer:
         assert self.s2i_db.create_container(
             cid_file_name=cid_testupg6,
             container_args=[
-                "-e MYSQL_USER=user",
-                "-e MYSQL_PASSWORD=foo",
-                "-e MYSQL_DATABASE=db",
+                f"-e MYSQL_USER={mysql_user}",
+                f"-e MYSQL_PASSWORD={mysql_password}",
+                f"-e MYSQL_DATABASE={mysql_database}",
                 f"-v {datadir}:/var/lib/mysql/data:Z",
                 "-e MYSQL_DATADIR_ACTION=optimize",
             ],
@@ -212,7 +215,7 @@ class TestMariaDBUpgradeContainer:
         cip6 = self.s2i_db.get_cip(cid_file_name=cid_testupg6)
         assert cip6
         assert self.s2i_db.test_db_connection(
-            container_ip=cip6, username="user", password="foo"
+            container_ip=cip6, username=mysql_user, password=mysql_password
         )
         cid6 = self.s2i_db.get_cid(cid_file_name=cid_testupg6)
         assert cid6

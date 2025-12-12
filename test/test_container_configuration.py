@@ -4,6 +4,7 @@ import pytest
 
 from container_ci_suite.container_lib import ContainerTestLib
 from container_ci_suite.engines.podman_wrapper import PodmanCLIWrapper
+from container_ci_suite.container_lib import DatabaseWrapper
 
 from conftest import VARS
 
@@ -14,9 +15,15 @@ class TestMariaDBConfigurationContainer:
     """
 
     def setup_method(self):
+        """
+        Setup the test environment.
+        """
         self.db = ContainerTestLib(image_name=VARS.IMAGE_NAME)
 
     def teardown_method(self):
+        """
+        Teardown the test environment.
+        """
         self.db.cleanup()
 
     def test_container_creation_fails(self):
@@ -155,11 +162,18 @@ class TestMariaDBConfigurationTests:
     """
 
     def setup_method(self):
-        self.db = ContainerTestLib(image_name=VARS.IMAGE_NAME)
-        self.db.set_new_db_type(db_type="mysql")
+        """
+        Setup the test environment.
+        """
+        self.db_config = ContainerTestLib(image_name=VARS.IMAGE_NAME)
+        self.db_config.set_new_db_type(db_type="mysql")
+        self.db_api = DatabaseWrapper(image_name=VARS.IMAGE_NAME)
 
     def teardown_method(self):
-        self.db.cleanup()
+        """
+        Teardown the test environment.
+        """
+        self.db_config.cleanup()
 
     def test_configuration_auto_calculated_settings(self):
         """
@@ -168,7 +182,7 @@ class TestMariaDBConfigurationTests:
         cid_config_test = "auto-config_test"
         username = "config_test_user"
         password = "config_test"
-        assert self.db.create_container(
+        assert self.db_config.create_container(
             cid_file_name=cid_config_test,
             container_args=[
                 "--env MYSQL_COLLATION=latin2_czech_cs",
@@ -179,57 +193,48 @@ class TestMariaDBConfigurationTests:
             ],
             docker_args="--memory=256m",
         )
-        cip = self.db.get_cip(cid_file_name=cid_config_test)
+        cip = self.db_config.get_cip(cid_file_name=cid_config_test)
         assert cip
-        return_value = self.db.test_db_connection(
+        assert self.db_config.test_db_connection(
             container_ip=cip,
             username=username,
             password=password,
             max_attempts=10,
             database=VARS.DB_NAME,
         )
-        assert return_value
-        cid = self.db.get_cid(cid_file_name=cid_config_test)
+        cid = self.db_config.get_cid(cid_file_name=cid_config_test)
         db_configuration = PodmanCLIWrapper.podman_exec_shell_command(
             cid_file_name=cid,
             cmd="cat /etc/my.cnf /etc/my.cnf.d/*",
         )
-        assert db_configuration
-        assert re.search(
-            r"key_buffer_size\s*=\s*25M",
-            db_configuration,
-        )
-        assert re.search(
-            r"read_buffer_size\s*=\s*12M",
-            db_configuration,
-        )
-        assert re.search(
-            r"innodb_log_file_size\s*=\s*38M",
-            db_configuration,
-        )
-        assert re.search(
-            r"innodb_log_buffer_size\s*=\s*38M",
-            db_configuration,
-        )
+        words = [
+            "key_buffer_size\\s*=\\s*25M",
+            "read_buffer_size\\s*=\\s*12M",
+            "innodb_log_file_size\\s*=\\s*38M",
+            "innodb_log_buffer_size\\s*=\\s*38M",
+        ]
+        for word in words:
+            assert re.search(word, db_configuration), (
+                f"Word {word} not found in {db_configuration}"
+            )
         # do some real work to test replication in practice
-        return_value = self.db.test_db_connection(
+        self.db_api.run_sql_command(
             container_ip=cip,
             username=username,
             password=password,
+            container_id=cid,
             database=VARS.DB_NAME,
-            sql_cmd="-e 'CREATE TABLE tbl (col VARCHAR(20));'",
+            sql_cmd="CREATE TABLE tbl (col VARCHAR(20));",
+            podman_run_command="exec",
         )
-        print(f"Creating table: {return_value}")
-        assert self.db.test_db_connection(
+        show_table_output = self.db_api.run_sql_command(
             container_ip=cip,
             username=username,
             password=password,
-            sql_cmd="-e 'SHOW CREATE TABLE tbl;'",
+            container_id=cid,
             database=VARS.DB_NAME,
-        )
-        show_table_output = PodmanCLIWrapper.call_podman_command(
-            cmd=f"exec {cid} mysql -uroot -e 'SHOW CREATE TABLE tbl;' {VARS.DB_NAME}",
-            ignore_error=True,
+            sql_cmd="SHOW CREATE TABLE tbl;",
+            podman_run_command="exec",
         )
         assert "CHARSET=latin2" in show_table_output
         assert "COLLATE=latin2_czech_cs" in show_table_output
@@ -240,7 +245,7 @@ class TestMariaDBConfigurationTests:
         Test MariaDB container configuration options.
         """
         cid_config_test = "config_test"
-        assert self.db.create_container(
+        assert self.db_config.create_container(
             cid_file_name=cid_config_test,
             container_args=[
                 "--env MYSQL_USER=config_test_user",
@@ -262,52 +267,43 @@ class TestMariaDBConfigurationTests:
                 "--env WORKAROUND_DOCKER_BUG_14203=",
             ],
         )
-        cip = self.db.get_cip(cid_file_name=cid_config_test)
+        cip = self.db_config.get_cip(cid_file_name=cid_config_test)
         assert cip
-        assert self.db.test_db_connection(
+        assert self.db_config.test_db_connection(
             container_ip=cip,
             username="config_test_user",
             password="config_test",
             database=VARS.DB_NAME,
         )
-        cip = self.db.get_cip(cid_file_name=cid_config_test)
+        cip = self.db_config.get_cip(cid_file_name=cid_config_test)
         assert cip
-        return_value = self.db.test_db_connection(
+        assert self.db_config.test_db_connection(
             container_ip=cip,
             username="config_test_user",
             password="config_test",
             max_attempts=10,
             database=VARS.DB_NAME,
         )
-        assert return_value
-        cid = self.db.get_cid(cid_file_name=cid_config_test)
+        cid = self.db_config.get_cid(cid_file_name=cid_config_test)
         db_configuration = PodmanCLIWrapper.podman_exec_shell_command(
             cid_file_name=cid,
             cmd="cat /etc/my.cnf /etc/my.cnf.d/*",
         )
-        assert db_configuration
-        assert re.search(
-            r"lower_case_table_names\s*=\s*1",
-            db_configuration,
-        )
-        assert re.search(
-            r"general_log\s*=\s*1",
-            db_configuration,
-        )
-        assert re.search(
-            r"max_connections\s*=\s*1337",
-            db_configuration,
-            re.MULTILINE | re.IGNORECASE,
-        )
-        assert re.search(r"ft_min_word_len\s*=\s*8", db_configuration)
-        assert re.search(
-            r"ft_max_word_len\s*=\s*15",
-            db_configuration,
-        )
-        assert re.search(r"max_allowed_packet\s*=\s*10M", db_configuration)
-        assert re.search(r"table_open_cache\s*=\s*100", db_configuration)
-        assert re.search(r"sort_buffer_size\s*=\s*256K", db_configuration)
-        assert re.search(r"key_buffer_size\s*=\s*16M", db_configuration)
-        assert re.search(r"read_buffer_size\s*=\s*16M", db_configuration)
-        assert re.search(r"innodb_log_file_size\s*=\s*4M", db_configuration)
-        assert re.search(r"innodb_log_buffer_size\s*=\s*4M", db_configuration)
+        words = [
+            "lower_case_table_names\\s*=\\s*1",
+            "general_log\\s*=\\s*1",
+            "max_connections\\s*=\\s*1337",
+            "ft_min_word_len\\s*=\\s*8",
+            "ft_max_word_len\\s*=\\s*15",
+            "max_allowed_packet\\s*=\\s*10M",
+            "table_open_cache\\s*=\\s*100",
+            "sort_buffer_size\\s*=\\s*256K",
+            "key_buffer_size\\s*=\\s*16M",
+            "read_buffer_size\\s*=\\s*16M",
+            "innodb_log_file_size\\s*=\\s*4M",
+            "innodb_log_buffer_size\\s*=\\s*4M",
+        ]
+        for word in words:
+            assert re.search(word, db_configuration), (
+                f"Word {word} not found in {db_configuration}"
+            )

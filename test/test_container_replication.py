@@ -2,7 +2,7 @@ import re
 from time import sleep
 
 from container_ci_suite.container_lib import ContainerTestLib
-from container_ci_suite.container_lib import DatabaseWrapper
+from container_ci_suite.engines.database import DatabaseWrapper
 from container_ci_suite.engines.podman_wrapper import PodmanCLIWrapper
 
 from conftest import VARS
@@ -69,17 +69,26 @@ class TestMariaDBReplicationContainer:
             username="root",
             password="root",
         )
-        result = self.db_wrapper_api.run_sql_command(
-            container_ip=master_cip,
-            username="root",
-            password="root",
-            container_id=master_cid,
-            database=VARS.DB_NAME,
-            sql_cmd="SHOW SLAVE HOSTS;",
-            podman_run_command="exec",
-        )
-        assert slave_cip in result, (
-            f"Replica {slave_cip} not found in MASTER {master_cip}"
+        slave_found = False
+        for _ in range(3):
+            result = self.db_wrapper_api.run_sql_command(
+                container_ip=master_cip,
+                username="root",
+                password="root",
+                container_id=master_cid,
+                database=VARS.DB_NAME,
+                sql_cmd="SHOW SLAVE HOSTS;",
+                podman_run_command="exec",
+            )
+            if not result:
+                sleep(3)
+                continue
+            if slave_cip in result:
+                slave_found = True
+                break
+            sleep(3)
+        assert slave_found, (
+            f"Replica {slave_cip} not found in MASTER {master_cip} after 3 attempts. See logs for more details. Result: {result}"
         )
         assert self.replication_db.test_db_connection(
             container_ip=slave_cip,

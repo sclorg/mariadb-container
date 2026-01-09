@@ -28,10 +28,20 @@ class TestMariaDBBasicsContainer:
 
     def setup_method(self):
         self.app_image = build_s2i_app(app_path=VARS.TEST_DIR / "test-app")
-        self.app_image.set_new_db_type(db_type="mysql")
+        self.app_image.set_new_db_type(db_type="mariadb")
 
     def teardown_method(self):
         self.app_image.cleanup()
+
+    def get_cip_cid(self, cid_file_name):
+        """
+        Get the IP and container ID from the cid file name.
+        """
+        cip = self.app_image.get_cip(cid_file_name=cid_file_name)
+        assert cip
+        cid = self.app_image.get_cid(cid_file_name=cid_file_name)
+        assert cid
+        return cip, cid
 
     def test_s2i_usage(self):
         """
@@ -58,19 +68,17 @@ class TestMariaDBBasicsContainer:
                 "-e MYSQL_OPERATIONS_PASSWORD=operations_user",
             ],
         )
-        cip = self.app_image.get_cip(cid_file_name=cid_config_build)
-        assert cip
+        cip, cid = self.get_cip_cid(cid_file_name=cid_config_build)
         assert self.app_image.test_db_connection(
             container_ip=cip, username="operations_user", password="operations_user"
         )
-        cid = self.app_image.get_cid(cid_file_name=cid_config_build)
         PodmanCLIWrapper.call_podman_command(cmd=f"stop {cid}")
 
     def test_s2i_usage_with_mount(self):
         """
         Test container creation fails with invalid combinations of arguments.
         """
-        data_dir = tempfile.mkdtemp(prefix="/tmp/mysql-test_data")
+        data_dir = tempfile.mkdtemp(prefix="/tmp/mariadb-test_data")
         shutil.copytree(VARS.TEST_DIR / "test-app", f"{data_dir}/test-app")
         assert ContainerTestLibUtils.commands_to_run(
             commands_to_run=[
@@ -89,15 +97,12 @@ class TestMariaDBBasicsContainer:
                 f"-v {data_dir}/test-app:/opt/app-root/src/:z",
             ],
         )
-        cip_test_mount = self.app_image.get_cip(cid_file_name=cid_s2i_test_mount)
-        assert cip_test_mount
+        cip, cid = self.get_cip_cid(cid_file_name=cid_s2i_test_mount)
         assert self.app_image.test_db_connection(
-            container_ip=cip_test_mount,
+            container_ip=cip,
             username="operations_user",
             password="operations_pass",
             max_attempts=10,
         )
-        cid = self.app_image.get_cid(cid_file_name=cid_s2i_test_mount)
-        assert cid
         PodmanCLIWrapper.call_podman_command(cmd=f"stop {cid}")
         shutil.rmtree(data_dir)

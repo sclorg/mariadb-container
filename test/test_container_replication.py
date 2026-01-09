@@ -17,15 +17,28 @@ class TestMariaDBReplicationContainer:
         """
         Setup the test environment.
         """
-        self.replication_db = ContainerTestLib(image_name=VARS.IMAGE_NAME)
-        self.replication_db.set_new_db_type(db_type="mysql")
-        self.db_wrapper_api = DatabaseWrapper(image_name=VARS.IMAGE_NAME)
+        self.replication_db = ContainerTestLib(
+            image_name=VARS.IMAGE_NAME, db_type="mariadb"
+        )
+        self.db_wrapper_api = DatabaseWrapper(
+            image_name=VARS.IMAGE_NAME, db_type="mariadb"
+        )
 
     def teardown_method(self):
         """
         Teardown the test environment.
         """
         self.replication_db.cleanup()
+
+    def get_cip_cid(self, cid_file_name):
+        """
+        Get the IP and container ID from the cid file name.
+        """
+        cip = self.replication_db.get_cip(cid_file_name=cid_file_name)
+        assert cip
+        cid = self.replication_db.get_cid(cid_file_name=cid_file_name)
+        assert cid
+        return cip, cid
 
     def test_replication(self):
         """
@@ -35,20 +48,19 @@ class TestMariaDBReplicationContainer:
         master_cid_name = "master.cid"
         username = "user"
         password = "foo"
+        container_args = [
+            f"-e MYSQL_USER={username}",
+            f"-e MYSQL_PASSWORD={password}",
+            "-e MYSQL_ROOT_PASSWORD=root",
+        ]
         # Run the MySQL source
         assert self.replication_db.create_container(
             cid_file_name=master_cid_name,
-            container_args=[
-                f"-e MYSQL_USER={username}",
-                f"-e MYSQL_PASSWORD={password}",
-                "-e MYSQL_ROOT_PASSWORD=root",
-            ],
+            container_args=container_args,
             docker_args=cluster_args,
             command="mysqld-master",
         )
-        master_cip = self.replication_db.get_cip(cid_file_name=master_cid_name)
-        master_cid = self.replication_db.get_cid(cid_file_name=master_cid_name)
-        assert master_cid
+        master_cip, master_cid = self.get_cip_cid(cid_file_name=master_cid_name)
         # Run the MySQL replica
         slave_cid_name = "slave.cid"
         assert self.replication_db.create_container(
@@ -59,10 +71,7 @@ class TestMariaDBReplicationContainer:
             docker_args=cluster_args,
             command="mysqld-slave",
         )
-        slave_cip = self.replication_db.get_cip(cid_file_name=slave_cid_name)
-        assert slave_cip
-        slave_cid = self.replication_db.get_cid(cid_file_name=slave_cid_name)
-        assert slave_cid
+        slave_cip, slave_cid = self.get_cip_cid(cid_file_name=slave_cid_name)
         # Now wait till the SOURCE will see the REPLICA
         assert self.replication_db.test_db_connection(
             container_ip=master_cip,
@@ -97,7 +106,6 @@ class TestMariaDBReplicationContainer:
         )
         sql_cmd = "show slave status\\G;"
         mysql_cmd = f'mysql -uroot <<< "{sql_cmd}"'
-        print(f"MySQL command: {mysql_cmd}")
         slave_status = PodmanCLIWrapper.call_podman_command(
             cmd=f"exec {slave_cid} bash -c '{mysql_cmd}'",
         )
@@ -110,21 +118,39 @@ class TestMariaDBReplicationContainer:
                 f"Word {word} not found in {slave_status}"
             )
 
-        table_output = self.db_wrapper_api.run_sql_command(
+        self.db_wrapper_api.run_sql_command(
             container_ip=master_cip,
             username="root",
             password="root",
-            container_id=master_cid,
             database=VARS.DB_NAME,
-            sql_cmd="CREATE TABLE t1 (a INT); INSERT INTO t1 VALUES (24);",
-            podman_run_command="exec",
+            container_id=VARS.IMAGE_NAME,
+            sql_cmd="CREATE TABLE t1 (a INT);",
+            max_attempts=3,
+        )
+        self.db_wrapper_api.run_sql_command(
+            container_ip=master_cip,
+            username="root",
+            password="root",
+            database=VARS.DB_NAME,
+            container_id=VARS.IMAGE_NAME,
+            sql_cmd="INSERT INTO t1 VALUES (24);",
+            max_attempts=3,
         )
         # let's wait for the table to be created and available for replication
         sleep(3)
-        table_output = PodmanCLIWrapper.podman_exec_shell_command(
-            cid_file_name=slave_cid,
-            cmd=f"mysql -uroot <<< 'select * from t1;' {VARS.DB_NAME}",
+        table_output = self.db_wrapper_api.run_sql_command(
+            container_ip=slave_cip,
+            username="root",
+            password="root",
+            database=VARS.DB_NAME,
+            container_id=VARS.IMAGE_NAME,
+            sql_cmd="select * from t1;",
         )
-        assert re.search(r"^a\n^24", table_output.strip(), re.MULTILINE), (
+        # sql_cmd = "select * from t1;"
+        # mysql_cmd = f'mysql -uroot <<< "{sql_cmd}"'
+        # table_output = PodmanCLIWrapper.call_podman_command(
+        #     cmd=f"exec {slave_cid} bash -c '{mysql_cmd}'",
+        # )
+        assert re.search(r"^a\n^24", table_output, re.MULTILINE), (
             f"Replica {slave_cip} did not get value from MASTER {master_cip}"
         )

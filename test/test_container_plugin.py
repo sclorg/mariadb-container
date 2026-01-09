@@ -26,28 +26,35 @@ class TestMariaDBPluginContainer:
         """
         self.s2i_db.cleanup()
 
+    def get_cip_cid(self, cid_file_name):
+        """
+        Get the IP and container ID from the cid file name.
+        """
+        cip = self.s2i_db.get_cip(cid_file_name=cid_file_name)
+        assert cip
+        cid = self.s2i_db.get_cid(cid_file_name=cid_file_name)
+        assert cid
+        return cip, cid
+
     def test_plugin_installation(self):
         """
         Test plugin installation.
         """
         cid_file_name = "plugin_install"
-
+        container_args = [
+            "-e MYSQL_USER=user",
+            "-e MYSQL_PASSWORD=foo",
+            "-e MYSQL_DATABASE=db",
+            "-e MYSQL_ROOT_PASSWORD=rootpass",
+        ]
         assert self.s2i_db.create_container(
             cid_file_name=cid_file_name,
-            container_args=[
-                "-e MYSQL_USER=user",
-                "-e MYSQL_PASSWORD=foo",
-                "-e MYSQL_DATABASE=db",
-                "-e MYSQL_ROOT_PASSWORD=rootpass",
-            ],
+            container_args=container_args,
         )
-        cip = self.s2i_db.get_cip(cid_file_name=cid_file_name)
-        assert cip
+        cip, cid = self.get_cip_cid(cid_file_name=cid_file_name)
         assert self.s2i_db.test_db_connection(
             container_ip=cip, username="root", password="rootpass"
         )
-        cid = self.s2i_db.get_cid(cid_file_name=cid_file_name)
-        assert cid
         output = self.s2i_db.test_db_connection(
             container_ip=cip,
             username="root",

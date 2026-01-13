@@ -212,15 +212,15 @@ class TestMariaDBConfigurationTests:
             cid_file_name=cid,
             cmd="cat /etc/my.cnf /etc/my.cnf.d/*",
         )
-        words = [
-            "key_buffer_size\\s*=\\s*25M",
-            "read_buffer_size\\s*=\\s*12M",
-            "innodb_log_file_size\\s*=\\s*38M",
-            "innodb_log_buffer_size\\s*=\\s*38M",
+        expected_values = [
+            r"key_buffer_size\s*=\s*25M",
+            r"read_buffer_size\s*=\s*12M",
+            r"innodb_log_file_size\s*=\s*38M",
+            r"innodb_log_buffer_size\s*=\s*38M",
         ]
-        for word in words:
-            assert re.search(word, db_configuration), (
-                f"Word {word} not found in {db_configuration}"
+        for value in expected_values:
+            assert re.search(value, db_configuration), (
+                f"Word {value} not found in {db_configuration}"
             )
         # do some real work to test replication in practice
         self.db_api.run_sql_command(
@@ -272,43 +272,40 @@ class TestMariaDBConfigurationTests:
                 "--env WORKAROUND_DOCKER_BUG_14203=",
             ],
         )
-        cip = self.db_config.get_cip(cid_file_name=cid_config_test)
-        assert cip
+        cip, cid = self.db_config.get_cip_cid(cid_file_name=cid_config_test)
+        assert cip, cid
         assert self.db_config.test_db_connection(
             container_ip=cip,
             username="config_test_user",
             password="config_test",
-            database=VARS.DB_NAME,
+            database=f"db {VARS.SSL_OPTION}",
         )
-        cip = self.db_config.get_cip(cid_file_name=cid_config_test)
-        assert cip
         assert self.db_config.test_db_connection(
             container_ip=cip,
             username="config_test_user",
             password="config_test",
             max_attempts=10,
-            database=VARS.DB_NAME,
+            database=f"db {VARS.SSL_OPTION}",
         )
-        cid = self.db_config.get_cid(cid_file_name=cid_config_test)
         db_configuration = PodmanCLIWrapper.podman_exec_shell_command(
             cid_file_name=cid,
             cmd="cat /etc/my.cnf /etc/my.cnf.d/*",
         )
-        words = [
-            "lower_case_table_names\\s*=\\s*1",
-            "general_log\\s*=\\s*1",
-            "max_connections\\s*=\\s*1337",
-            "ft_min_word_len\\s*=\\s*8",
-            "ft_max_word_len\\s*=\\s*15",
-            "max_allowed_packet\\s*=\\s*10M",
-            "table_open_cache\\s*=\\s*100",
-            "sort_buffer_size\\s*=\\s*256K",
-            "key_buffer_size\\s*=\\s*16M",
-            "read_buffer_size\\s*=\\s*16M",
-            "innodb_log_file_size\\s*=\\s*4M",
-            "innodb_log_buffer_size\\s*=\\s*4M",
+        expected_values = [
+            r"lower_case_table_names\s*=\s*1",
+            r"general_log\s*=\s*1",
+            r"max_connections\s*=\s*1337",
+            r"ft_min_word_len\s*=\s*8",
+            r"ft_max_word_len\s*=\s*15",
+            r"max_allowed_packet\s*=\s*10M",
+            r"table_open_cache\s*=\s*100",
+            r"sort_buffer_size\s*=\s*256K",
+            r"key_buffer_size\s*=\s*16M",
+            r"read_buffer_size\s*=\s*16M",
+            r"innodb_log_file_size\s*=\s*4M",
+            r"innodb_log_buffer_size\s*=\s*4M",
         ]
-        for word in words:
-            assert re.search(word, db_configuration), (
-                f"Word {word} not found in {db_configuration}"
+        for value in expected_values:
+            assert re.search(value, db_configuration), (
+                f"Word {value} not found in {db_configuration}"
             )

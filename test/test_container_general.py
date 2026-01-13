@@ -165,13 +165,13 @@ class TestMariaDBGeneralContainer:
             database=VARS.DB_NAME,
             sql_cmd="SELECT * FROM tbl;",
         )
-        words = [
-            "foo1\t*bar1",
-            "foo2\t*bar2",
-            "foo3\t*bar3",
+        expected_db_output = [
+            r"foo1\t*bar1",
+            r"foo2\t*bar2",
+            r"foo3\t*bar3",
         ]
-        for word in words:
-            assert re.search(word, output), f"Word {word} not found in {output}"
+        for row in expected_db_output:
+            assert re.search(row, output), f"Row {row} not found in {output}"
         self.db_api.run_sql_command(
             container_ip=cip,
             username=username,

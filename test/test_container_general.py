@@ -20,9 +20,8 @@ class TestMariaDBGeneralContainer:
         Setup the test environment.
         """
         self.db_image = ContainerTestLib(image_name=VARS.IMAGE_NAME)
-        self.db_image.set_new_db_type(db_type="mysql")
         self.db_api = DatabaseWrapper(image_name=VARS.IMAGE_NAME)
-        self.datadir = tempfile.mkdtemp(prefix="/tmp/mysql-datadir-actions")
+        self.datadir = tempfile.mkdtemp(prefix="/tmp/mariadb-datadir-actions")
         assert ContainerTestLibUtils.commands_to_run(
             commands_to_run=[
                 f"mkdir -p {self.datadir}/data",
@@ -36,16 +35,6 @@ class TestMariaDBGeneralContainer:
         """
         self.db_image.cleanup()
 
-    def get_cip_cid(self, cid_file_name):
-        """
-        Get the IP and container ID from the cid file name.
-        """
-        cip = self.db_image.get_cip(cid_file_name=cid_file_name)
-        assert cip
-        cid = self.db_image.get_cid(cid_file_name=cid_file_name)
-        assert cid
-        return cip, cid
-
     @pytest.mark.parametrize(
         "docker_args, username, password, root_password",
         [
@@ -57,7 +46,16 @@ class TestMariaDBGeneralContainer:
     )
     def test_run(self, docker_args, username, password, root_password):
         """
-        Test container creation fails with invalid combinations of arguments.
+        Test if the MariaDB container works properly with the different arguments
+        like docker_args, username, password, and root_password.
+        Steps are:
+        1. Create a container with the given arguments
+        2. Check if the container is created successfully
+        3. Check if the database connection works
+        4. Check if mariadb version is correct
+        5. Check if the login access works
+        6. Check if the local access works
+        7. Test the database creation
         """
         root_password_arg = (
             f"-e MYSQL_ROOT_PASSWORD={root_password}" if root_password else ""
@@ -74,7 +72,8 @@ class TestMariaDBGeneralContainer:
             ],
             command="run-mysqld",
         )
-        cip, cid = self.get_cip_cid(cid_file_name=cid_file_name)
+        cip, cid = self.db_image.get_cip_cid(cid_file_name=cid_file_name)
+        assert cip, cid
         assert self.db_image.test_db_connection(
             container_ip=cip, username=username, password=password
         )
@@ -83,7 +82,12 @@ class TestMariaDBGeneralContainer:
             cmd="mysql --version",
         )
         assert VARS.VERSION in output
-        access_output = True
+        # Define variable for login_access function
+        # Let's check if the login access works for all the users and passwords
+        # then assert at the end
+        # If any of the login access fails, return False
+        # If all the login access works, return True
+        login_access = True
 
         for user, pwd, ret_value in [
             (username, password, True),
@@ -202,7 +206,8 @@ class TestMariaDBGeneralContainer:
                 f"-v {self.datadir}/data:/var/lib/mysql/data:Z",
             ],
         )
-        cip, cid = self.get_cip_cid(cid_file_name=cid_test)
+        cip, cid = self.db_image.get_cip_cid(cid_file_name=cid_test)
+        assert cip, cid
         assert self.db_image.test_db_connection(
             container_ip=cip, username=mysql_user, password=mysql_password
         )

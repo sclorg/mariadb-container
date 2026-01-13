@@ -178,6 +178,12 @@ class TestMariaDBConfigurationTests:
     def test_configuration_auto_calculated_settings(self):
         """
         Test MariaDB container configuration auto-calculated settings.
+        Steps are:
+        1. Create a container with the given arguments
+        2. Check if the container is created successfully
+        3. Check if the database connection works
+        4. Check if the database configurations are correct
+        5. Stop the container
         """
         cid_config_test = "auto-config_test"
         username = "config_test_user"
@@ -193,16 +199,15 @@ class TestMariaDBConfigurationTests:
             ],
             docker_args="--memory=256m",
         )
-        cip = self.db_config.get_cip(cid_file_name=cid_config_test)
-        assert cip
+        cip, cid = self.db_config.get_cip_cid(cid_file_name=cid_config_test)
+        assert cip, cid
         assert self.db_config.test_db_connection(
             container_ip=cip,
             username=username,
             password=password,
             max_attempts=10,
-            database=VARS.DB_NAME,
+            database=f"db {VARS.SSL_OPTION}",
         )
-        cid = self.db_config.get_cid(cid_file_name=cid_config_test)
         db_configuration = PodmanCLIWrapper.podman_exec_shell_command(
             cid_file_name=cid,
             cmd="cat /etc/my.cnf /etc/my.cnf.d/*",

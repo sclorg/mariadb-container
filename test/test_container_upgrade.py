@@ -80,11 +80,9 @@ class TestMariaDBUpgradeContainer:
         )
 
         # Testing upgrade from previous version
-        previous_major_version = get_previous_major_version()
-        assert previous_major_version
         assert ContainerTestLibUtils.commands_to_run(
             commands_to_run=[
-                f"echo '{previous_major_version}.12' > {self.datadir}/mysql_upgrade_info",
+                f"echo '{VARS.PREVIOUS_VERSION}.12' > {self.datadir}/mysql_upgrade_info",
             ]
         )
         output = self.upgrade_db(

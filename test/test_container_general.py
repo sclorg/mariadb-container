@@ -105,11 +105,17 @@ class TestMariaDBGeneralContainer:
                 print(
                     f"Login access failed for {user}:{pwd} with expected success {ret_value}"
                 )
-                access_output = False
-                break
-        assert access_output, "Login access failed for above results"
+                login_access = False
+                continue
+        assert login_access
+        # If root password is provided, test the root login access
         if root_password:
-            root_access_output = True
+            # Define variable for root_login_access function
+            # Let's check if the login access works for all the root users and passwords
+            # then assert at the end
+            # If any of the login access fails, return False
+            # If all the login access works, return True
+            root_login_access = True
             for user, pwd, ret_value in [
                 ("root", root_password, True),
                 ("root", f"{root_password}_foo", False),
@@ -122,11 +128,11 @@ class TestMariaDBGeneralContainer:
                 )
                 if not test_assert:
                     print(
-                        f"Login access failed for {user}:{pwd} with expected success {ret_value}"
+                        f"Root login access failed for {user}:{pwd} with expected success {ret_value}"
                     )
-                    root_access_output = False
-                    break
-            assert root_access_output, "Login access failed for above results"
+                    root_login_access = False
+                    continue
+            assert root_login_access
 
         assert self.db_image.db_lib.assert_local_access(container_id=cid)
         self.database_test(cip, username, password)
@@ -140,9 +146,9 @@ class TestMariaDBGeneralContainer:
             username=username,
             password=password,
             container_id=VARS.IMAGE_NAME,
-            database=VARS.DB_NAME,
+            database=f"db {VARS.SSL_OPTION}",
             sql_cmd=[
-                "CREATE TABLE tbl (col1 VARCHAR(20), col2 VARCHAR(20));",
+                "CREATE TABLE tbl (a integer, b integer);",
             ],
         )
         self.db_api.run_sql_command(
@@ -150,11 +156,11 @@ class TestMariaDBGeneralContainer:
             username=username,
             password=password,
             container_id=VARS.IMAGE_NAME,
-            database=VARS.DB_NAME,
+            database=f"db {VARS.SSL_OPTION}",
             sql_cmd=[
-                'INSERT INTO tbl VALUES ("foo1", "bar1");',
-                'INSERT INTO tbl VALUES ("foo2", "bar2");',
-                'INSERT INTO tbl VALUES ("foo3", "bar3");',
+                "INSERT INTO tbl VALUES (1, 2);",
+                "INSERT INTO tbl VALUES (3, 4);",
+                "INSERT INTO tbl VALUES (5, 6);",
             ],
         )
         output = self.db_api.run_sql_command(
@@ -162,13 +168,13 @@ class TestMariaDBGeneralContainer:
             username=username,
             password=password,
             container_id=VARS.IMAGE_NAME,
-            database=VARS.DB_NAME,
+            database=f"db {VARS.SSL_OPTION}",
             sql_cmd="SELECT * FROM tbl;",
         )
         expected_db_output = [
-            r"foo1\t*bar1",
-            r"foo2\t*bar2",
-            r"foo3\t*bar3",
+            r"1\s*\t*2",
+            r"3\s*\t*4",
+            r"5\s*\t*6",
         ]
         for row in expected_db_output:
             assert re.search(row, output), f"Row {row} not found in {output}"
@@ -177,21 +183,25 @@ class TestMariaDBGeneralContainer:
             username=username,
             password=password,
             container_id=VARS.IMAGE_NAME,
-            database=VARS.DB_NAME,
+            database=f"db {VARS.SSL_OPTION}",
             sql_cmd="DROP TABLE tbl;",
         )
 
-    def test_datadir_actions(self):
+    @pytest.mark.parametrize(
+        "action",
+        [
+            "",
+            "analyze",
+            "optimize",
+        ],
+    )
+    def test_datadir_actions(self, action):
         """
-        Test container creation fails with invalid combinations of arguments.
-        """
-        self.datadir_action_test("")
-        self.datadir_action_test("analyze")
-        self.datadir_action_test("optimize")
-
-    def datadir_action_test(self, action):
-        """
-        Test MariaDB datadir action.
+        Test if the datadir works properly with the different actions.
+        Steps are:
+        1. Create a container with the given arguments
+        2. Check if the container is created successfully
+        3. Check if the database connection works
         """
         mysql_user = "user"
         mysql_password = "foo"

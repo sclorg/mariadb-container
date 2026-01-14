@@ -40,8 +40,8 @@ Vars = namedtuple(
 VERSION = os.getenv("VERSION")
 OS = os.getenv("TARGET").lower()
 TEST_APP = TEST_DIR / "test-app"
-VERY_LONG_DB_NAME = "very_long_database_name_" + "x" * 20
-VERY_LONG_USER_NAME = "very_long_user_name_" + "x" * 20
+VERY_LONG_DB_NAME = "very_long_database_name_" + "x" * 40
+VERY_LONG_USER_NAME = "very_long_user_name_" + "x" * 40
 # MariaDB 11.3+ enforces stricter SSL/TLS verification (certificate & hostname checks),
 # so tests may require this option for compatibility.
 # https://mariadb.org/mission-impossible-zero-configuration-ssl/

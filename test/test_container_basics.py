@@ -90,7 +90,7 @@ class TestMariaDBBasicsContainer:
         shutil.copytree(VARS.TEST_DIR / "test-app", f"{data_dir}/test-app")
         assert ContainerTestLibUtils.commands_to_run(
             commands_to_run=[
-                f"chown -R mysql:mysql {data_dir}/test-app",
+                f"chown -R 27:27 {data_dir}/test-app",
             ]
         )
         cid_s2i_test_mount = "s2i_test_mount"

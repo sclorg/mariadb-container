@@ -28,16 +28,6 @@ class TestMariaDBGeneralContainer:
         """
         self.ssl_db.cleanup()
 
-    def get_cip_cid(self, cid_file_name):
-        """
-        Get the IP and container ID from the cid file name.
-        """
-        cip = self.ssl_db.get_cip(cid_file_name=cid_file_name)
-        assert cip
-        cid = self.ssl_db.get_cid(cid_file_name=cid_file_name)
-        assert cid
-        return cip, cid
-
     def test_ssl(self):
         """
         Test SSL.
@@ -86,13 +76,14 @@ class TestMariaDBGeneralContainer:
             cid_file_name=cid_file_name,
             container_args=container_args,
         )
-        cip, cid = self.get_cip_cid(cid_file_name=cid_file_name)
+        cip, cid = self.ssl_db.get_cip_cid(cid_file_name=cid_file_name)
+        assert cip, cid
         assert self.ssl_db.test_db_connection(
             container_ip=cip, username=username, password=password
         )
         mysql_cmd = (
             f"mysql --host {cip} -u{username} -p{password} --ssl-ca={ca_cert_path}"
-            + f" -e 'show status like \"Ssl_cipher\" \\G' {VARS.DB_NAME}"
+            + f" -e 'show status like \"Ssl_cipher\" \\G' db {VARS.SSL_OPTION}"
         )
         ssl_output = PodmanCLIWrapper.podman_run_command(
             cmd=f"--rm -v {ssl_dir}:/opt/app-root/src/:z {VARS.IMAGE_NAME} {mysql_cmd}",

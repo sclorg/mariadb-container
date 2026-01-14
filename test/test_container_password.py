@@ -4,8 +4,22 @@ from container_ci_suite.container_lib import ContainerTestLib
 from container_ci_suite.container_lib import ContainerTestLibUtils
 from container_ci_suite.container_lib import DatabaseWrapper
 from container_ci_suite.engines.podman_wrapper import PodmanCLIWrapper
+import pytest
 
 from conftest import VARS
+
+user_dir_change = tempfile.mkdtemp(prefix="/tmp/mariadb-user")
+ContainerTestLibUtils.commands_to_run(
+    commands_to_run=[
+        f"chmod -R a+rwx {user_dir_change}",
+    ]
+)
+pwd_dir_change = tempfile.mkdtemp(prefix="/tmp/mariadb-pwd")
+ContainerTestLibUtils.commands_to_run(
+    commands_to_run=[
+        f"chmod -R a+rwx {pwd_dir_change}",
+    ]
+)
 
 
 class TestMariaDBPasswordContainer:
@@ -27,55 +41,41 @@ class TestMariaDBPasswordContainer:
         """
         self.pwd_change.cleanup()
 
-    def get_cip_cid(self, cid_file_name):
-        """
-        Get the IP and container ID from the cid file name.
-        """
-        cip = self.pwd_change.get_cip(cid_file_name=cid_file_name)
-        assert cip
-        cid = self.pwd_change.get_cid(cid_file_name=cid_file_name)
-        assert cid
-        return cip, cid
-
-    def test_password_change(self):
+    @pytest.mark.parametrize(
+        "username, password, pwd_change",
+        [
+            ("user", "foo", False),
+            ("user", "bar", True),
+        ],
+    )
+    def test_password_change(self, username, password, pwd_change):
         """
         Test password change.
         """
-        self.pwd_dir_change = tempfile.mkdtemp(prefix="/tmp/mariadb-pwd")
-        assert ContainerTestLibUtils.commands_to_run(
-            commands_to_run=[
-                f"chmod -R a+rwx {self.pwd_dir_change}",
-            ]
-        )
 
         self.password_change_test(
-            username="user", password="foo", pwd_dir=self.pwd_dir_change
-        )
-        self.password_change_test(
-            username="user",
-            password="bar",
-            pwd_dir=self.pwd_dir_change,
-            pwd_change=True,
+            username=username,
+            password=password,
+            pwd_dir=pwd_dir_change,
+            pwd_change=pwd_change,
         )
 
-    def test_password_change_new_user_test(self):
+    @pytest.mark.parametrize(
+        "username, password, user_change",
+        [
+            ("user", "foo", False),
+            ("user2", "bar", True),
+        ],
+    )
+    def test_password_change_new_user_test(self, username, password, user_change):
         """
-        Test password change for new user.
+        Test user change.
         """
-        self.user_dir_change = tempfile.mkdtemp(prefix="/tmp/mariadb-user")
-        assert ContainerTestLibUtils.commands_to_run(
-            commands_to_run=[
-                f"chmod -R a+rwx {self.user_dir_change}",
-            ]
-        )
         self.password_change_test(
-            username="user", password="foo", pwd_dir=self.user_dir_change
-        )
-        self.password_change_test(
-            username="user2",
-            password="bar",
-            pwd_dir=self.user_dir_change,
-            user_change=True,
+            username=username,
+            password=password,
+            pwd_dir=user_dir_change,
+            user_change=user_change,
         )
 
     def password_change_test(
@@ -83,12 +83,20 @@ class TestMariaDBPasswordContainer:
         username,
         password,
         pwd_dir,
-        user_change: bool = False,
-        pwd_change: bool = False,
+        user_change=False,
+        pwd_change=False,
     ):
+        """
+        Test password change.
+        Steps are:
+        1. Create a container with the given arguments
+        2. Check if the container is created successfully
+        3. Check if the database connection works
+        4. Check if the userchange, then user2 does exist in the database
+        5. Check if the password works
+        6. Check if the password does not work
+        """
         cid_file_name = f"test_{username}_{password}_{user_change}"
-        username = username
-        password = password
 
         container_args = [
             f"-e MYSQL_USER={username}",
@@ -100,12 +108,17 @@ class TestMariaDBPasswordContainer:
             cid_file_name=cid_file_name,
             container_args=container_args,
         )
-        cip, cid = self.get_cip_cid(cid_file_name=cid_file_name)
+        cip, cid = self.pwd_change.get_cip_cid(cid_file_name=cid_file_name)
+        assert cip, cid
         if user_change:
             username = "user"
             password = "foo"
+        # Test if the database connection works with the old connection parameters
         assert self.pwd_change.test_db_connection(
-            container_ip=cip, username=username, password=password
+            container_ip=cip,
+            username=username,
+            password=password,
+            database=f"db {VARS.SSL_OPTION}",
         )
         if user_change:
             mariadb_logs = PodmanCLIWrapper.podman_logs(
@@ -119,7 +132,7 @@ class TestMariaDBPasswordContainer:
                 username=username,
                 password=password,
                 container_id=VARS.IMAGE_NAME,
-                database=VARS.DB_NAME,
+                database=f"db {VARS.SSL_OPTION}",
                 ignore_error=True,
             )
             assert f"Access denied for user '{username}'@" in output, (
@@ -131,7 +144,7 @@ class TestMariaDBPasswordContainer:
                 username=username,
                 password="pwdfoo",
                 container_id=VARS.IMAGE_NAME,
-                database=VARS.DB_NAME,
+                database=f"db {VARS.SSL_OPTION}",
                 ignore_error=True,
             )
             assert f"Access denied for user '{username}'@" in output, (

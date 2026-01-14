@@ -38,20 +38,10 @@ class TestMariaDBConfigurationContainer:
     @pytest.mark.parametrize(
         "mysql_user, mysql_password, mysql_database, mysql_root_password",
         [
-            ["-e MYSQL_USER=user", "", "-e MYSQL_DATABASE=db", ""],
-            ["", "-e MYSQL_PASSWORD=pass", "-e MYSQL_DATABASE=db", ""],
-            [
-                "-e MYSQL_USER=user",
-                "",
-                "-e MYSQL_DATABASE=db",
-                "-e MYSQL_ROOT_PASSWORD=pass",
-            ],
-            [
-                "",
-                "-e MYSQL_PASSWORD=pass",
-                "-e MYSQL_DATABASE=db",
-                "-e MYSQL_ROOT_PASSWORD=pass",
-            ],
+            ["user", "", "db", ""],
+            ["", "pass", "db", ""],
+            ["user", "", "db", "pass"],
+            ["", "pass", "db", "pass"],
         ],
     )
     def test_try_image_invalid_combinations(
@@ -61,72 +51,40 @@ class TestMariaDBConfigurationContainer:
         Test container creation fails with invalid combinations of arguments.
         """
         cid_file_name = "try_image_invalid_combinations"
+        mysql_user_arg = f"-e MYSQL_USER={mysql_user}" if mysql_user else ""
+        mysql_password_arg = (
+            f"-e MYSQL_PASSWORD={mysql_password}" if mysql_password else ""
+        )
+        mysql_database_arg = (
+            f"-e MYSQL_DATABASE={mysql_database}" if mysql_database else ""
+        )
+        mysql_root_password_arg = (
+            f"-e MYSQL_ROOT_PASSWORD={mysql_root_password}"
+            if mysql_root_password
+            else ""
+        )
         assert self.db.assert_container_creation_fails(
             cid_file_name=cid_file_name,
             container_args=[
-                mysql_user,
-                mysql_password,
-                mysql_database,
-                mysql_root_password,
+                mysql_user_arg,
+                mysql_password_arg,
+                mysql_database_arg,
+                mysql_root_password_arg,
             ],
             command="",
         )
 
     @pytest.mark.parametrize(
-        "mysql_user, mysql_password, mysql_database, mysql_root_password, expected_result",
+        "mysql_user, mysql_password, mysql_database, mysql_root_password",
         [
-            ("-e MYSQL_USER=user", "-e MYSQL_PASSWORD=pass", "", "", True),
-            (
-                "-e MYSQL_USER=$invalid",
-                "-e MYSQL_PASSWORD=pass",
-                "-e MYSQL_DATABASE=db",
-                "-e MYSQL_ROOT_PASSWORD=root_pass",
-                True,
-            ),
-            # LONG DATABASE NAME returns  invalid reference format
-            (
-                f"MYSQL_USER={VARS.VERY_LONG_USER_NAME}",
-                "-e MYSQL_PASSWORD=pass",
-                "-e MYSQL_DATABASE=db",
-                "-e MYSQL_ROOT_PASSWORD=root_pass",
-                False,
-            ),
-            (
-                "-e MYSQL_USER=user",
-                "-e MYSQL_PASSWORD=",
-                "-e MYSQL_DATABASE=db",
-                "-e MYSQL_ROOT_PASSWORD=root_pass",
-                True,
-            ),
-            (
-                "-e MYSQL_USER=user",
-                "-e MYSQL_PASSWORD=pass",
-                "-e MYSQL_DATABASE=$invalid",
-                "-e MYSQL_ROOT_PASSWORD=root_pass",
-                True,
-            ),
-            # LONG DATABASE NAME returns  invalid reference format
-            (
-                "-e MYSQL_USER=user",
-                "-e MYSQL_PASSWORD=pass",
-                f"MYSQL_DATABASE={VARS.VERY_LONG_DB_NAME}",
-                "-e MYSQL_ROOT_PASSWORD=root_pass",
-                False,
-            ),
-            (
-                "-e MYSQL_USER=user",
-                "-e MYSQL_PASSWORD=pass",
-                "-e MYSQL_DATABASE=db",
-                "-e MYSQL_ROOT_PASSWORD=",
-                True,
-            ),
-            (
-                "-e MYSQL_USER=root",
-                "-e MYSQL_PASSWORD=pass",
-                "-e MYSQL_DATABASE=db",
-                "-e MYSQL_ROOT_PASSWORD=pass",
-                True,
-            ),
+            ("user", "pass", "", ""),
+            ("$invalid", "pass", "db", "root_pass"),
+            (VARS.VERY_LONG_USER_NAME, "pass", "db", "root_pass"),
+            ("user", "", "db", "root_pass"),
+            ("user", "pass", "$invalid", "root_pass"),
+            ("user", "pass", VARS.VERY_LONG_DB_NAME, "root_pass"),
+            ("user", "pass", "db", ""),
+            ("root", "pass", "db", "pass"),
         ],
     )
     def test_invalid_configuration_tests(
@@ -135,24 +93,32 @@ class TestMariaDBConfigurationContainer:
         mysql_password,
         mysql_database,
         mysql_root_password,
-        expected_result,
     ):
         """
         Test invalid configuration combinations for MySQL container.
         """
         cid_config_test = "invalid_configuration_tests"
-        assert (
-            self.db.assert_container_creation_fails(
-                cid_file_name=cid_config_test,
-                container_args=[
-                    mysql_user,
-                    mysql_password,
-                    mysql_database,
-                    mysql_root_password,
-                ],
-                command="",
-            )
-            == expected_result
+        mysql_user_arg = f"-e MYSQL_USER={mysql_user}" if mysql_user else ""
+        mysql_password_arg = (
+            f"-e MYSQL_PASSWORD={mysql_password}" if mysql_password else ""
+        )
+        mysql_database_arg = (
+            f"-e MYSQL_DATABASE={mysql_database}" if mysql_database else ""
+        )
+        mysql_root_password_arg = (
+            f"-e MYSQL_ROOT_PASSWORD={mysql_root_password}"
+            if mysql_root_password
+            else ""
+        )
+        assert self.db.assert_container_creation_fails(
+            cid_file_name=cid_config_test,
+            container_args=[
+                mysql_user_arg,
+                mysql_password_arg,
+                mysql_database_arg,
+                mysql_root_password_arg,
+            ],
+            command="",
         )
 
 
@@ -228,7 +194,7 @@ class TestMariaDBConfigurationTests:
             username=username,
             password=password,
             container_id=cid,
-            database=VARS.DB_NAME,
+            database=f"db {VARS.SSL_OPTION}",
             sql_cmd="CREATE TABLE tbl (col VARCHAR(20));",
             podman_run_command="exec",
         )
@@ -237,7 +203,7 @@ class TestMariaDBConfigurationTests:
             username=username,
             password=password,
             container_id=cid,
-            database=VARS.DB_NAME,
+            database=f"db {VARS.SSL_OPTION}",
             sql_cmd="SHOW CREATE TABLE tbl;",
             podman_run_command="exec",
         )

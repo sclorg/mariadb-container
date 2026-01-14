@@ -30,16 +30,6 @@ class TestMariaDBReplicationContainer:
         """
         self.replication_db.cleanup()
 
-    def get_cip_cid(self, cid_file_name):
-        """
-        Get the IP and container ID from the cid file name.
-        """
-        cip = self.replication_db.get_cip(cid_file_name=cid_file_name)
-        assert cip
-        cid = self.replication_db.get_cid(cid_file_name=cid_file_name)
-        assert cid
-        return cip, cid
-
     def test_replication(self):
         """
         Test replication.
@@ -60,7 +50,10 @@ class TestMariaDBReplicationContainer:
             docker_args=cluster_args,
             command="mysqld-master",
         )
-        master_cip, master_cid = self.get_cip_cid(cid_file_name=master_cid_name)
+        master_cip, master_cid = self.replication_db.get_cip_cid(
+            cid_file_name=master_cid_name
+        )
+        assert master_cip, master_cid
         # Run the MySQL replica
         slave_cid_name = "slave.cid"
         assert self.replication_db.create_container(
@@ -71,7 +64,10 @@ class TestMariaDBReplicationContainer:
             docker_args=cluster_args,
             command="mysqld-slave",
         )
-        slave_cip, slave_cid = self.get_cip_cid(cid_file_name=slave_cid_name)
+        slave_cip, slave_cid = self.replication_db.get_cip_cid(
+            cid_file_name=slave_cid_name
+        )
+        assert slave_cip, slave_cid
         # Now wait till the SOURCE will see the REPLICA
         assert self.replication_db.test_db_connection(
             container_ip=master_cip,
@@ -85,7 +81,7 @@ class TestMariaDBReplicationContainer:
                 username="root",
                 password="root",
                 container_id=master_cid,
-                database=VARS.DB_NAME,
+                database=f"db {VARS.SSL_OPTION}",
                 sql_cmd="SHOW SLAVE HOSTS;",
                 podman_run_command="exec",
             )
@@ -96,9 +92,7 @@ class TestMariaDBReplicationContainer:
                 slave_found = True
                 break
             sleep(3)
-        assert slave_found, (
-            f"Replica {slave_cip} not found in MASTER {master_cip} after 3 attempts. See logs for more details. Result: {result}"
-        )
+        assert slave_found
         assert self.replication_db.test_db_connection(
             container_ip=slave_cip,
             username="root",
@@ -109,20 +103,20 @@ class TestMariaDBReplicationContainer:
         slave_status = PodmanCLIWrapper.call_podman_command(
             cmd=f"exec {slave_cid} bash -c '{mysql_cmd}'",
         )
-        words = [
+        slave_statuses = [
             "Slave_IO_Running:\\s*Yes",
             "Slave_SQL_Running:\\s*Yes",
         ]
-        for word in words:
-            assert re.search(word, slave_status), (
-                f"Word {word} not found in {slave_status}"
+        for status in slave_statuses:
+            assert re.search(status, slave_status), (
+                f"Status {status} not found in {slave_status}"
             )
 
         self.db_wrapper_api.run_sql_command(
             container_ip=master_cip,
             username="root",
             password="root",
-            database=VARS.DB_NAME,
+            database=f"db {VARS.SSL_OPTION}",
             container_id=VARS.IMAGE_NAME,
             sql_cmd="CREATE TABLE t1 (a INT);",
             max_attempts=3,
@@ -131,7 +125,7 @@ class TestMariaDBReplicationContainer:
             container_ip=master_cip,
             username="root",
             password="root",
-            database=VARS.DB_NAME,
+            database=f"db {VARS.SSL_OPTION}",
             container_id=VARS.IMAGE_NAME,
             sql_cmd="INSERT INTO t1 VALUES (24);",
             max_attempts=3,
@@ -142,7 +136,7 @@ class TestMariaDBReplicationContainer:
             container_ip=slave_cip,
             username="root",
             password="root",
-            database=VARS.DB_NAME,
+            database=f"db {VARS.SSL_OPTION}",
             container_id=VARS.IMAGE_NAME,
             sql_cmd="select * from t1;",
         )

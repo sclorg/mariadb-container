@@ -66,7 +66,7 @@ class TestMariaDBPluginContainer:
             username="root",
             password="rootpass",
             container_id=VARS.IMAGE_NAME,
-            database=VARS.DB_NAME,
+            database=f"db {VARS.SSL_OPTION}",
             sql_cmd='INSTALL PLUGIN SQL_ERROR_LOG SONAME "sql_errlog" \\G',
         )
         # should fail, deliberately not checking return status
@@ -76,7 +76,7 @@ class TestMariaDBPluginContainer:
             username="root",
             password="rootpass",
             container_id=VARS.IMAGE_NAME,
-            database=VARS.DB_NAME,
+            database=f"db {VARS.SSL_OPTION}",
             sql_cmd=sql_cmd,
             ignore_error=True,
         )

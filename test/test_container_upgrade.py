@@ -4,8 +4,9 @@ import tempfile
 from container_ci_suite.container_lib import ContainerTestLib
 from container_ci_suite.container_lib import ContainerTestLibUtils
 from container_ci_suite.engines.podman_wrapper import PodmanCLIWrapper
+import pytest
 
-from conftest import VARS, get_previous_major_version
+from conftest import VARS
 
 
 class TestMariaDBUpgradeContainer:
@@ -35,25 +36,27 @@ class TestMariaDBUpgradeContainer:
         """
         self.s2i_db.cleanup()
 
-    def get_cip_cid(self, cid_file_name):
-        """
-        Get the IP and container ID from the cid file name.
-        """
-        cip = self.s2i_db.get_cip(cid_file_name=cid_file_name)
-        assert cip
-        cid = self.s2i_db.get_cid(cid_file_name=cid_file_name)
-        assert cid
-        return cip, cid
-
-    def test_upgrade_test(self):
+    @pytest.mark.parametrize(
+        "action",
+        [
+            "",
+            "analyze",
+            "optimize",
+        ],
+    )
+    def test_upgrade_test(self, action):
         """
         Test container creation fails with invalid combinations of arguments.
         """
         mysql_user = "user"
         mysql_password = "foo"
         mysql_database = "db"
-        self.upgrade_db(mysql_user=mysql_user, mysql_password=mysql_password)
-        output = self.upgrade_db(mysql_user=mysql_user, mysql_password=mysql_password)
+        self.upgrade_db(
+            mysql_user=mysql_user, mysql_password=mysql_password, action=action
+        )
+        output = self.upgrade_db(
+            mysql_user=mysql_user, mysql_password=mysql_password, action=action
+        )
         assert output, "Version of the data could not be determined"
         assert not re.search("Running mysql_upgrade", output), (
             "mysql_upgrade did not run"
@@ -136,7 +139,8 @@ class TestMariaDBUpgradeContainer:
             container_args=container_args,
             command=self.run_mysqld_cmd,
         )
-        cip, cid = self.get_cip_cid(cid_file_name=cid_testupg)
+        cip, cid = self.s2i_db.get_cip_cid(cid_file_name=cid_testupg)
+        assert cip, cid
         assert self.s2i_db.test_db_connection(
             container_ip=cip, username=mysql_user, password=mysql_password
         )

@@ -42,13 +42,17 @@ class TestMariaDBPasswordContainer:
         self.pwd_change.cleanup()
 
     @pytest.mark.parametrize(
-        "username, password, pwd_change",
+        "username, password, pwd_change, user_change, test_dir",
         [
-            ("user", "foo", False),
-            ("user", "bar", True),
+            ("user", "foo", False, False, pwd_dir_change),
+            ("user", "bar", True, False, pwd_dir_change),
+            ("user", "foo", False, False, user_dir_change),
+            ("user2", "bar", False, True, user_dir_change),
         ],
     )
-    def test_password_change(self, username, password, pwd_change):
+    def test_password_and_user_change(
+        self, username, password, pwd_change, user_change, test_dir
+    ):
         """
         Test password change.
         """
@@ -56,25 +60,8 @@ class TestMariaDBPasswordContainer:
         self.password_change_test(
             username=username,
             password=password,
-            pwd_dir=pwd_dir_change,
+            pwd_dir=test_dir,
             pwd_change=pwd_change,
-        )
-
-    @pytest.mark.parametrize(
-        "username, password, user_change",
-        [
-            ("user", "foo", False),
-            ("user2", "bar", True),
-        ],
-    )
-    def test_password_change_new_user_test(self, username, password, user_change):
-        """
-        Test user change.
-        """
-        self.password_change_test(
-            username=username,
-            password=password,
-            pwd_dir=user_dir_change,
             user_change=user_change,
         )
 
@@ -92,9 +79,11 @@ class TestMariaDBPasswordContainer:
         1. Create a container with the given arguments
         2. Check if the container is created successfully
         3. Check if the database connection works
-        4. Check if the userchange, then user2 does exist in the database
-        5. Check if the password works
-        6. Check if the password does not work
+        4. If user_change is True, then 'user' and 'foo' are used for testing connection
+        4. Check if the userchange, then user2 does exist in the database logs
+        5. Check if the userchange, then sql command should work with the 'user' and 'bar' should
+        not work and should return an error message
+        6. If pwd_change is True, then 'user' and 'pwdfoo' should not work and should return an error message
         """
         cid_file_name = f"test_{username}_{password}_{user_change}"
 

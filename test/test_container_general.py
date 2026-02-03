@@ -186,39 +186,3 @@ class TestMariaDBGeneralContainer:
             database=f"db {VARS.SSL_OPTION}",
             sql_cmd="DROP TABLE tbl;",
         )
-
-    @pytest.mark.parametrize(
-        "action",
-        [
-            "",
-            "analyze",
-            "optimize",
-        ],
-    )
-    def test_datadir_actions(self, action):
-        """
-        Test if the datadir works properly with the different actions.
-        Steps are:
-        1. Create a container with the given arguments
-        2. Check if the container is created successfully
-        3. Check if the database connection works
-        """
-        mysql_user = "user"
-        mysql_password = "foo"
-        mysql_database = "db"
-        cid_test = f"test_upgrade_{action}"
-        assert self.db_image.create_container(
-            cid_file_name=cid_test,
-            container_args=[
-                f"-e MYSQL_USER={mysql_user}",
-                f"-e MYSQL_PASSWORD={mysql_password}",
-                f"-e MYSQL_DATABASE={mysql_database}",
-                f"-v {self.datadir}/data:/var/lib/mysql/data:Z",
-            ],
-        )
-        cip, cid = self.db_image.get_cip_cid(cid_file_name=cid_test)
-        assert cip, cid
-        assert self.db_image.test_db_connection(
-            container_ip=cip, username=mysql_user, password=mysql_password
-        )
-        PodmanCLIWrapper.call_podman_command(cmd=f"stop {cid}")

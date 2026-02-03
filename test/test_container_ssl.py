@@ -30,7 +30,9 @@ class TestMariaDBGeneralContainer:
 
     def test_ssl(self):
         """
-        Test SSL.
+        Test verify that ssl connections works properly.
+        The SSL certificates are self-signed and used for testing.
+        The tests verifies that Ssl_cipher status is set to a valid value.
         """
         ssl_dir = tempfile.mkdtemp(prefix="/tmp/mysql-ssl_data")
         username = "ssl_test_user"

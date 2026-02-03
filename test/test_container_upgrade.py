@@ -103,7 +103,7 @@ class TestMariaDBUpgradeContainer:
             mysql_user=mysql_user, mysql_password=mysql_password, action="upgrade-auto"
         )
         assert not re.search("Running mysql_upgrade", output), (
-            "mysql_upgrade did not run"
+            "Unexpected mysql_upgrade found"
         )
         output = self.upgrade_db(
             mysql_user=mysql_user, mysql_password=mysql_password, action="upgrade-auto"

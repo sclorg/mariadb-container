@@ -74,7 +74,6 @@ class TestMariaDBReplicationContainer:
             username="root",
             password="root",
         )
-        slave_found = False
         for _ in range(3):
             result = self.db_wrapper_api.run_sql_command(
                 container_ip=master_cip,
@@ -85,14 +84,11 @@ class TestMariaDBReplicationContainer:
                 sql_cmd="SHOW SLAVE HOSTS;",
                 podman_run_command="exec",
             )
-            if not result:
-                sleep(3)
-                continue
             if slave_cip in result:
-                slave_found = True
                 break
             sleep(3)
-        assert slave_found
+        else:
+            assert False, "Slave IP not found!"
         assert self.replication_db.test_db_connection(
             container_ip=slave_cip,
             username="root",
@@ -140,11 +136,6 @@ class TestMariaDBReplicationContainer:
             container_id=VARS.IMAGE_NAME,
             sql_cmd="select * from t1;",
         )
-        # sql_cmd = "select * from t1;"
-        # mysql_cmd = f'mysql -uroot <<< "{sql_cmd}"'
-        # table_output = PodmanCLIWrapper.call_podman_command(
-        #     cmd=f"exec {slave_cid} bash -c '{mysql_cmd}'",
-        # )
         assert re.search(r"^a\n^24", table_output, re.MULTILINE), (
             f"Replica {slave_cip} did not get value from MASTER {master_cip}"
         )

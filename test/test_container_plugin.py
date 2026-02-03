@@ -38,7 +38,7 @@ class TestMariaDBPluginContainer:
 
     def test_plugin_installation(self):
         """
-        Test plugin installation.
+        Test installs a plugin that stores error messages in a log file and then checks that the plugin works correctly
         """
         cid_file_name = "plugin_install"
         container_args = [

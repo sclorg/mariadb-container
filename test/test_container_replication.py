@@ -104,8 +104,8 @@ class TestMariaDBReplicationContainer:
             cmd=f"exec {slave_cid} bash -c '{mysql_cmd}'",
         )
         slave_statuses = [
-            "Slave_IO_Running:\\s*Yes",
-            "Slave_SQL_Running:\\s*Yes",
+            r"Slave_IO_Running:\s*Yes",
+            r"Slave_SQL_Running:\s*Yes",
         ]
         for status in slave_statuses:
             assert re.search(status, slave_status), (

@@ -12,10 +12,10 @@
     latest: "10.11-el9"
     distros:
       - name: CentOS Stream 9
-        app_versions: ["10.5", "10.11"]
+        app_versions: ["10.5", "10.11", "11.8"]
 
       - name: CentOS Stream 10
-        app_versions: ["10.11"]
+        app_versions: ["10.11", "11.8"]
 
   - filename: mariadb-rhel.json
     latest: "10.11-el9"
@@ -24,10 +24,10 @@
         app_versions: ["10.3", "10.5", "10.11"]
 
       - name: RHEL 9
-        app_versions: ["10.5", "10.11"]
+        app_versions: ["10.5", "10.11", "11.8"]
 
       - name: RHEL 10
-        app_versions: ["10.11"]
+        app_versions: ["10.11", "11.8"]
 
   - filename: mariadb-rhel-aarch64.json
     latest: "10.11-el9"
@@ -36,7 +36,7 @@
         app_versions: ["10.3", "10.5", "10.11" ]
 
       - name: RHEL 9
-        app_versions: ["10.5", "10.11"]
+        app_versions: ["10.5", "10.11", "11.8"]
 
       - name: RHEL 10
-        app_versions: ["10.11"]
+        app_versions: ["10.11", "11.8"]

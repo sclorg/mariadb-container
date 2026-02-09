@@ -62,6 +62,21 @@ jobs:
             tag: "fedora"
             image_name: "mariadb-118"
 
+          - dockerfile: "11.8/Dockerfile.c10s"
+            docker_context: "11.8"
+            registry_namespace: "sclorg"
+            quayio_username: "QUAY_IMAGE_SCLORG_BUILDER_USERNAME"
+            quayio_token: "QUAY_IMAGE_SCLORG_BUILDER_TOKEN"
+            tag: "c10s"
+            image_name: "mariadb-118-c10s"
+
+          - dockerfile: "11.8/Dockerfile.c9s"
+            docker_context: "11.8"
+            registry_namespace: "sclorg"
+            quayio_username: "QUAY_IMAGE_SCLORG_BUILDER_USERNAME"
+            quayio_token: "QUAY_IMAGE_SCLORG_BUILDER_TOKEN"
+            tag: "c9s"
+            image_name: "mariadb-118-c9s"
 
     steps:
       - name: Build and push to quay.io registry

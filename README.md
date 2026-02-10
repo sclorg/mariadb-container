@@ -28,7 +28,7 @@ Table start
 |10.3||||<details><summary>✓</summary>`registry.redhat.io/rhel8/mariadb-103`</details>|||
 |10.5|<details><summary>✓</summary>`quay.io/sclorg/mariadb-105-c9s`</details>|||<details><summary>✓</summary>`registry.redhat.io/rhel8/mariadb-105`</details>|<details><summary>✓</summary>`registry.redhat.io/rhel9/mariadb-105`</details>||
 |10.11|<details><summary>✓</summary>`quay.io/sclorg/mariadb-1011-c9s`</details>|<details><summary>✓</summary>`quay.io/sclorg/mariadb-1011-c10s`</details>|<details><summary>✓</summary>`quay.io/fedora/mariadb-1011`</details>|<details><summary>✓</summary>`registry.redhat.io/rhel8/mariadb-1011`</details>|<details><summary>✓</summary>`registry.redhat.io/rhel9/mariadb-1011`</details>|<details><summary>✓</summary>`registry.redhat.io/rhel10/mariadb-1011`</details>|
-|11.8|||<details><summary>✓</summary>`quay.io/fedora/mariadb-118`</details>||||
+|11.8|<details><summary>✓</summary>`quay.io/sclorg/mariadb-118-c9s`</details>|<details><summary>✓</summary>`quay.io/sclorg/mariadb-118-c10s`</details>|<details><summary>✓</summary>`quay.io/fedora/mariadb-118`</details>||<details><summary>✓</summary>`registry.redhat.io/rhel9/mariadb-118`</details>|<details><summary>✓</summary>`registry.redhat.io/rhel10/mariadb-118`</details>|
 <!--
 Table end
 -->

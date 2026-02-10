@@ -30,6 +30,8 @@ class TestHelmMariaDBPersistent:
         self.hc_api.delete_project()
 
     def test_package_persistent(self):
+        if VERSION == "11.8":
+            pytest.skip("Version is not released yet, so skipping for now.")
         self.hc_api.package_name = "redhat-mariadb-imagestreams"
         assert self.hc_api.helm_package()
         assert self.hc_api.helm_installation()

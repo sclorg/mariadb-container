@@ -200,7 +200,7 @@ For this, we will assume that you are using the `rhel10/mariadb-1011` image,
 available via `mariadb:10.11` imagestream tag in Openshift.
 
 
-For example, to build a customized MariaDB database image `my-mariadb-rhel8`
+For example, to build a customized MariaDB database image `my-mariadb-rhel10`
 with a configuration from `https://github.com/sclorg/mariadb-container/tree/master/examples/extend-image` run:
 
 ```

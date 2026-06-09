@@ -10,25 +10,32 @@ FROM ubi8/s2i-core
 #  * $MYSQL_DATABASE - Name of the database to create
 #  * $MYSQL_ROOT_PASSWORD (Optional) - Password for the 'root' MySQL account
 
+# Standalone ENV call so these values can be re-used in the other ENV calls
 ENV MYSQL_VERSION=10.11 \
+    MYSQL_SHORT_VERSION=1011
+
+ENV VERSION="${MYSQL_VERSION}" \
     APP_DATA=/opt/app-root/src \
     HOME=/var/lib/mysql \
+    NAME=mariadb \
+    ARCH=x86_64 \
     SUMMARY="MariaDB 10.11 SQL database server" \
     DESCRIPTION="MariaDB is a multi-user, multi-threaded SQL database server. The container \
-image provides a containerized packaging of the MariaDB mysqld daemon and client application. \
-The mysqld server daemon accepts connections from clients and provides access to content from \
-MariaDB databases on behalf of the clients."
+    image provides a containerized packaging of the MariaDB mysqld daemon and client application. \
+    The mysqld server daemon accepts connections from clients and provides access to content from \
+    MariaDB databases on behalf of the clients."
 
-LABEL summary="$SUMMARY" \
-      description="$DESCRIPTION" \
-      io.k8s.description="$DESCRIPTION" \
+# Standalone ENV call so these values can be re-used in the other ENV calls
+LABEL summary="${SUMMARY}" \
+      description="${DESCRIPTION}" \
+      io.k8s.description="${DESCRIPTION}" \
       io.k8s.display-name="MariaDB 10.11" \
       io.openshift.expose-services="3306:mysql" \
       io.openshift.tags="database,mysql,mariadb,mariadb1011,mariadb-1011" \
-      com.redhat.component="mariadb-1011-container" \
-      name="rhel8/mariadb-1011" \
+      com.redhat.component="${NAME}-1011-container" \
+      name="rhel8/${NAME}-1011" \
       version="1" \
-      usage="podman run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 rhel8/mariadb-1011" \
+      com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#rhel" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 3306
@@ -36,13 +43,13 @@ EXPOSE 3306
 # This image must forever use UID 27 for mysql user so our volumes are
 # safe in the future. This should *never* change, the last test is there
 # to make sure of that.
-RUN yum -y module enable mariadb:$MYSQL_VERSION && \
-    INSTALL_PKGS="policycoreutils rsync tar gettext hostname groff-base mariadb-server" && \
-    yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
-    rpm -V $INSTALL_PKGS && \
-    /usr/libexec/mysqld -V | grep -qe "$MYSQL_VERSION\." && echo "Found VERSION $MYSQL_VERSION" && \
+RUN yum -y module enable mariadb:10.11 && \
+    INSTALL_PKGS="policycoreutils rsync tar gettext hostname groff-base" && \
+    yum install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} ${NAME}-server && \
+    rpm -V ${INSTALL_PKGS} && \
+    /usr/libexec/mysqld -V | grep -qe "${MYSQL_VERSION}\." && echo "Found VERSION ${MYSQL_VERSION}" && \
     yum -y clean all --enablerepo='*' && \
-    mkdir -p /var/lib/mysql/data && chown -R mysql:root /var/lib/mysql && \
+    mkdir -p ${HOME}/data && chown -R mysql:root ${HOME} && \
     test "$(id mysql)" = "uid=27(mysql) gid=27(mysql) groups=27(mysql)"
 
 # Get prefix path and path to scripts rather than hard-code them in scripts

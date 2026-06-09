@@ -38,14 +38,6 @@ jobs:
             tag: "c9s"
             image_name: "mariadb-105-c9s"
 
-          - dockerfile: "10.5/Dockerfile.fedora"
-            docker_context: "10.5"
-            registry_namespace: "fedora"
-            quayio_username: "QUAY_IMAGE_FEDORA_BUILDER_USERNAME"
-            quayio_token: "QUAY_IMAGE_FEDORA_BUILDER_TOKEN"
-            tag: "fedora"
-            image_name: "mariadb-105"
-
           - dockerfile: "10.11/Dockerfile.fedora"
             docker_context: "10.11"
             registry_namespace: "fedora"

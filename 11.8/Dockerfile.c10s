@@ -19,23 +19,24 @@ ENV VERSION="${MYSQL_VERSION}" \
     HOME=/var/lib/mysql \
     NAME=mariadb \
     ARCH=x86_64 \
-    SUMMARY="MariaDB ${MYSQL_VERSION} SQL database server" \
+    SUMMARY="MariaDB 11.8 SQL database server" \
     DESCRIPTION="MariaDB is a multi-user, multi-threaded SQL database server. The container \
-image provides a containerized packaging of the MariaDB mysqld daemon and client application. \
-The mysqld server daemon accepts connections from clients and provides access to content from \
-MariaDB databases on behalf of the clients."
+    image provides a containerized packaging of the MariaDB mysqld daemon and client application. \
+    The mysqld server daemon accepts connections from clients and provides access to content from \
+    MariaDB databases on behalf of the clients."
 
+# Standalone ENV call so these values can be re-used in the other ENV calls
 LABEL summary="${SUMMARY}" \
       description="${DESCRIPTION}" \
       io.k8s.description="${DESCRIPTION}" \
-      io.k8s.display-name="MariaDB ${MYSQL_VERSION}" \
+      io.k8s.display-name="MariaDB 11.8" \
       io.openshift.expose-services="3306:mysql" \
-      io.openshift.tags="database,mysql,${NAME},${NAME}${MYSQL_SHORT_VERSION},${NAME}-${MYSQL_SHORT_VERSION}" \
-      com.redhat.component="${NAME}-${MYSQL_SHORT_VERSION}-container" \
-      name="sclorg/${NAME}-${MYSQL_SHORT_VERSION}-c10s" \
+      io.openshift.tags="database,mysql,mariadb,mariadb118,mariadb-118" \
+      com.redhat.component="${NAME}-118-c10s" \
+      name="sclorg/${NAME}-118-c10s" \
       version="1" \
       com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#rhel" \
-      usage="podman run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 quay.io/sclorg/${NAME}-${MYSQL_SHORT_VERSION}-c10s" \
+      usage="podman run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 quay.io/sclorg/${NAME}-118-c10s" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 3306
@@ -45,6 +46,7 @@ EXPOSE 3306
 # to make sure of that.
 RUN INSTALL_PKGS="policycoreutils rsync tar xz gettext hostname groff-base" && \
     dnf install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} ${NAME}${MYSQL_VERSION}-server && \
+    rpm -V ${INSTALL_PKGS} && \
     /usr/libexec/mysqld -V | grep -qe "${MYSQL_VERSION}\." && echo "Found VERSION ${MYSQL_VERSION}" && \
     dnf -y clean all --enablerepo='*' && \
     mkdir -p ${HOME}/data && chown -R mysql:root ${HOME} && \
@@ -54,14 +56,14 @@ RUN INSTALL_PKGS="policycoreutils rsync tar xz gettext hostname groff-base" && \
 ENV CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/mysql \
     MYSQL_PREFIX=/usr
 
-COPY ${MYSQL_VERSION}/root-common /
-COPY ${MYSQL_VERSION}/s2i-common/bin/ ${STI_SCRIPTS_PATH}
-COPY ${MYSQL_VERSION}/root /
+COPY 11.8/root-common /
+COPY 11.8/s2i-common/bin/ $STI_SCRIPTS_PATH
+COPY 11.8/root /
 
 # Hard links are not supported in Testing Farm approach during sync to guest
 # operation system. Therefore tests are failing on error
 # /usr/libexec/s2i/run no such file or directory
-RUN ln -s /usr/bin/run-mysqld ${STI_SCRIPTS_PATH}/run
+RUN ln -s /usr/bin/run-mysqld $STI_SCRIPTS_PATH/run
 
 # this is needed due to issues with squash
 # when this directory gets rm'd by the container-setup

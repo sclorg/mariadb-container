@@ -1,0 +1,132 @@
+version: 1
+
+specs:
+  distroinfo:
+    fedora42:
+      distros:
+        - fedora-42-x86_64
+      s2i_base: quay.io/fedora/s2i-core
+      s2i_base_tag: "42"
+      org: "fedora"
+      prod: "fedora"
+      img_name: "fedora/mariadb-{{ spec.short }}"
+      full_img_name: "quay.io/fedora/mariadb-{{ spec.short }}"
+      pkgs: "policycoreutils rsync tar xz gettext hostname groff-base"
+
+    rhel8:
+      distros:
+        - rhel-8-x86_64
+      s2i_base: ubi8/s2i-core
+      org: "rhel8"
+      prod: "rhel8"
+      img_name: "rhel8/mariadb-{{ spec.short }}"
+      pkgs: "policycoreutils rsync tar gettext hostname groff-base"
+      environment_setup: >-4
+          yum -y module enable mariadb:{{ spec.version}} && \
+
+    rhel9:
+      distros:
+        - rhel-9-x86_64
+      s2i_base: ubi9/s2i-core
+      org: "rhel9"
+      prod: "rhel9"
+      img_name: "rhel9/mariadb-{{ spec.short }}"
+      pkgs: "policycoreutils rsync tar gettext hostname groff-base"      
+      environment_setup: >-4
+          dnf -y module enable mariadb:{{ spec.version}} && \
+
+    rhel10:
+      distros:
+        - rhel-10-x86_64
+      s2i_base: ubi10/s2i-core
+      org: "rhel10"
+      prod: "rhel10"
+      img_name: "rhel10/mariadb-{{ spec.short }}"
+      pkgs: "policycoreutils rsync tar xz gettext hostname groff-base"
+
+    c9s:
+      distros:
+        - centos-stream-9-x86_64
+      s2i_base: quay.io/sclorg/s2i-core-c9s
+      s2i_base_tag: "c9s"
+      org: "sclorg"
+      prod: "c9s"
+      img_name: "sclorg/mariadb-{{ spec.short }}-c9s"
+      full_img_name: "quay.io/sclorg/mariadb-{{ spec.short }}-c9s"
+      pkgs: "policycoreutils rsync tar gettext hostname groff-base"
+      environment_setup: >-4
+          yum -y module enable mariadb:{{ spec.version }} && \
+
+    c10s:
+      distros:
+        - centos-stream-10-x86_64
+      s2i_base: quay.io/sclorg/s2i-core-c10s
+      s2i_base_tag: "c10s"
+      org: "sclorg"
+      prod: "c10s"
+      img_name: "sclorg/mariadb-{{ spec.short }}-c10s"
+      full_img_name: "quay.io/sclorg/mariadb-{{ spec.short }}-c10s"
+      pkgs: "policycoreutils rsync tar xz gettext hostname groff-base"
+
+  version:
+    "10.3":
+      version: "10.3"
+      short: "103"
+      rhel_image_name: "rhel8/mariadb-103"
+      s2i_example_name: "my-mariadb-rhel8"
+      upgrade_doc_url: "https://mariadb.com/kb/en/library/upgrading-from-mariadb-102-to-mariadb-103/"
+      upgrade_skip_note: "MariaDB 5.5 to MariaDB 10.0."
+
+    "10.5":
+      version: "10.5"
+      short: "105"
+      rhel_image_name: "rhel9/mariadb-105"
+      s2i_example_name: "my-mariadb-rhel9"
+      upgrade_doc_url: "https://mariadb.com/kb/en/library/upgrading-from-mariadb-104-to-mariadb-105/"
+      upgrade_skip_note: "MariaDB 5.5 to MariaDB 10.0 and from MariaDB 10.3 to 10.5."
+
+    "10.11":
+      version: "10.11"
+      short: "1011"
+      rhel_image_name: "rhel10/mariadb-1011"
+      s2i_example_name: "my-mariadb-rhel10"
+      upgrade_doc_url: "https://mariadb.com/kb/en/library/upgrading-from-mariadb-104-to-mariadb-1011/"
+      upgrade_skip_note: "MariaDB 5.5 to MariaDB 10.0 and from MariaDB 10.3 to 10.11."
+
+    "11.8":
+      version: "11.8"
+      short: "118"
+      rhel_image_name: "rhel10/mariadb-118"
+      s2i_example_name: "my-mariadb-rhel10"
+      upgrade_doc_url: "https://mariadb.com/kb/en/library/upgrading-from-mariadb-104-to-mariadb-1011/"
+      upgrade_skip_note: "MariaDB 5.5 to MariaDB 10.0 and from MariaDB 10.3 to 10.11."
+
+
+matrix:
+  include:
+    - version: "10.3"
+      distros:
+        - rhel-8-x86_64
+
+    - version: "10.5"
+      distros:
+        - rhel-8-x86_64
+        - rhel-9-x86_64
+        - centos-stream-9-x86_64
+
+    - version: "10.11"
+      distros:
+        - rhel-8-x86_64
+        - rhel-9-x86_64
+        - rhel-10-x86_64
+        - centos-stream-9-x86_64
+        - centos-stream-10-x86_64
+        - fedora-42-x86_64
+
+    - version: "11.8"
+      distros:
+        - rhel-9-x86_64
+        - rhel-10-x86_64
+        - centos-stream-9-x86_64
+        - centos-stream-10-x86_64
+        - fedora-42-x86_64

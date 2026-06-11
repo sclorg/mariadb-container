@@ -1,10 +1,14 @@
-MariaDB 10.5 SQL Database Server Docker image
+MariaDB 10.5 SQL Database Server Container image
 =============================================
 
 This container image includes MariaDB 10.5 SQL database server for OpenShift and general usage.
-Users can choose between RHEL and CentOS Stream based images.
+
+<!---Users can choose between RHEL, CentOS and Fedora based images.
 The RHEL images are available in the [Red Hat Container Catalog](https://access.redhat.com/containers/),
-and the CentOS Stream images are available on [Quay.io/sclorg](https://quay.io/organization/sclorg).
+the CentOS Stream images are available on [Quay.io/sclorg](https://quay.io/organization/sclorg),
+and the Fedora images are available in [Fedora Registry](https://quay.io/organization/fedora).-->
+
+Fedora images are available in [Fedora Registry](https://quay.io/organization/fedora).
 The resulting image can be run using [podman](https://github.com/containers/libpod).
 
 Note: while the examples in this README call `podman`, you can replace any such calls by `docker` with the same arguments
@@ -286,15 +290,14 @@ or a new container image can be built using s2i.
 
 Upgrading and data directory version checking
 ---------------------------------------------
-
 MySQL and MariaDB use versions that consist of three numbers X.Y.Z (e.g. 5.6.23).
 For version changes in Z part, the server's binary data format stays compatible and thus no
 special upgrade procedure is needed. For upgrades from X.Y to X.Y+1, consider doing manual
 steps as described at
-https://mariadb.com/kb/en/library/upgrading-from-mariadb-104-to-mariadb-105/
+https://mariadb.com/docs/server/server-management/install-and-upgrade-mariadb/upgrading/mariadb-community-server-upgrade-paths/upgrading-to-unmaintained-mariadb-releases/upgrading-from-mariadb-10-4-to-mariadb-10-5
 
 Skipping versions like from X.Y to X.Y+2 or downgrading to lower version is not supported;
-the only exception is ugrading from MariaDB 5.5 to MariaDB 10.0 and from MariaDB 10.3 to 10.5.
+the only exception is ugrading from MariaDB 5.5 to MariaDB 10.0 and from MariaDB 10.3 to 10.11.
 
 **Important**: Upgrading to a new version is always risky and users are expected to make a full
 back-up of all data before.
@@ -361,5 +364,8 @@ See also
 Dockerfile and other sources for this container image are available on
 https://github.com/sclorg/mariadb-container.
 In that repository, the Dockerfile for RHEL8 is called Dockerfile.rhel8,
-the Dockerfile for RHEL9 is called Dockerfile.rhel9
-and the Dockerfile for CentOS Stream 9 is called Dockerfile.c9s.
+the Dockerfile for RHEL9 is called Dockerfile.rhel9,
+the Dockerfile for RHEL10 is called Dockerfile.rhel10,
+the Dockerfile for CentOS Stream 9 is called Dockerfile.c9s,
+the Dockerfile for CentOS Stream 10 is called Dockerfile.c10s,
+and the Dockerfile for Fedora is called Dockerfile.fedora.

@@ -25,9 +25,9 @@ You can find more information on the MariaDB project from the project Web site
 
 Usage
 -----
-<!--- TODO: change back to rhel10 when the image comes out -->
+
 For this, we will assume that you are using the MariaDB {{ spec.version }} container image from the
-Quay.io registry called `{{ spec.image_name }}`.
+Red Hat Container Catalog called `{{ spec.rhel_image_name }}`.
 If you want to set only the mandatory environment variables and not store
 the database in a host directory, execute the following command:
 
@@ -50,6 +50,7 @@ or if it was already present, `mysqld` is executed and will run as PID 1. You ca
 
 Environment variables and volumes
 ---------------------------------
+
 The image recognizes the following environment variables that you can set during
 initialization by passing `-e VAR=VALUE` to the Docker run command.
 
@@ -193,6 +194,7 @@ variable with the full path of the file you wish to use. For example, the defaul
 location is `/etc/my.cnf` but you can change it to `/etc/mysql/my.cnf` by setting
  `MYSQL_DEFAULTS_FILE=/etc/mysql/my.cnf`
 
+
 Extending image
 ---------------
 This image can be extended in Openshift using the `Source` build strategy or via the standalone
@@ -264,6 +266,7 @@ every time the image is started using `podman run`. The directory has to be
 mounted into `/opt/app-root/src/` in the image
 (`-v ./image-configuration/:/opt/app-root/src/`).
 This overwrites customization built into the image.
+
 
 Securing the connection with SSL
 --------------------------------
@@ -359,7 +362,7 @@ See also
 --------
 Dockerfile and other sources for this container image are available on
 https://github.com/sclorg/mariadb-container.
-In that repository,
+In that repository, the Dockerfile for RHEL8 is called Dockerfile.rhel8,
 the Dockerfile for RHEL9 is called Dockerfile.rhel9,
 the Dockerfile for RHEL10 is called Dockerfile.rhel10,
 the Dockerfile for CentOS Stream 9 is called Dockerfile.c9s,

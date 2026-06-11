@@ -12,7 +12,8 @@ FROM quay.io/fedora/s2i-core:42
 
 # Standalone ENV call so these values can be re-used in the other ENV calls
 ENV MYSQL_VERSION=10.11 \
-    MYSQL_SHORT_VERSION=1011  
+    MYSQL_SHORT_VERSION=1011
+
 
 ENV VERSION="${MYSQL_VERSION}" \
     APP_DATA=/opt/app-root/src \

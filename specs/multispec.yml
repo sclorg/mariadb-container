@@ -22,6 +22,7 @@ specs:
       prod: "rhel8"
       img_name: "rhel8/mariadb-{{ spec.short }}"
       com_redhat_component: "mariadb-{{ spec.short }}-container"
+      full_img_name: "rhel8/mariadb-{{ spec.short }}"
       pkgs: "policycoreutils rsync tar gettext hostname groff-base"
       environment_setup: >-4
           yum -y module enable mariadb:{{ spec.version}} && \
@@ -33,6 +34,7 @@ specs:
       org: "rhel9"
       prod: "rhel9"
       img_name: "rhel9/mariadb-{{ spec.short }}"
+      full_img_name: "rhel9/mariadb-{{ spec.short }}"
       pkgs: "policycoreutils rsync tar gettext hostname groff-base"      
       com_redhat_component: "mariadb-{{ spec.short }}-container"
       environment_setup: >-4
@@ -45,6 +47,7 @@ specs:
       org: "rhel10"
       prod: "rhel10"
       img_name: "rhel10/mariadb-{{ spec.short }}"
+      full_img_name: "rhel10/mariadb-{{ spec.short }}"
       com_redhat_component: "mariadb-{{ spec.short }}-container"
       pkgs: "policycoreutils rsync tar xz gettext hostname groff-base"
 

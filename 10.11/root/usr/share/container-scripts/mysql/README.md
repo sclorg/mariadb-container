@@ -2,10 +2,13 @@ MariaDB 10.11 SQL Database Server Container image
 =============================================
 
 This container image includes MariaDB 10.11 SQL database server for OpenShift and general usage.
-Users can choose between RHEL, CentOS Stream and Fedora based images.
+
+<!---Users can choose between RHEL, CentOS and Fedora based images.
 The RHEL images are available in the [Red Hat Container Catalog](https://access.redhat.com/containers/),
 the CentOS Stream images are available on [Quay.io/sclorg](https://quay.io/organization/sclorg),
-and the Fedora images are available in [Fedora Registry](https://quay.io/organization/fedora).
+and the Fedora images are available in [Fedora Registry](https://quay.io/organization/fedora).-->
+
+Fedora images are available in [Fedora Registry](https://quay.io/organization/fedora).
 The resulting image can be run using [podman](https://github.com/containers/libpod).
 
 Note: while the examples in this README call `podman`, you can replace any such calls by `docker` with the same arguments
@@ -287,12 +290,11 @@ or a new container image can be built using s2i.
 
 Upgrading and data directory version checking
 ---------------------------------------------
-
 MySQL and MariaDB use versions that consist of three numbers X.Y.Z (e.g. 5.6.23).
 For version changes in Z part, the server's binary data format stays compatible and thus no
 special upgrade procedure is needed. For upgrades from X.Y to X.Y+1, consider doing manual
 steps as described at
-https://mariadb.com/kb/en/library/upgrading-from-mariadb-104-to-mariadb-1011/
+https://mariadb.com/docs/server/server-management/install-and-upgrade-mariadb/upgrading/mariadb-community-server-upgrade-paths/upgrading-from-mariadb-10-6-to-mariadb-10-11
 
 Skipping versions like from X.Y to X.Y+2 or downgrading to lower version is not supported;
 the only exception is ugrading from MariaDB 5.5 to MariaDB 10.0 and from MariaDB 10.3 to 10.11.

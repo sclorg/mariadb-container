@@ -32,11 +32,10 @@ LABEL summary="${SUMMARY}" \
       io.k8s.display-name="MariaDB 11.8" \
       io.openshift.expose-services="3306:mysql" \
       io.openshift.tags="database,mysql,mariadb,mariadb118,mariadb-118" \
-      com.redhat.component="${NAME}-118-c10s" \
-      name="sclorg/${NAME}-118-c10s" \
-      version="1" \
+      com.redhat.component="mariadb-118-c10s" \
+      name="sclorg/mariadb-118-c10s" \
       com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#rhel" \
-      usage="podman run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 quay.io/sclorg/${NAME}-118-c10s" \
+      usage="podman run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 quay.io/sclorg/mariadb-118-c10s" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 3306
@@ -44,14 +43,13 @@ EXPOSE 3306
 # This image must forever use UID 27 for mysql user so our volumes are
 # safe in the future. This should *never* change, the last test is there
 # to make sure of that.
-RUN INSTALL_PKGS="policycoreutils rsync tar xz gettext hostname groff-base" && \
-    dnf install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} ${NAME}${MYSQL_VERSION}-server && \
+RUN INSTALL_PKGS="policycoreutils rsync tar xz gettext hostname groff-base ${NAME}${MYSQL_VERSION}-server" && \
+    dnf install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
     rpm -V ${INSTALL_PKGS} && \
     /usr/libexec/mysqld -V | grep -qe "${MYSQL_VERSION}\." && echo "Found VERSION ${MYSQL_VERSION}" && \
     dnf -y clean all --enablerepo='*' && \
     mkdir -p ${HOME}/data && chown -R mysql:root ${HOME} && \
     test "$(id mysql)" = "uid=27(mysql) gid=27(mysql) groups=27(mysql)"
-
 # Get prefix path and path to scripts rather than hard-code them in scripts
 ENV CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/mysql \
     MYSQL_PREFIX=/usr

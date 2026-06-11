@@ -26,14 +26,14 @@ See [the Red Hat Enterprise Linux Application Streams Life Cycle page](https://a
 
 Usage
 -----
-<!--- TODO: change back to rhel10 when the image comes out -->
+
 For this, we will assume that you are using the MariaDB 11.8 container image from the
-Quay.io registry called `fedora/mariadb-118`.
+Red Hat Container Catalog called `rhel10/mariadb-118`.
 If you want to set only the mandatory environment variables and not store
 the database in a host directory, execute the following command:
 
 ```
-$ podman run -d --name mariadb_database -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 fedora/mariadb-118
+$ podman run -d --name mariadb_database -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 rhel10/mariadb-118
 ```
 
 This will create a container named `mariadb_database` running MySQL with database
@@ -51,6 +51,7 @@ or if it was already present, `mysqld` is executed and will run as PID 1. You ca
 
 Environment variables and volumes
 ---------------------------------
+
 The image recognizes the following environment variables that you can set during
 initialization by passing `-e VAR=VALUE` to the Docker run command.
 
@@ -194,7 +195,7 @@ variable with the full path of the file you wish to use. For example, the defaul
 location is `/etc/my.cnf` but you can change it to `/etc/mysql/my.cnf` by setting
  `MYSQL_DEFAULTS_FILE=/etc/mysql/my.cnf`
 
-<!--- TODO: put back when the rhel/centos images are released
+
 Extending image
 ---------------
 This image can be extended in Openshift using the `Source` build strategy or via the standalone
@@ -266,7 +267,7 @@ every time the image is started using `podman run`. The directory has to be
 mounted into `/opt/app-root/src/` in the image
 (`-v ./image-configuration/:/opt/app-root/src/`).
 This overwrites customization built into the image.
--->
+
 
 Securing the connection with SSL
 --------------------------------
@@ -293,7 +294,7 @@ MySQL and MariaDB use versions that consist of three numbers X.Y.Z (e.g. 5.6.23)
 For version changes in Z part, the server's binary data format stays compatible and thus no
 special upgrade procedure is needed. For upgrades from X.Y to X.Y+1, consider doing manual
 steps as described at
-https://mariadb.com/kb/en/library/upgrading-from-mariadb-104-to-mariadb-1011/
+https://mariadb.com/docs/server/server-management/install-and-upgrade-mariadb/upgrading/mariadb-community-server-upgrade-paths/upgrading-to-unmaintained-mariadb-releases/upgrading-from-mariadb-10-11-to-mariadb-11-0
 
 Skipping versions like from X.Y to X.Y+2 or downgrading to lower version is not supported;
 the only exception is ugrading from MariaDB 5.5 to MariaDB 10.0 and from MariaDB 10.3 to 10.11.
@@ -362,7 +363,7 @@ See also
 --------
 Dockerfile and other sources for this container image are available on
 https://github.com/sclorg/mariadb-container.
-In that repository,
+In that repository, the Dockerfile for RHEL8 is called Dockerfile.rhel8,
 the Dockerfile for RHEL9 is called Dockerfile.rhel9,
 the Dockerfile for RHEL10 is called Dockerfile.rhel10,
 the Dockerfile for CentOS Stream 9 is called Dockerfile.c9s,

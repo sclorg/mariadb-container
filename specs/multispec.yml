@@ -11,6 +11,7 @@ specs:
       prod: "fedora"
       img_name: "fedora/mariadb-{{ spec.short }}"
       full_img_name: "quay.io/fedora/mariadb-{{ spec.short }}"
+      com_redhat_component: "mariadb-{{ spec.short }}"
       pkgs: "policycoreutils rsync tar xz gettext hostname groff-base"
 
     rhel8:
@@ -20,6 +21,7 @@ specs:
       org: "rhel8"
       prod: "rhel8"
       img_name: "rhel8/mariadb-{{ spec.short }}"
+      com_redhat_component: "mariadb-{{ spec.short }}-container"
       pkgs: "policycoreutils rsync tar gettext hostname groff-base"
       environment_setup: >-4
           yum -y module enable mariadb:{{ spec.version}} && \
@@ -32,6 +34,7 @@ specs:
       prod: "rhel9"
       img_name: "rhel9/mariadb-{{ spec.short }}"
       pkgs: "policycoreutils rsync tar gettext hostname groff-base"      
+      com_redhat_component: "mariadb-{{ spec.short }}-container"
       environment_setup: >-4
           dnf -y module enable mariadb:{{ spec.version}} && \
 
@@ -42,6 +45,7 @@ specs:
       org: "rhel10"
       prod: "rhel10"
       img_name: "rhel10/mariadb-{{ spec.short }}"
+      com_redhat_component: "mariadb-{{ spec.short }}-container"
       pkgs: "policycoreutils rsync tar xz gettext hostname groff-base"
 
     c9s:
@@ -53,6 +57,7 @@ specs:
       prod: "c9s"
       img_name: "sclorg/mariadb-{{ spec.short }}-c9s"
       full_img_name: "quay.io/sclorg/mariadb-{{ spec.short }}-c9s"
+      com_redhat_component: "mariadb-{{ spec.short }}-{{ spec.prod }}"
       pkgs: "policycoreutils rsync tar gettext hostname groff-base"
       environment_setup: >-4
           yum -y module enable mariadb:{{ spec.version }} && \
@@ -66,6 +71,7 @@ specs:
       prod: "c10s"
       img_name: "sclorg/mariadb-{{ spec.short }}-c10s"
       full_img_name: "quay.io/sclorg/mariadb-{{ spec.short }}-c10s"
+      com_redhat_component: "mariadb-{{ spec.short }}-{{ spec.prod }}"
       pkgs: "policycoreutils rsync tar xz gettext hostname groff-base"
 
   version:
@@ -74,7 +80,7 @@ specs:
       short: "103"
       rhel_image_name: "rhel8/mariadb-103"
       s2i_example_name: "my-mariadb-rhel8"
-      upgrade_doc_url: "https://mariadb.com/kb/en/library/upgrading-from-mariadb-102-to-mariadb-103/"
+      upgrade_doc_url: "https://mariadb.com/docs/server/server-management/install-and-upgrade-mariadb/upgrading/mariadb-community-server-upgrade-paths/upgrading-to-unmaintained-mariadb-releases/upgrading-from-mariadb-103-to-mariadb-104"
       upgrade_skip_note: "MariaDB 5.5 to MariaDB 10.0."
 
     "10.5":
@@ -82,7 +88,7 @@ specs:
       short: "105"
       rhel_image_name: "rhel9/mariadb-105"
       s2i_example_name: "my-mariadb-rhel9"
-      upgrade_doc_url: "https://mariadb.com/kb/en/library/upgrading-from-mariadb-104-to-mariadb-105/"
+      upgrade_doc_url: "https://mariadb.com/docs/server/server-management/install-and-upgrade-mariadb/upgrading/mariadb-community-server-upgrade-paths/upgrading-to-unmaintained-mariadb-releases/upgrading-from-mariadb-10-4-to-mariadb-10-5"
       upgrade_skip_note: "MariaDB 5.5 to MariaDB 10.0 and from MariaDB 10.3 to 10.5."
 
     "10.11":
@@ -90,7 +96,7 @@ specs:
       short: "1011"
       rhel_image_name: "rhel10/mariadb-1011"
       s2i_example_name: "my-mariadb-rhel10"
-      upgrade_doc_url: "https://mariadb.com/kb/en/library/upgrading-from-mariadb-104-to-mariadb-1011/"
+      upgrade_doc_url: "https://mariadb.com/docs/server/server-management/install-and-upgrade-mariadb/upgrading/mariadb-community-server-upgrade-paths/upgrading-from-mariadb-10-6-to-mariadb-10-11"
       upgrade_skip_note: "MariaDB 5.5 to MariaDB 10.0 and from MariaDB 10.3 to 10.11."
 
     "11.8":
@@ -98,8 +104,8 @@ specs:
       short: "118"
       rhel_image_name: "rhel10/mariadb-118"
       s2i_example_name: "my-mariadb-rhel10"
-      upgrade_doc_url: "https://mariadb.com/kb/en/library/upgrading-from-mariadb-104-to-mariadb-1011/"
-      upgrade_skip_note: "MariaDB 5.5 to MariaDB 10.0 and from MariaDB 10.3 to 10.11."
+      upgrade_doc_url: "https://mariadb.com/docs/server/server-management/install-and-upgrade-mariadb/upgrading/mariadb-community-server-upgrade-paths/upgrading-to-unmaintained-mariadb-releases/upgrading-from-mariadb-10-11-to-mariadb-11-0"
+      upgrade_skip_note: "MariaDB 5.5 to MariaDB 10.0 and from MariaDB 10.3 to 11.11."
 
 
 matrix:

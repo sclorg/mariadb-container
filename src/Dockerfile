@@ -33,24 +33,10 @@ LABEL summary="${SUMMARY}" \
       io.k8s.display-name="MariaDB {{ spec.version }}" \
       io.openshift.expose-services="3306:mysql" \
       io.openshift.tags="database,mysql,mariadb,mariadb{{ spec.short }},mariadb-{{ spec.short }}" \
-{% if spec.org != "sclorg" %}
-      com.redhat.component="${NAME}-{{ spec.short }}-container" \
-      name="{{ spec.prod }}/${NAME}-{{ spec.short }}" \
-{% else %}
-      com.redhat.component="${NAME}-{{ spec.short }}-{{ spec.prod}}" \
-      name="sclorg/${NAME}-{{ spec.short }}-{{ spec.prod }}" \
-{% endif %}
-{% if spec.prod != "rhel10" or spec.version != "10.11" %}
-      version="1" \
-{% endif %}
-{% if config.os.id == "rhel" or spec.prod in ["c9s", "c10s"] %}
+      com.redhat.component="{{ com_redhat_component }}" \
+      name="{{ spec.image_name }}" \
       com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#rhel" \
-{% endif %}
-{% if spec.prod in ["rhel9", "rhel10"] %}
-      usage="podman run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 {{ spec.prod }}/${NAME}-{{ spec.short }}" \
-{% elif spec.prod in ["c9s", "c10s"] %}
-      usage="podman run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 quay.io/sclorg/${NAME}-{{ spec.short }}-{{ spec.prod }}" \
-{% endif %}
+      usage="podman run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 {{ spec.img_name }}" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 3306
@@ -58,53 +44,20 @@ EXPOSE 3306
 # This image must forever use UID 27 for mysql user so our volumes are
 # safe in the future. This should *never* change, the last test is there
 # to make sure of that.
-{% if spec.version == "10.3" %}
+{% if spec.version == "10.3" or (spec.version == "10.5" and spec.prod == "rhel8") or (spec.version in ["10.11", "11.8"] and spec.prod not in ["c10s", "rhel10"]) or %}
 RUN {{ spec.environment_setup }}
     INSTALL_PKGS="{{ spec.pkgs }} ${NAME}-server" && \
-    yum install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
-{% elif spec.version == "10.5" %}
-{% if spec.prod == "c9s" %}
-RUN yum -y module disable mariadb && \
+{% elif spec.version == "10.5" and spec.prod == "c9s" %}
+RUN dnf -y module disable mariadb && \
     INSTALL_PKGS="{{ spec.pkgs }} ${NAME}-server" && \
-    dnf install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
-{% elif spec.prod == "rhel8" %}
-RUN {{ spec.environment_setup }}
-    INSTALL_PKGS="{{ spec.pkgs }} ${NAME}-server" && \
-    yum install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
-{% else %}
+{% elif spec.version == "10.5" and spec.prod not in  ["c9s", "rhel8"] %}
 RUN INSTALL_PKGS="{{ spec.pkgs }} ${NAME}-server" && \
+{% elif spec.version in ["10.11", "11.8"] and spec.prod in ["c10s", "rhel10"] %}
+RUN INSTALL_PKGS="{{ spec.pkgs }} ${NAME}${MYSQL_VERSION}-server" && \
     dnf install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
-{% endif %}
-{% elif spec.version == "10.11" %}
-{% if spec.prod in ["c10s", "rhel10"] %}
-RUN INSTALL_PKGS="{{ spec.pkgs }}" && \
-    dnf install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} ${NAME}${MYSQL_VERSION}-server && \
-{% else %}
-RUN {{ spec.environment_setup }}
-    INSTALL_PKGS="{{ spec.pkgs }}" && \
-{% if spec.prod == "rhel9" %}
-    dnf install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} ${NAME}-server && \
-{% else %}
-    yum install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} ${NAME}-server && \
-{% endif %}
-{% endif %}
-{% elif spec.version == "11.8" %}
-{% if spec.prod in ["c10s", "rhel10"] %}
-RUN INSTALL_PKGS="{{ spec.pkgs }}" && \
-    dnf install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} ${NAME}${MYSQL_VERSION}-server && \
-{% else %}
-RUN {{ spec.environment_setup }}
-    INSTALL_PKGS="{{ spec.pkgs }} ${NAME}-server" && \
-    yum install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
-{% endif %}
-{% endif %}
     rpm -V ${INSTALL_PKGS} && \
     /usr/libexec/mysqld -V | grep -qe "${MYSQL_VERSION}\." && echo "Found VERSION ${MYSQL_VERSION}" && \
-{% if spec.prod in ["c10s", "rhel9", "rhel10"] %}
     dnf -y clean all --enablerepo='*' && \
-{% else %}
-    yum -y clean all --enablerepo='*' && \
-{% endif %}
     mkdir -p ${HOME}/data && chown -R mysql:root ${HOME} && \
     test "$(id mysql)" = "uid=27(mysql) gid=27(mysql) groups=27(mysql)"
 

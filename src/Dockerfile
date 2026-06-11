@@ -33,10 +33,10 @@ LABEL summary="${SUMMARY}" \
       io.k8s.display-name="MariaDB {{ spec.version }}" \
       io.openshift.expose-services="3306:mysql" \
       io.openshift.tags="database,mysql,mariadb,mariadb{{ spec.short }},mariadb-{{ spec.short }}" \
-      com.redhat.component="{{ com_redhat_component }}" \
-      name="{{ spec.image_name }}" \
+      com.redhat.component="{{ spec.com_redhat_component }}" \
+      name="{{ spec.img_name }}" \
       com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#rhel" \
-      usage="podman run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 {{ spec.img_name }}" \
+      usage="podman run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 {{ spec.full_img_name }}" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 3306
@@ -44,7 +44,7 @@ EXPOSE 3306
 # This image must forever use UID 27 for mysql user so our volumes are
 # safe in the future. This should *never* change, the last test is there
 # to make sure of that.
-{% if spec.version == "10.3" or (spec.version == "10.5" and spec.prod == "rhel8") or (spec.version in ["10.11", "11.8"] and spec.prod not in ["c10s", "rhel10"]) or %}
+{% if spec.version == "10.3" or (spec.version == "10.5" and spec.prod == "rhel8") or (spec.version in ["10.11", "11.8"] and spec.prod not in ["c10s", "rhel10"]) %}
 RUN {{ spec.environment_setup }}
     INSTALL_PKGS="{{ spec.pkgs }} ${NAME}-server" && \
 {% elif spec.version == "10.5" and spec.prod == "c9s" %}
@@ -54,13 +54,13 @@ RUN dnf -y module disable mariadb && \
 RUN INSTALL_PKGS="{{ spec.pkgs }} ${NAME}-server" && \
 {% elif spec.version in ["10.11", "11.8"] and spec.prod in ["c10s", "rhel10"] %}
 RUN INSTALL_PKGS="{{ spec.pkgs }} ${NAME}${MYSQL_VERSION}-server" && \
+{% endif %}
     dnf install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
     rpm -V ${INSTALL_PKGS} && \
     /usr/libexec/mysqld -V | grep -qe "${MYSQL_VERSION}\." && echo "Found VERSION ${MYSQL_VERSION}" && \
     dnf -y clean all --enablerepo='*' && \
     mkdir -p ${HOME}/data && chown -R mysql:root ${HOME} && \
     test "$(id mysql)" = "uid=27(mysql) gid=27(mysql) groups=27(mysql)"
-
 # Get prefix path and path to scripts rather than hard-code them in scripts
 ENV CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/mysql \
     MYSQL_PREFIX=/usr

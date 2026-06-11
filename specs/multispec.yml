@@ -25,7 +25,7 @@ specs:
       full_img_name: "rhel8/mariadb-{{ spec.short }}"
       pkgs: "policycoreutils rsync tar gettext hostname groff-base"
       environment_setup:
-          yum -y module enable mariadb:{{ spec.version}} && \
+          dnf -y module enable mariadb:{{ spec.version}} && \
 
     rhel9:
       distros:
@@ -63,7 +63,7 @@ specs:
       com_redhat_component: "mariadb-{{ spec.short }}-{{ spec.prod }}"
       pkgs: "policycoreutils rsync tar gettext hostname groff-base"
       environment_setup:
-          yum -y module enable mariadb:{{ spec.version }} && \
+          dnf -y module enable mariadb:{{ spec.version }} && \
 
     c10s:
       distros:

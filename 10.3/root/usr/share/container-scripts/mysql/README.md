@@ -16,6 +16,7 @@ and provides access to content from MySQL databases on behalf of the clients.
 You can find more information on the MariaDB project from the project Web site
 (https://mariadb.org/).
 
+See [the Red Hat Enterprise Linux Application Streams Life Cycle page](https://access.redhat.com/support/policy/updates/rhel-app-streams-life-cycle) for information about support for this particular stream.
 
 Usage
 -----

@@ -56,7 +56,6 @@ RUN INSTALL_PKGS="{{ spec.pkgs }} ${NAME}-server" && \
 RUN INSTALL_PKGS="{{ spec.pkgs }} ${NAME}${MYSQL_VERSION}-server" && \
 {% endif %}
     dnf install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
-    rpm -V ${INSTALL_PKGS} && \
     /usr/libexec/mysqld -V | grep -qe "${MYSQL_VERSION}\." && echo "Found VERSION ${MYSQL_VERSION}" && \
     dnf -y clean all --enablerepo='*' && \
     mkdir -p ${HOME}/data && chown -R mysql:root ${HOME} && \

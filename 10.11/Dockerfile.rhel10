@@ -45,7 +45,6 @@ EXPOSE 3306
 # to make sure of that.
 RUN INSTALL_PKGS="policycoreutils rsync tar xz gettext hostname groff-base ${NAME}${MYSQL_VERSION}-server" && \
     dnf install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
-    rpm -V ${INSTALL_PKGS} && \
     /usr/libexec/mysqld -V | grep -qe "${MYSQL_VERSION}\." && echo "Found VERSION ${MYSQL_VERSION}" && \
     dnf -y clean all --enablerepo='*' && \
     mkdir -p ${HOME}/data && chown -R mysql:root ${HOME} && \

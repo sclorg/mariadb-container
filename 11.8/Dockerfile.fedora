@@ -20,7 +20,7 @@ ENV VERSION="${MYSQL_VERSION}" \
     HOME=/var/lib/mysql \
     NAME=mariadb \
     ARCH=x86_64 \
-    SUMMARY="MariaDB ${MYSQL_VERSION} SQL database server" \
+    SUMMARY="MariaDB 11.8 SQL database server" \
     DESCRIPTION="MariaDB is a multi-user, multi-threaded SQL database server. The container \
 image provides a containerized packaging of the MariaDB mysqld daemon and client application. \
 The mysqld server daemon accepts connections from clients and provides access to content from \
@@ -29,12 +29,11 @@ MariaDB databases on behalf of the clients."
 LABEL summary="${SUMMARY}" \
       description="${DESCRIPTION}" \
       io.k8s.description="${DESCRIPTION}" \
-      io.k8s.display-name="MariaDB ${MYSQL_VERSION}" \
+      io.k8s.display-name="MariaDB 11.8" \
       io.openshift.expose-services="3306:mysql" \
       io.openshift.tags="database,mysql,${NAME},${NAME}${MYSQL_SHORT_VERSION},${NAME}-${MYSQL_SHORT_VERSION}" \
       com.redhat.component="${NAME}" \
       name="fedora/${NAME}-${MYSQL_SHORT_VERSION}" \
-      version="${MYSQL_VERSION}" \
       usage="podman run -d -e MYSQL_USER=user -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db -p 3306:3306 quay.io/fedora/${NAME}-${MYSQL_SHORT_VERSION}" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
@@ -56,9 +55,9 @@ RUN /usr/sbin/groupadd -g 27 -o -r mysql && \
 ENV CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/mysql \
     MYSQL_PREFIX=/usr
 
-COPY ${MYSQL_VERSION}/root-common /
-COPY ${MYSQL_VERSION}/s2i-common/bin/ ${STI_SCRIPTS_PATH}
-COPY ${MYSQL_VERSION}/root /
+COPY 11.8/root-common /
+COPY 11.8/s2i-common/bin/ ${STI_SCRIPTS_PATH}
+COPY 11.8/root /
 
 # Hard links are not supported in Testing Farm approach during sync to guest
 # operation system. Therefore tests are failing on error

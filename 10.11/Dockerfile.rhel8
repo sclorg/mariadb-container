@@ -21,11 +21,10 @@ ENV VERSION="${MYSQL_VERSION}" \
     ARCH=x86_64 \
     SUMMARY="MariaDB 10.11 SQL database server" \
     DESCRIPTION="MariaDB is a multi-user, multi-threaded SQL database server. The container \
-    image provides a containerized packaging of the MariaDB mysqld daemon and client application. \
-    The mysqld server daemon accepts connections from clients and provides access to content from \
-    MariaDB databases on behalf of the clients."
+image provides a containerized packaging of the MariaDB mysqld daemon and client application. \
+The mysqld server daemon accepts connections from clients and provides access to content from \
+MariaDB databases on behalf of the clients."
 
-# Standalone ENV call so these values can be re-used in the other ENV calls
 LABEL summary="${SUMMARY}" \
       description="${DESCRIPTION}" \
       io.k8s.description="${DESCRIPTION}" \

@@ -297,7 +297,6 @@ steps as described at
 https://mariadb.com/docs/server/server-management/install-and-upgrade-mariadb/upgrading/mariadb-community-server-upgrade-paths/upgrading-to-unmaintained-mariadb-releases/upgrading-from-mariadb-10-11-to-mariadb-11-0
 
 Skipping versions like from X.Y to X.Y+2 or downgrading to lower version is not supported;
-the only exception is upgrading from MariaDB 5.5 to MariaDB 10.0 and from MariaDB 10.3 to 10.11.
 
 **Important**: Upgrading to a new version is always risky and users are expected to make a full
 back-up of all data before.

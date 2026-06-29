@@ -22,11 +22,10 @@ ENV VERSION="${MYSQL_VERSION}" \
     ARCH=x86_64 \
     SUMMARY="MariaDB {{ spec.version }} SQL database server" \
     DESCRIPTION="MariaDB is a multi-user, multi-threaded SQL database server. The container \
-    image provides a containerized packaging of the MariaDB mysqld daemon and client application. \
-    The mysqld server daemon accepts connections from clients and provides access to content from \
-    MariaDB databases on behalf of the clients."
+image provides a containerized packaging of the MariaDB mysqld daemon and client application. \
+The mysqld server daemon accepts connections from clients and provides access to content from \
+MariaDB databases on behalf of the clients."
 
-# Standalone ENV call so these values can be re-used in the other ENV calls
 LABEL summary="${SUMMARY}" \
       description="${DESCRIPTION}" \
       io.k8s.description="${DESCRIPTION}" \
@@ -47,14 +46,14 @@ EXPOSE 3306
 {% if spec.version == "10.3" or (spec.version == "10.5" and spec.prod == "rhel8") or (spec.version in ["10.11", "11.8"] and spec.prod not in ["c10s", "rhel10"]) %}
 RUN {{ spec.environment_setup }}
     INSTALL_PKGS="{{ spec.pkgs }} ${NAME}-server" && \
-{% elif spec.version == "10.5" and spec.prod == "c9s" %}
+    {% elif spec.version == "10.5" and spec.prod == "c9s" %}
 RUN dnf -y module disable mariadb && \
     INSTALL_PKGS="{{ spec.pkgs }} ${NAME}-server" && \
-{% elif spec.version == "10.5" and spec.prod not in  ["c9s", "rhel8"] %}
+    {% elif spec.version == "10.5" and spec.prod not in  ["c9s", "rhel8"] %}
 RUN INSTALL_PKGS="{{ spec.pkgs }} ${NAME}-server" && \
-{% elif spec.version in ["10.11", "11.8"] and spec.prod in ["c10s", "rhel10"] %}
+    {% elif spec.version in ["10.11", "11.8"] and spec.prod in ["c10s", "rhel10"] %}
 RUN INSTALL_PKGS="{{ spec.pkgs }} ${NAME}${MYSQL_VERSION}-server" && \
-{% endif %}
+    {% endif %}
     dnf install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
     /usr/libexec/mysqld -V | grep -qe "${MYSQL_VERSION}\." && echo "Found VERSION ${MYSQL_VERSION}" && \
     dnf -y clean all --enablerepo='*' && \

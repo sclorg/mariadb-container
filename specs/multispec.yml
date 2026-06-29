@@ -84,7 +84,7 @@ specs:
       rhel_image_name: "rhel8/mariadb-103"
       s2i_example_name: "my-mariadb-rhel8"
       upgrade_doc_url: "https://mariadb.com/docs/server/server-management/install-and-upgrade-mariadb/upgrading/mariadb-community-server-upgrade-paths/upgrading-to-unmaintained-mariadb-releases/upgrading-from-mariadb-103-to-mariadb-104"
-      upgrade_skip_note: "MariaDB 5.5 to MariaDB 10.0."
+      upgrade_skip_note: "Skipping versions like from X.Y to X.Y+2 or downgrading to lower version is not supported; the only exception is upgrading from MariaDB 10.3 to 10.5."
 
     "10.5":
       version: "10.5"
@@ -92,7 +92,7 @@ specs:
       rhel_image_name: "rhel9/mariadb-105"
       s2i_example_name: "my-mariadb-rhel9"
       upgrade_doc_url: "https://mariadb.com/docs/server/server-management/install-and-upgrade-mariadb/upgrading/mariadb-community-server-upgrade-paths/upgrading-to-unmaintained-mariadb-releases/upgrading-from-mariadb-10-4-to-mariadb-10-5"
-      upgrade_skip_note: "MariaDB 5.5 to MariaDB 10.0 and from MariaDB 10.3 to 10.5."
+      upgrade_skip_note: "Skipping versions like from X.Y to X.Y+2 or downgrading to lower version is not supported; the only exception is upgrading from MariaDB 5.5 to MariaDB 10.0 and from MariaDB 10.3 to 10.5."
 
     "10.11":
       version: "10.11"
@@ -100,7 +100,7 @@ specs:
       rhel_image_name: "rhel10/mariadb-1011"
       s2i_example_name: "my-mariadb-rhel10"
       upgrade_doc_url: "https://mariadb.com/docs/server/server-management/install-and-upgrade-mariadb/upgrading/mariadb-community-server-upgrade-paths/upgrading-from-mariadb-10-6-to-mariadb-10-11"
-      upgrade_skip_note: "MariaDB 5.5 to MariaDB 10.0 and from MariaDB 10.3 to 10.11."
+      upgrade_skip_note: "Skipping versions like from X.Y to X.Y+2 or downgrading to lower version is not supported; the only exception is upgrading from MariaDB 10.6 to MariaDB 10.11."
 
     "11.8":
       version: "11.8"
@@ -108,7 +108,7 @@ specs:
       rhel_image_name: "rhel10/mariadb-118"
       s2i_example_name: "my-mariadb-rhel10"
       upgrade_doc_url: "https://mariadb.com/docs/server/server-management/install-and-upgrade-mariadb/upgrading/mariadb-community-server-upgrade-paths/upgrading-to-unmaintained-mariadb-releases/upgrading-from-mariadb-10-11-to-mariadb-11-0"
-      upgrade_skip_note: "MariaDB 5.5 to MariaDB 10.0 and from MariaDB 10.3 to 11.11."
+      upgrade_skip_note: "Skipping versions like from X.Y to X.Y+2 or downgrading to lower version is not supported;"
 
 
 matrix:

@@ -108,7 +108,7 @@ specs:
       rhel_image_name: "rhel10/mariadb-118"
       s2i_example_name: "my-mariadb-rhel10"
       upgrade_doc_url: "https://mariadb.com/docs/server/server-management/install-and-upgrade-mariadb/upgrading/mariadb-community-server-upgrade-paths/upgrading-to-unmaintained-mariadb-releases/upgrading-from-mariadb-10-11-to-mariadb-11-0"
-      upgrade_skip_note: "Skipping versions like from X.Y to X.Y+2 or downgrading to lower version is not supported;"
+      upgrade_skip_note: "Skipping versions like from X.Y to X.Y+2 or downgrading to lower version is not supported."
 
 
 matrix:

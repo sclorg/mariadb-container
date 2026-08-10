@@ -74,7 +74,7 @@ class TestMariaDBReplicationContainer:
             username="root",
             password="root",
         )
-        for _ in range(3):
+        for _ in range(10):
             result = self.db_wrapper_api.run_sql_command(
                 container_ip=master_cip,
                 username="root",
@@ -84,6 +84,9 @@ class TestMariaDBReplicationContainer:
                 sql_cmd="SHOW SLAVE HOSTS;",
                 podman_run_command="exec",
             )
+            if isinstance(result, bool):
+                sleep(3)
+                continue
             if slave_cip in result:
                 break
             sleep(3)
